@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Kegiatan RW.01 Kebon Manggis</title>
+
+    <!-- Supabase Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Font Awesome CDN for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* Modern Color Palette */
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0b5ed7;
+            --secondary: #6c757d;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray-light: #e9ecef;
+            --gray-medium: #dee2e6;
+            --gray-dark: #adb5bd;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--gray-light), var(--light));
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Header Styling */
+        .app-header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 20px 30px;
+            text-align: center;
+        }
+        .app-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        .app-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Card Styling */
+        .card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        h2, h3, h4 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--gray-medium);
+            padding-bottom: 10px;
+        }
+
+        h2 { font-size: 1.8rem; }
+        h3 { font-size: 1.5rem; }
+        h4 { font-size: 1.3rem; }
+
+        /* Button Styling */
+        button, input[type="submit"], input[type="button"] {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        button i, input[type="submit"] i, input[type="button"] i {
+            margin-right: 5px;
+        }
+        button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        button.secondary, input[type="button"].secondary {
+            background-color: var(--secondary);
+        }
+        button.secondary:hover, input[type="button"].secondary:hover {
+            background-color: #5a6268;
+        }
+        button.danger {
+            background-color: var(--danger);
+        }
+        button.danger:hover {
+            background-color: #bd2130;
+        }
+        button.success {
+            background-color: var(--success);
+        }
+        button.success:hover {
+            background-color: #157347;
+        }
+
+        /* Input Styling */
+        select, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="datetime-local"], textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--gray-medium);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        select:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="datetime-local"]:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--gray-medium);
+        }
+        th {
+            background-color: var(--primary);
+            color: var(--white);
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: var(--gray-light);
+        }
+        tr:hover {
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        /* Error Message */
+        .error-message {
+            color: var(--danger);
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: var(--border-radius);
+        }
+
+        /* Success Message */
+        .success-message {
+            color: var(--success);
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #d1e7dd;
+            border: 1px solid #badbcc;
+            border-radius: var(--border-radius);
+        }
+
+        /* Link Styling */
+        a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Flex Utility */
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Dashboard Welcome */
+        #welcomeUserSpan {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* Selfie Preview */
+        #selfieImage {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: 10px;
+        }
+
+        /* Signature Pad */
+        #signature-pad {
+            width: 100%;
+            height: 200px;
+            border: 1px solid var(--gray-medium);
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            touch-action: none;
+        }
+
+        /* Location Display */
+        #locationDisplay {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: var(--gray-light);
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            .card {
+                padding: 20px;
+            }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.3rem; }
+            h4 { font-size: 1.1rem; }
+            button, input[type="submit"], input[type="button"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header class="app-header">
+        <h1><i class="fas fa-calendar-check"></i> Sistem Kegiatan RW.01</h1>
+        <p>Kelurahan Kebon Manggis, Kecamatan Matraman</p>
+    </header>
+
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginFormContainer">
+            <div class="card">
+                <h2><i class="fas fa-user-shield"></i> Masuk ke Akun</h2>
+                <form id="loginForm">
+                    <input type="email" id="loginEmail" placeholder="Alamat Email" required><br>
+                    <input type="password" id="loginPassword" placeholder="Kata Sandi" required><br>
+                    <input type="submit" value="Masuk">
+                </form>
+                <p><small><i class="fas fa-exclamation-circle"></i> Lupa kata sandi? Hubungi Pengurus RW untuk bantuan.</small></p>
+                <p>
+                    <a href="#" id="showSignupLink"><i class="fas fa-user-plus"></i> Belum punya akun? Daftar Sekarang</a> |
+                    <a href="#" id="backToLoginLink" class="hidden"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </p>
+                <div id="loginErrorMessage" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupFormContainer" class="hidden">
+            <div class="card">
+                <h2><i class="fas fa-user-edit"></i> Pendaftaran Warga Baru</h2>
+                <form id="signupForm">
+                    <input type="text" id="signupNamaLengkap" placeholder="Nama Lengkap Sesuai KTP" required><br>
+                    <textarea id="signupAlamat" placeholder="Alamat Lengkap (RT/RW/Jalan)" required></textarea><br>
+                    <label for="signupRT"><i class="fas fa-home"></i> RT:</label>
+                    <select id="signupRT" required>
+                        <option value="">Pilih RT</option>
+                        <option value="1">RT.01</option>
+                        <option value="2">RT.02</option>
+                        <option value="3">RT.03</option>
+                        <option value="4">RT.04</option>
+                     
+                        <option value="6">RT.06</option>
+                        <option value="7">RT.07</option>
+                        <option value="8">RT.08</option>
+                        <option value="9">RT.09</option>
+                        <option value="10">RT.10</option>
+                        <option value="11">RT.11</option>
+                        <option value="12">RT.12</option>
+                        <option value="13">RT.13</option>
+                        <option value="14">RT.14</option>
+                        <option value="15">RT.15</option>
+                        <option value="16">RT.16</option>
+                    </select><br>
+                    <label for="signupJabatan"><i class="fas fa-id-badge"></i> Jabatan:</label>
+                    <select id="signupJabatan" required>
+                        <option value="">Pilih Jabatan</option>
+                        <option value="Warga">Warga</option>
+                        <option value="Pengurus RW">Pengurus RW</option>
+                        <option value="Ketua RT">Ketua RT</option>
+                        <option value="Pengurus RT">Pengurus RT</option>
+                        <option value="Kader PKK">Kader PKK</option>
+                        <option value="Kader Posyandu">Kader Posyandu</option>
+                        <option value="Kader Jumantik">Kader Jumantik</option>
+                        <option value="Pengurus PAUD">Pengurus PAUD</option>
+                        <option value="Keamanan">Keamanan</option>
+                        <option value="Kebersihan">Kebersihan</option>
+                        <option value="Bank Sampah">Bank Sampah</option>
+                    </select><br>
+                    <input type="tel" id="signupNoTelepon" placeholder="Nomor Telepon Aktif (Opsional)"><br>
+                    <input type="email" id="signupEmail" placeholder="Alamat Email (digunakan untuk login)" required><br>
+                    <input type="password" id="signupPassword" placeholder="Kata Sandi Baru" required><br>
+                    <input type="submit" value="Daftar">
+                </form>
+                <div id="signupErrorMessage" class="error-message hidden"></div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard (Hidden until logged in) -->
+        <div id="dashboardContainer" class="hidden">
+            <div class="card">
+                <div class="flex-between">
+                    <h2><i class="fas fa-user-circle"></i> Selamat Datang, <span id="welcomeUserSpan"></span></h2>
+                    <button id="logoutBtn" class="secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel Button -->
+            <div id="adminPanelButtonDiv" class="hidden">
+                <div class="card">
+                    <button id="showAdminPanelBtn"><i class="fas fa-cogs"></i> Panel Admin</button>
+                </div>
+            </div>
+
+            <!-- Admin Panel (Hidden by default) -->
+            <div id="adminPanel" class="hidden">
+                <div class="card">
+                    <h3><i class="fas fa-tachometer-alt"></i> Panel Administrasi</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <button id="createEventBtn" class="success"><i class="fas fa-plus-circle"></i> Buat Kegiatan</button>
+                        <button id="showEventsListBtn"><i class="fas fa-list"></i> Daftar Kegiatan</button>
+                        <button id="showAttendanceHistoryBtn"><i class="fas fa-history"></i> Riwayat Absensi</button>
+                        <button id="showUsersBtn"><i class="fas fa-users"></i> Kelola Warga</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Event Form (Hidden by default) -->
+            <div id="createEventForm" class="hidden">
+                <div class="card">
+                    <h3><i class="fas fa-calendar-plus"></i> Buat Kegiatan Baru</h3>
+                    <form id="newEventForm">
+                        <input type="text" id="eventName" placeholder="Nama Kegiatan" required><br>
+                        <input type="datetime-local" id="eventDateTime" required><br>
+                        <input type="text" id="eventLocation" placeholder="Lokasi Penyelenggaraan" required><br>
+                        <div class="flex-between">
+                            <button type="button" id="cancelCreateEventBtn" class="secondary"><i class="fas fa-times"></i> Batal</button>
+                            <input type="submit" value="Simpan Kegiatan" class="success">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Events List View (Hidden by default) -->
+            <div id="eventsListView" class="hidden">
+                <div class="card">
+                    <div class="flex-between">
+                        <h3><i class="fas fa-calendar-day"></i> Kegiatan Tersedia</h3>
+                        <button id="backToAdminBtn" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div id="eventsListContainer">
+                        <p class="text-center">Memuat kegiatan...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance History View (Hidden by default) -->
+            <div id="attendanceHistoryView" class="hidden">
+                <div class="card">
+                    <div class="flex-between">
+                        <h3><i class="fas fa-chart-bar"></i> Riwayat Absensi</h3>
+                        <button id="backToAdminBtn2" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div id="attendanceHistoryContainer">
+                        <p class="text-center">Memuat riwayat...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users List View (Hidden by default) -->
+            <div id="usersListView" class="hidden">
+                <div class="card">
+                    <div class="flex-between">
+                        <h3><i class="fas fa-users-cog"></i> Daftar Warga Terdaftar</h3>
+                        <button id="backToAdminBtn3" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <div id="usersListContainer">
+                        <p class="text-center">Memuat daftar warga...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Detail View (Hidden by default) -->
+            <div id="eventDetailView" class="hidden">
+                <div class="card">
+                    <div class="flex-between">
+                        <h3 id="detailEventName"><i class="fas fa-info-circle"></i> Detail Kegiatan</h3>
+                        <button id="backToEventsListBtn" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <p id="detailEventDateTime"></p>
+                    <p id="detailEventLocation"></p>
+                    <h4><i class="fas fa-user-check"></i> Daftar Hadir</h4>
+                    <div id="attendanceListContainer">
+                        <p>Memuat daftar hadir...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Absensi View (Hidden by default) -->
+            <div id="attendanceView" class="hidden">
+                <div class="card">
+                    <div class="flex-between">
+                        <h3><i class="fas fa-clipboard-check"></i> Absensi Kegiatan</h3>
+                        <button id="backToEventsListBtn2" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
+                    </div>
+                    <h4 id="attendanceEventTitle"></h4>
+                    <p id="attendanceEventDetails"></p>
+
+                    <!-- Selfie Section -->
+                    <div class="card" style="background-color: #f9f9f9;">
+                        <h4><i class="fas fa-camera"></i> Foto Selfie *</h4>
+                        <p>Ambil foto selfie Anda. Pastikan wajah terlihat jelas.</p>
+                        <video id="videoElement" autoplay playsinline style="display:none; width: 100%; max-width: 300px; border-radius: var(--border-radius);"></video>
+                        <canvas id="canvasElement" style="display:none;"></canvas>
+                        <img id="selfieImage" alt="Preview selfie" style="display:none;">
+                        <div>
+                            <button id="capturePhotoBtn"><i class="fas fa-camera"></i> Ambil Foto</button>
+                            <button id="retakePhotoBtn" class="danger" style="display:none;"><i class="fas fa-redo"></i> Ulang</button>
+                        </div>
+                    </div>
+
+                    <!-- Signature Section -->
+                    <div class="card" style="background-color: #f9f9f9;">
+                        <h4><i class="fas fa-signature"></i> Tanda Tangan *</h4>
+                        <canvas id="signature-pad" width="600" height="200"></canvas> <!-- Adjust size as needed -->
+                        <button id="clearSignatureBtn" class="danger"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    </div>
+
+                    <!-- Location Section -->
+                    <div class="card" style="background-color: #f9f9f9;">
+                        <h4><i class="fas fa-map-marker-alt"></i> Lokasi Absen *</h4>
+                        <p>Klik tombol untuk mendapatkan koordinat lokasi Anda saat ini.</p>
+                        <button id="getLocationBtn"><i class="fas fa-location-arrow"></i> Dapatkan Lokasi Saya</button>
+                        <div id="locationDisplay">Lokasi belum diambil.</div>
+                    </div>
+
+                    <button id="submitAttendanceBtn" disabled class="success"><i class="fas fa-paper-plane"></i> Kirim Absensi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 1. Inisialisasi Supabase Client
+    const SUPABASE_URL = 'https://vykbspxuyiyngpdpufig.supabase.co'; // Ganti dengan Project URL kamu
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ5a2JzcHh1eWl5bmdwZHB1ZmlnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4ODcwMjMsImV4cCI6MjA4NTQ2MzAyM30.n--WzqsIsHyta77EeBQGG50pAF2_n1n8G6ariZMZX3I'; // Ganti dengan anon public key kamu
+
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_SUPABASE_PROJECT_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_PUBLIC_KEY') {
+        alert('Harap isi SUPABASE_URL dan SUPABASE_ANON_KEY di kode JavaScript!');
+        console.error("Supabase credentials are missing!");
+    }
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // State variables
+    let currentUser = null;
+    let currentEventIdForAttendance = null;
+    let currentSelfieBlob = null;
+    let currentSignatureDataUrl = null;
+    let currentLocationCoords = null;
+
+    // Get DOM elements
+    const loginFormContainer = document.getElementById('loginFormContainer');
+    const signupFormContainer = document.getElementById('signupFormContainer');
+    const dashboardContainer = document.getElementById('dashboardContainer');
+    const showSignupLink = document.getElementById('showSignupLink');
+    const backToLoginLink = document.getElementById('backToLoginLink');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const loginErrorMessage = document.getElementById('loginErrorMessage');
+    const signupErrorMessage = document.getElementById('signupErrorMessage');
+    const welcomeUserSpan = document.getElementById('welcomeUserSpan');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminPanelButtonDiv = document.getElementById('adminPanelButtonDiv');
+    const showAdminPanelBtn = document.getElementById('showAdminPanelBtn');
+    const adminPanel = document.getElementById('adminPanel');
+    const createEventBtn = document.getElementById('createEventBtn');
+    const showEventsListBtn = document.getElementById('showEventsListBtn');
+    const showAttendanceHistoryBtn = document.getElementById('showAttendanceHistoryBtn');
+    const showUsersBtn = document.getElementById('showUsersBtn');
+    const createEventForm = document.getElementById('createEventForm');
+    const eventsListView = document.getElementById('eventsListView');
+    const attendanceHistoryView = document.getElementById('attendanceHistoryView');
+    const usersListView = document.getElementById('usersListView');
+    const eventDetailView = document.getElementById('eventDetailView');
+    const attendanceView = document.getElementById('attendanceView');
+    const newEventForm = document.getElementById('newEventForm');
+    const cancelCreateEventBtn = document.getElementById('cancelCreateEventBtn');
+    const backToAdminBtn = document.getElementById('backToAdminBtn');
+    const backToAdminBtn2 = document.getElementById('backToAdminBtn2');
+    const backToAdminBtn3 = document.getElementById('backToAdminBtn3');
+    const backToEventsListBtn = document.getElementById('backToEventsListBtn');
+    const backToEventsListBtn2 = document.getElementById('backToEventsListBtn2');
+    const videoElement = document.getElementById('videoElement');
+    const canvasElement = document.getElementById('canvasElement');
+    const selfieImage = document.getElementById('selfieImage');
+    const capturePhotoBtn = document.getElementById('capturePhotoBtn');
+    const retakePhotoBtn = document.getElementById('retakePhotoBtn');
+    const signaturePadCanvas = document.getElementById('signature-pad');
+    const clearSignatureBtn = document.getElementById('clearSignatureBtn');
+    const getLocationBtn = document.getElementById('getLocationBtn');
+    const locationDisplay = document.getElementById('locationDisplay');
+    const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
+
+    // SignPad setup (simplified drawing logic)
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    const ctx = signaturePadCanvas.getContext('2d');
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+
+    function startDrawing(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        ctx.strokeStyle = '#000';
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+    }
+
+    signaturePadCanvas.addEventListener('mousedown', startDrawing);
+    signaturePadCanvas.addEventListener('mousemove', draw);
+    signaturePadCanvas.addEventListener('mouseup', stopDrawing);
+    signaturePadCanvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch events for mobile
+    signaturePadCanvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const rect = signaturePadCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.clientX - rect.left,
+            clientY: touch.clientY - rect.top
+        });
+        signaturePadCanvas.dispatchEvent(mouseEvent);
+    });
+
+    signaturePadCanvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const rect = signaturePadCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.clientX - rect.left,
+            clientY: touch.clientY - rect.top
+        });
+        signaturePadCanvas.dispatchEvent(mouseEvent);
+    });
+
+    signaturePadCanvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        const mouseEvent = new MouseEvent('mouseup', {});
+        signaturePadCanvas.dispatchEvent(mouseEvent);
+    });
+
+    clearSignatureBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
+        currentSignatureDataUrl = null;
+        checkAttendanceReady();
+    });
+
+    // Helper to check if attendance can be submitted
+    function checkAttendanceReady() {
+        const isPhotoTaken = !!currentSelfieBlob;
+        const isSignatureDrawn = signaturePadCanvas.toDataURL() !== signaturePadCanvas.getContext('2d').canvas.toDataURL();
+        const isLocationSet = !!currentLocationCoords;
+        submitAttendanceBtn.disabled = !(isPhotoTaken && isSignatureDrawn && isLocationSet);
+    }
+
+    // --- Event Listeners ---
+
+    showSignupLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        loginFormContainer.classList.add('hidden');
+        signupFormContainer.classList.remove('hidden');
+        backToLoginLink.classList.remove('hidden');
+    });
+
+    backToLoginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        signupFormContainer.classList.add('hidden');
+        loginFormContainer.classList.remove('hidden');
+        backToLoginLink.classList.add('hidden');
+        signupErrorMessage.classList.add('hidden'); // Clear error on switch
+    });
+
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        loginErrorMessage.classList.add('hidden');
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (authError) throw authError;
+
+            const userId = authData.user.id;
+            const { data: userData, error: userError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (userError) throw userError;
+
+            currentUser = userData;
+            console.log('Login successful:', currentUser);
+
+            welcomeUserSpan.textContent = currentUser.nama_lengkap;
+            if (currentUser.role === 'admin' || currentUser.role === 'pengurus') {
+                adminPanelButtonDiv.classList.remove('hidden');
+            }
+            loginFormContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Login error:', error.message);
+            loginErrorMessage.textContent = error.error_description || error.message || 'Login gagal.';
+            loginErrorMessage.classList.remove('hidden');
+        }
+    });
+
+    signupForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        signupErrorMessage.classList.add('hidden');
+        const namaLengkap = document.getElementById('signupNamaLengkap').value;
+        const alamat = document.getElementById('signupAlamat').value;
+        const rt = parseInt(document.getElementById('signupRT').value);
+        const jabatan = document.getElementById('signupJabatan').value;
+        const noTelepon = document.getElementById('signupNoTelepon').value;
+        const email = document.getElementById('signupEmail').value; // Now correctly gets email from the added field
+        const password = document.getElementById('signupPassword').value;
+
+        try {
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email: email,
+                password: password,
+            });
+
+            if (authError) throw authError;
+
+            const userId = authData.user.id;
+
+            const { error: insertError } = await supabase
+                .from('users')
+                .insert([{
+                    id: userId,
+                    nama_lengkap: namaLengkap,
+                    alamat: alamat,
+                    rt: rt,
+                    jabatan: jabatan,
+                    no_telepon: noTelepon,
+                    email: email,
+                }]);
+
+            if (insertError) throw insertError;
+
+            alert('Akun berhasil dibuat! Silakan login.');
+            signupForm.reset();
+            signupFormContainer.classList.add('hidden');
+            loginFormContainer.classList.remove('hidden');
+            backToLoginLink.classList.add('hidden');
+
+        } catch (error) {
+            console.error('Signup error:', error.message);
+            signupErrorMessage.textContent = error.error_description || error.message || 'Pendaftaran gagal.';
+            signupErrorMessage.classList.remove('hidden');
+        }
+    });
+
+    logoutBtn.addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        currentUser = null;
+        loginFormContainer.classList.remove('hidden');
+        dashboardContainer.classList.add('hidden');
+        adminPanelButtonDiv.classList.add('hidden');
+        adminPanel.classList.add('hidden');
+        createEventForm.classList.add('hidden');
+        eventsListView.classList.add('hidden');
+        attendanceHistoryView.classList.add('hidden');
+        usersListView.classList.add('hidden');
+        eventDetailView.classList.add('hidden');
+        attendanceView.classList.add('hidden');
+        // Clear errors
+        loginErrorMessage.classList.add('hidden');
+        signupErrorMessage.classList.add('hidden');
+    });
+
+    showAdminPanelBtn.addEventListener('click', () => {
+        adminPanel.classList.remove('hidden');
+        createEventForm.classList.add('hidden');
+        eventsListView.classList.add('hidden');
+        attendanceHistoryView.classList.add('hidden');
+        usersListView.classList.add('hidden');
+        eventDetailView.classList.add('hidden');
+        attendanceView.classList.add('hidden');
+    });
+
+    createEventBtn.addEventListener('click', () => {
+        adminPanel.classList.add('hidden');
+        createEventForm.classList.remove('hidden');
+    });
+
+    showEventsListBtn.addEventListener('click', async () => {
+        adminPanel.classList.add('hidden');
+        document.getElementById('eventsListContainer').innerHTML = '<p class="text-center">Memuat kegiatan...</p>';
+        await loadEventsList();
+        eventsListView.classList.remove('hidden');
+    });
+
+    showAttendanceHistoryBtn.addEventListener('click', async () => {
+        adminPanel.classList.add('hidden');
+        document.getElementById('attendanceHistoryContainer').innerHTML = '<p class="text-center">Memuat riwayat...</p>';
+        await loadAttendanceHistory();
+        attendanceHistoryView.classList.remove('hidden');
+    });
+
+    showUsersBtn.addEventListener('click', async () => {
+        if (!(currentUser.role === 'admin' || currentUser.role === 'pengurus')) {
+             document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Akses ditolak.</p>';
+             usersListView.classList.remove('hidden');
+             return;
+        }
+        adminPanel.classList.add('hidden');
+        document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Memuat daftar warga...</p>';
+        await loadUsersList();
+        usersListView.classList.remove('hidden');
+    });
+
+    newEventForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const eventName = document.getElementById('eventName').value;
+        const eventDateTime = document.getElementById('eventDateTime').value;
+        const eventLocation = document.getElementById('eventLocation').value;
+
+        try {
+            const { data, error } = await supabase
+                .from('kegiatan')
+                .insert([{ nama_kegiatan: eventName, tanggal_waktu: eventDateTime, lokasi: eventLocation, pembuat_user_id: currentUser.id }]);
+
+            if (error) throw error;
+
+            alert('Kegiatan berhasil dibuat!');
+            newEventForm.reset();
+            createEventForm.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error creating event:', error.message);
+            alert('Gagal membuat kegiatan: ' + error.message);
+        }
+    });
+
+    cancelCreateEventBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        createEventForm.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+    });
+
+    backToAdminBtn.addEventListener('click', () => {
+        eventsListView.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+    });
+
+    backToAdminBtn2.addEventListener('click', () => {
+        attendanceHistoryView.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+    });
+
+    backToAdminBtn3.addEventListener('click', () => {
+        usersListView.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+    });
+
+    // Capture Photo Logic
+    capturePhotoBtn.addEventListener('click', async () => {
+        if (!videoElement.srcObject) {
+             try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                videoElement.srcObject = stream;
+            } catch (err) {
+                console.error("Error accessing camera:", err);
+                alert("Tidak dapat mengakses kamera: " + err.message);
+                return;
+            }
+        }
+
+        canvasElement.width = videoElement.videoWidth;
+        canvasElement.height = videoElement.videoHeight;
+        canvasElement.getContext('2d').drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+        canvasElement.toBlob((blob) => {
+            currentSelfieBlob = blob;
+            const reader = new FileReader();
+            reader.onload = () => {
+                selfieImage.src = reader.result;
+                selfieImage.style.display = 'block';
+                videoElement.style.display = 'none';
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+                capturePhotoBtn.style.display = 'none';
+                retakePhotoBtn.style.display = 'inline-block';
+                checkAttendanceReady();
+            };
+            reader.readAsDataURL(blob);
+        }, 'image/jpeg', 0.8);
+    });
+
+    retakePhotoBtn.addEventListener('click', () => {
+        selfieImage.style.display = 'none';
+        videoElement.style.display = 'block';
+        capturePhotoBtn.style.display = 'inline-block';
+        retakePhotoBtn.style.display = 'none';
+        currentSelfieBlob = null;
+        checkAttendanceReady();
+    });
+
+    getLocationBtn.addEventListener('click', () => {
+        if (!navigator.geolocation) {
+            locationDisplay.innerHTML = '<span style="color: var(--danger);">Geolocation tidak didukung oleh browser ini.</span>';
+            return;
+        }
+
+        locationDisplay.innerHTML = '<div class="spinner"></div> Mendapatkan lokasi...';
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                currentLocationCoords = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                locationDisplay.innerHTML = `<i class="fas fa-map-marker-alt" style="color: var(--success);"></i> Lat: ${currentLocationCoords.lat.toFixed(6)}, Lng: ${currentLocationCoords.lng.toFixed(6)}`;
+                checkAttendanceReady();
+            },
+            (error) => {
+                console.error("Error getting location:", error);
+                locationDisplay.innerHTML = `<span style="color: var(--danger);">Error: ${error.message}</span>`;
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+        );
+    });
+
+    submitAttendanceBtn.addEventListener('click', async () => {
+        if (!currentEventIdForAttendance || !currentSelfieBlob || !currentLocationCoords) {
+            alert('Data absensi tidak lengkap (foto, lokasi).');
+            return;
+        }
+
+        currentSignatureDataUrl = signaturePadCanvas.toDataURL();
+
+         const fileName = `selfies/${currentUser.id}_${Date.now()}.jpg`;
+         const { error: uploadError } = await supabase.storage
+             .from('selfie-fotos')
+             .upload(fileName, currentSelfieBlob, {
+                 cacheControl: '3600',
+                 upsert: false
+             });
+
+         if (uploadError) {
+             console.error("Error uploading selfie:", uploadError.message);
+             alert("Gagal mengunggah foto selfie: " + uploadError.message);
+             return;
+         }
+
+         const { data: { publicUrl: selfieUrl } } = supabase.storage
+             .from('selfie-fotos')
+             .getPublicUrl(fileName);
+
+        try {
+            const { error } = await supabase
+                .from('absensi')
+                .insert([{
+                    kegiatan_id: currentEventIdForAttendance,
+                    user_id: currentUser.id,
+                    foto_selfie_url: selfieUrl,
+                    ttd_data: currentSignatureDataUrl,
+                    lokasi_absen_lat: currentLocationCoords.lat,
+                    lokasi_absen_lng: currentLocationCoords.lng
+                }]);
+
+            if (error) throw error;
+
+            alert('Absensi berhasil dikirim!');
+            selfieImage.src = '';
+            selfieImage.style.display = 'none';
+            videoElement.style.display = 'none';
+            if (videoElement.srcObject) {
+                videoElement.srcObject.getTracks().forEach(track => track.stop());
+            }
+            ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
+            locationDisplay.innerHTML = 'Lokasi belum diambil.';
+            currentSelfieBlob = null;
+            currentSignatureDataUrl = null;
+            currentLocationCoords = null;
+            submitAttendanceBtn.disabled = true;
+            attendanceView.classList.add('hidden');
+            eventsListView.classList.remove('hidden');
+            await loadEventsList();
+
+        } catch (error) {
+            console.error('Error submitting attendance:', error.message);
+            alert('Gagal mengirim absensi: ' + error.message);
+        }
+    });
+
+    backToEventsListBtn.addEventListener('click', async () => {
+        eventDetailView.classList.add('hidden');
+        await loadEventsList();
+        eventsListView.classList.remove('hidden');
+    });
+
+     backToEventsListBtn2.addEventListener('click', () => {
+        attendanceView.classList.add('hidden');
+        eventsListView.classList.remove('hidden');
+    });
+
+    // --- Helper Functions to Load Data ---
+    // (These remain largely the same, only adding loading states and icons/classes for UI consistency)
+
+    async function loadEventsList() {
+        try {
+            const { data: events, error } = await supabase
+                .from('kegiatan')
+                .select(`
+                    id,
+                    nama_kegiatan,
+                    tanggal_waktu,
+                    lokasi,
+                    users!inner(nama_lengkap)
+                `)
+                .order('tanggal_waktu', { ascending: false });
+
+            if (error) throw error;
+
+            const container = document.getElementById('eventsListContainer');
+            if (events.length === 0) {
+                container.innerHTML = '<p class="text-center">Tidak ada kegiatan saat ini</p>';
+                return;
+            }
+
+            container.innerHTML = '<table><thead><tr><th>Nama Kegiatan</th><th>Tanggal & Waktu</th><th>Lokasi</th><th>Dibuat Oleh</th><th>Aksi</th></tr></thead><tbody></tbody></table>';
+            const tbody = container.querySelector('tbody');
+
+            events.forEach(event => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${event.nama_kegiatan}</td>
+                    <td>${new Date(event.tanggal_waktu).toLocaleString()}</td>
+                    <td>${event.lokasi}</td>
+                    <td>${event.users.nama_lengkap}</td>
+                    <td>
+                        <button class="secondary" onclick="viewEventDetails(${event.id})"><i class="fas fa-eye"></i> Detail</button>
+                        ${(currentUser.role === 'admin' || currentUser.role === 'pengurus') ? `<button class="success" onclick="openAttendanceForEvent(${event.id}, '${event.nama_kegiatan.replace(/'/g, "&apos;")}', '${new Date(event.tanggal_waktu).toLocaleString()}', '${event.lokasi.replace(/'/g, "&apos;")}')"><i class="fas fa-user-check"></i> Absen</button>` : '<span>-</span>'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error('Error loading events:', error.message);
+            document.getElementById('eventsListContainer').innerHTML = `<p class="text-center error-message">Error memuat kegiatan: ${error.message}</p>`;
+        }
+    }
+
+    async function loadAttendanceHistory() {
+        try {
+            const query = currentUser.role === 'admin' || currentUser.role === 'pengurus'
+                ? supabase.from('absensi').select(`*, kegiatan(nama_kegiatan), users(nama_lengkap)`)
+                : supabase.from('absensi').select(`*, kegiatan(nama_kegiatan)`).eq('user_id', currentUser.id);
+
+            const { data: attendanceRecords, error } = await query;
+
+            if (error) throw error;
+
+            const container = document.getElementById('attendanceHistoryContainer');
+            if (attendanceRecords.length === 0) {
+                container.innerHTML = '<p class="text-center">Belum ada riwayat absensi</p>';
+                return;
+            }
+
+            container.innerHTML = '<table><thead><tr><th>Nama Kegiatan</th><th>Nama Warga</th><th>Waktu Absen</th><th>Lokasi</th></tr></thead><tbody></tbody></table>';
+            const tbody = container.querySelector('tbody');
+
+            attendanceRecords.forEach(record => {
+                const userNama = record.users ? record.users.nama_lengkap : 'Tidak Diketahui';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.kegiatan.nama_kegiatan}</td>
+                    <td>${userNama}</td>
+                    <td>${new Date(record.created_at).toLocaleString()}</td>
+                    <td>Lat: ${record.lokasi_absen_lat}, Lng: ${record.lokasi_absen_lng}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error('Error loading attendance history:', error.message);
+            document.getElementById('attendanceHistoryContainer').innerHTML = `<p class="text-center error-message">Error memuat riwayat: ${error.message}</p>`;
+        }
+    }
+
+    async function loadUsersList() {
+        if (!(currentUser.role === 'admin' || currentUser.role === 'pengurus')) {
+             document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Akses ditolak.</p>';
+             return;
+        }
+        try {
+            const { data: users, error } = await supabase
+                .from('users')
+                .select('*')
+                .order('nama_lengkap');
+
+            if (error) throw error;
+
+            const container = document.getElementById('usersListContainer');
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-center">Belum ada warga terdaftar</p>';
+                return;
+            }
+
+            container.innerHTML = '<table><thead><tr><th>Nama</th><th>Alamat</th><th>RT</th><th>Jabatan</th><th>No. Telepon</th><th>Email</th></tr></thead><tbody></tbody></table>';
+            const tbody = container.querySelector('tbody');
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.nama_lengkap}</td>
+                    <td>${user.alamat}</td>
+                    <td>RT.${user.rt.toString().padStart(2, '0')}</td>
+                    <td>${user.jabatan}</td>
+                    <td>${user.no_telepon || '-'}</td>
+                    <td>${user.email || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error('Error loading users:', error.message);
+            document.getElementById('usersListContainer').innerHTML = `<p class="text-center error-message">Error memuat warga: ${error.message}</p>`;
+        }
+    }
+
+    window.viewEventDetails = async function(eventId) {
+        eventsListView.classList.add('hidden');
+        document.getElementById('attendanceListContainer').innerHTML = '<p>Memuat daftar hadir...</p>';
+        try {
+            const { data: event, error: eventError } = await supabase
+                .from('kegiatan')
+                .select(`
+                    id,
+                    nama_kegiatan,
+                    tanggal_waktu,
+                    lokasi,
+                    users!inner(nama_lengkap)
+                `)
+                .eq('id', eventId)
+                .single();
+
+            if (eventError) throw eventError;
+
+            document.getElementById('detailEventName').textContent = event.nama_kegiatan;
+            document.getElementById('detailEventDateTime').textContent = `Tanggal & Waktu: ${new Date(event.tanggal_waktu).toLocaleString()}`;
+            document.getElementById('detailEventLocation').textContent = `Lokasi: ${event.lokasi}`;
+
+            const { data: attendees, error: attError } = await supabase
+                .from('absensi')
+                .select(`
+                    id,
+                    created_at,
+                    user_id,
+                    foto_selfie_url,
+                    users!absensi_user_id_fkey(nama_lengkap)
+                `)
+                .eq('kegiatan_id', eventId);
+
+            if (attError) throw attError;
+
+            const attContainer = document.getElementById('attendanceListContainer');
+            if (attendees.length === 0) {
+                attContainer.innerHTML = '<p>Belum ada yang absen.</p>';
+            } else {
+                attContainer.innerHTML = '<table><thead><tr><th>Nama Warga</th><th>Waktu Absen</th><th>Foto</th></tr></thead><tbody></tbody></table>';
+                const attTbody = attContainer.querySelector('tbody');
+                attendees.forEach(att => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${att.users.nama_lengkap}</td>
+                        <td>${new Date(att.created_at).toLocaleString()}</td>
+                        <td>${att.foto_selfie_url ? `<img src="${att.foto_selfie_url}" alt="Selfie" style="max-width: 100px; max-height: 100px; border-radius: 5px;">` : 'Tidak Ada Foto'}</td>
+                    `;
+                    attTbody.appendChild(row);
+                });
+            }
+
+            eventDetailView.classList.remove('hidden');
+
+        } catch (error) {
+            console.error('Error loading event details:', error.message);
+            alert('Gagal memuat detail kegiatan: ' + error.message);
+            eventsListView.classList.remove('hidden');
+        }
+    };
+
+    window.openAttendanceForEvent = function(eventId, eventName, eventDateTime, eventLocation) {
+        currentEventIdForAttendance = eventId;
+         document.getElementById('attendanceEventTitle').textContent = eventName;
+         document.getElementById('attendanceEventDetails').textContent = `Tanggal: ${eventDateTime} | Lokasi: ${eventLocation}`;
+         selfieImage.src = '';
+         selfieImage.style.display = 'none';
+         videoElement.style.display = 'none';
+         if (videoElement.srcObject) {
+             videoElement.srcObject.getTracks().forEach(track => track.stop());
+         }
+         ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
+         locationDisplay.innerHTML = 'Lokasi belum diambil.';
+         currentSelfieBlob = null;
+         currentSignatureDataUrl = null;
+         currentLocationCoords = null;
+         submitAttendanceBtn.disabled = true;
+
+         eventsListView.classList.add('hidden');
+         attendanceView.classList.remove('hidden');
+    };
+
+    // Check active session on page load
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session) {
+            const userId = session.user.id;
+            const { data: userData, error: userError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (userError) {
+                console.error('Error fetching user data on load:', userError.message);
+                return;
+            }
+
+            currentUser = userData;
+            welcomeUserSpan.textContent = currentUser.nama_lengkap;
+            if (currentUser.role === 'admin' || currentUser.role === 'pengurus') {
+                adminPanelButtonDiv.classList.remove('hidden');
+            }
+            loginFormContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+        }
+    });
+
+</script>
+
+</body>
+</html>
