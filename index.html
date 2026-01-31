@@ -524,14 +524,18 @@
     </div>
 </div>
 
-<script>
+    <script>
     // 1. Inisialisasi Supabase Client
-    const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL'; // Ganti dengan Project URL kamu
-    const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_PUBLIC_KEY'; // Ganti dengan anon public key kamu
+    // Gunakan environment variable dari Netlify
+    const SUPABASE_URL = window.env?.SUPABASE_URL || 'YOUR_FALLBACK_SUPABASE_URL'; // Ganti YOUR_FALLBACK_SUPABASE_URL jika perlu, atau biarkan untuk menampilkan error
+    const SUPABASE_ANON_KEY = window.env?.SUPABASE_ANON_KEY || 'YOUR_FALLBACK_ANON_KEY'; // Ganti YOUR_FALLBACK_ANON_KEY jika perlu, atau biarkan untuk menampilkan error
 
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_SUPABASE_PROJECT_URL' || SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_PUBLIC_KEY') {
-        alert('Harap isi SUPABASE_URL dan SUPABASE_ANON_KEY di kode JavaScript!');
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_FALLBACK_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_FALLBACK_ANON_KEY') {
+        alert('Konfigurasi Supabase belum disetel di environment variable!');
         console.error("Supabase credentials are missing!");
+        // Opsional: Setel ke string kosong atau nilai default jika tidak ditemukan, tapi error lebih baik
+        // const SUPABASE_URL = '';
+        // const SUPABASE_ANON_KEY = '';
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
