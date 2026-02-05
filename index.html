@@ -1,1254 +1,1350 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kegiatan RW.01 Kebon Manggis</title>
-
-    <!-- Supabase Client Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <!-- Font Awesome CDN for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <style>
-        /* Modern Color Palette */
-        :root {
-            --primary: #0d6efd;
-            --primary-dark: #0b5ed7;
-            --secondary: #6c757d;
-            --success: #198754;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #0dcaf0;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray-light: #e9ecef;
-            --gray-medium: #dee2e6;
-            --gray-dark: #adb5bd;
-            --white: #ffffff;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--gray-light), var(--light));
-            color: var(--dark);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .app-container {
-            max-width: 1200px;
-            margin: auto;
-            background: var(--white);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--box-shadow);
-        }
-
-        /* Header Styling */
-        .app-header {
-            background-color: var(--primary);
-            color: var(--white);
-            padding: 20px 30px;
-            text-align: center;
-        }
-        .app-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
-        }
-        .app-header p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        .container {
-            padding: 30px;
-        }
-
-        .hidden { display: none !important; }
-
-        /* Card Styling */
-        .card {
-            background: var(--white);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            padding: 25px;
-            margin-bottom: 20px;
-            transition: var(--transition);
-        }
-        .card:hover {
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        h2, h3, h4 {
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--gray-medium);
-            padding-bottom: 10px;
-        }
-
-        h2 { font-size: 1.8rem; }
-        h3 { font-size: 1.5rem; }
-        h4 { font-size: 1.3rem; }
-
-        /* Button Styling */
-        button, input[type="submit"], input[type="button"] {
-            background-color: var(--primary);
-            color: var(--white);
-            border: none;
-            padding: 10px 20px;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        button i, input[type="submit"] i, input[type="button"] i {
-            margin-right: 5px;
-        }
-        button:hover, input[type="submit"]:hover, input[type="button"]:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-        button.secondary, input[type="button"].secondary {
-            background-color: var(--secondary);
-        }
-        button.secondary:hover, input[type="button"].secondary:hover {
-            background-color: #5a6268;
-        }
-        button.danger {
-            background-color: var(--danger);
-        }
-        button.danger:hover {
-            background-color: #bd2130;
-        }
-        button.success {
-            background-color: var(--success);
-        }
-        button.success:hover {
-            background-color: #157347;
-        }
-
-        /* Input Styling */
-        select, input[type="text"], input[type="password"], input[type="email"], input[type="tel"], input[type="datetime-local"], textarea {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid var(--gray-medium);
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        select:focus, input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus, input[type="datetime-local"]:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
-        }
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* Table Styling */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid var(--gray-medium);
-        }
-        th {
-            background-color: var(--primary);
-            color: var(--white);
-            font-weight: 600;
-        }
-        tr:nth-child(even) {
-            background-color: var(--gray-light);
-        }
-        tr:hover {
-            background-color: rgba(13, 110, 253, 0.05);
-        }
-
-        /* Error Message */
-        .error-message {
-            color: var(--danger);
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: var(--border-radius);
-        }
-
-        /* Success Message */
-        .success-message {
-            color: var(--success);
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #d1e7dd;
-            border: 1px solid #badbcc;
-            border-radius: var(--border-radius);
-        }
-
-        /* Link Styling */
-        a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-
-        /* Flex Utility */
-        .flex-center {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Dashboard Welcome */
-        #welcomeUserSpan {
-            font-weight: bold;
-            color: var(--primary);
-        }
-
-        /* Selfie Preview */
-        #selfieImage {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            margin-top: 10px;
-        }
-
-        /* Signature Pad */
-        #signature-pad {
-            width: 100%;
-            height: 200px;
-            border: 1px solid var(--gray-medium);
-            background-color: var(--white);
-            border-radius: var(--border-radius);
-            touch-action: none;
-        }
-
-        /* Location Display */
-        #locationDisplay {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: var(--gray-light);
-            border-radius: var(--border-radius);
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            .card {
-                padding: 20px;
-            }
-            h2 { font-size: 1.5rem; }
-            h3 { font-size: 1.3rem; }
-            h4 { font-size: 1.1rem; }
-            button, input[type="submit"], input[type="button"] {
-                width: 100%;
-                margin-bottom: 10px;
-            }
-        }
-
-        /* Loading Spinner */
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: var(--primary);
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <header class="app-header">
-        <h1><i class="fas fa-calendar-check"></i> Sistem Kegiatan RW.01</h1>
-        <p>Kelurahan Kebon Manggis, Kecamatan Matraman</p>
-    </header>
-
-    <div class="container">
-        <!-- Login Form -->
-        <div id="loginFormContainer">
-            <div class="card">
-                <h2><i class="fas fa-user-shield"></i> Masuk ke Akun</h2>
-                <form id="loginForm">
-                    <input type="email" id="loginEmail" placeholder="Alamat Email" required><br>
-                    <input type="password" id="loginPassword" placeholder="Kata Sandi" required><br>
-                    <input type="submit" value="Masuk">
-                </form>
-                <p><small><i class="fas fa-exclamation-circle"></i> Lupa kata sandi? Hubungi Pengurus RW untuk bantuan.</small></p>
-                <p>
-                    <a href="#" id="showSignupLink"><i class="fas fa-user-plus"></i> Belum punya akun? Daftar Sekarang</a> |
-                    <a href="#" id="backToLoginLink" class="hidden"><i class="fas fa-arrow-left"></i> Kembali</a>
-                </p>
-                <div id="loginErrorMessage" class="error-message hidden"></div>
-            </div>
-        </div>
-
-        <!-- Signup Form -->
-        <div id="signupFormContainer" class="hidden">
-            <div class="card">
-                <h2><i class="fas fa-user-edit"></i> Pendaftaran Warga Baru</h2>
-                <form id="signupForm">
-                    <input type="text" id="signupNamaLengkap" placeholder="Nama Lengkap Sesuai KTP" required><br>
-                    <textarea id="signupAlamat" placeholder="Alamat Lengkap (RT/RW/Jalan)" required></textarea><br>
-                    <label for="signupRT"><i class="fas fa-home"></i> RT:</label>
-                    <select id="signupRT" required>
-                        <option value="">Pilih RT</option>
-                        <option value="1">RT.01</option>
-                        <option value="2">RT.02</option>
-                        <option value="3">RT.03</option>
-                        <option value="4">RT.04</option>
-                     
-                        <option value="6">RT.06</option>
-                        <option value="7">RT.07</option>
-                        <option value="8">RT.08</option>
-                        <option value="9">RT.09</option>
-                        <option value="10">RT.10</option>
-                        <option value="11">RT.11</option>
-                        <option value="12">RT.12</option>
-                        <option value="13">RT.13</option>
-                        <option value="14">RT.14</option>
-                        <option value="15">RT.15</option>
-                        <option value="16">RT.16</option>
-                    </select><br>
-                    <label for="signupJabatan"><i class="fas fa-id-badge"></i> Jabatan:</label>
-                    <select id="signupJabatan" required>
-                        <option value="">Pilih Jabatan</option>
-                        <option value="Warga">Warga</option>
-                        <option value="Pengurus RW">Pengurus RW</option>
-                        <option value="Ketua RT">Ketua RT</option>
-                        <option value="Pengurus RT">Pengurus RT</option>
-                        <option value="Kader PKK">Kader PKK</option>
-                        <option value="Kader Posyandu">Kader Posyandu</option>
-                        <option value="Kader Jumantik">Kader Jumantik</option>
-                        <option value="Pengurus PAUD">Pengurus PAUD</option>
-                        <option value="Keamanan">Keamanan</option>
-                        <option value="Kebersihan">Kebersihan</option>
-                        <option value="Bank Sampah">Bank Sampah</option>
-                    </select><br>
-                    <input type="tel" id="signupNoTelepon" placeholder="Nomor Telepon Aktif (Opsional)"><br>
-                    <input type="email" id="signupEmail" placeholder="Alamat Email (digunakan untuk login)" required><br>
-                    <input type="password" id="signupPassword" placeholder="Kata Sandi Baru" required><br>
-                    <input type="submit" value="Daftar">
-                </form>
-                <div id="signupErrorMessage" class="error-message hidden"></div>
-            </div>
-        </div>
-
-        <!-- Main Dashboard (Hidden until logged in) -->
-        <div id="dashboardContainer" class="hidden">
-            <div class="card">
-                <div class="flex-between">
-                    <h2><i class="fas fa-user-circle"></i> Selamat Datang, <span id="welcomeUserSpan"></span></h2>
-                    <button id="logoutBtn" class="secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
-                </div>
-            </div>
-
-            <!-- Admin Panel Button -->
-            <div id="adminPanelButtonDiv" class="hidden">
-                <div class="card">
-                    <button id="showAdminPanelBtn"><i class="fas fa-cogs"></i> Panel Admin</button>
-                </div>
-            </div>
-
-            <!-- Admin Panel (Hidden by default) -->
-            <div id="adminPanel" class="hidden">
-                <div class="card">
-                    <h3><i class="fas fa-tachometer-alt"></i> Panel Administrasi</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <button id="createEventBtn" class="success"><i class="fas fa-plus-circle"></i> Buat Kegiatan</button>
-                        <button id="showEventsListBtn"><i class="fas fa-list"></i> Daftar Kegiatan</button>
-                        <button id="showAttendanceHistoryBtn"><i class="fas fa-history"></i> Riwayat Absensi</button>
-                        <button id="showUsersBtn"><i class="fas fa-users"></i> Kelola Warga</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Create Event Form (Hidden by default) -->
-            <div id="createEventForm" class="hidden">
-                <div class="card">
-                    <h3><i class="fas fa-calendar-plus"></i> Buat Kegiatan Baru</h3>
-                    <form id="newEventForm">
-                        <input type="text" id="eventName" placeholder="Nama Kegiatan" required><br>
-                        <input type="datetime-local" id="eventDateTime" required><br>
-                        <input type="text" id="eventLocation" placeholder="Lokasi Penyelenggaraan" required><br>
-                        <div class="flex-between">
-                            <button type="button" id="cancelCreateEventBtn" class="secondary"><i class="fas fa-times"></i> Batal</button>
-                            <input type="submit" value="Simpan Kegiatan" class="success">
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Events List View (Hidden by default) -->
-            <div id="eventsListView" class="hidden">
-                <div class="card">
-                    <div class="flex-between">
-                        <h3><i class="fas fa-calendar-day"></i> Kegiatan Tersedia</h3>
-                        <button id="backToAdminBtn" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    </div>
-                    <div id="eventsListContainer">
-                        <p class="text-center">Memuat kegiatan...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Attendance History View (Hidden by default) -->
-            <div id="attendanceHistoryView" class="hidden">
-                <div class="card">
-                    <div class="flex-between">
-                        <h3><i class="fas fa-chart-bar"></i> Riwayat Absensi</h3>
-                        <button id="backToAdminBtn2" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    </div>
-                    <div id="attendanceHistoryContainer">
-                        <p class="text-center">Memuat riwayat...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Users List View (Hidden by default) -->
-            <div id="usersListView" class="hidden">
-                <div class="card">
-                    <div class="flex-between">
-                        <h3><i class="fas fa-users-cog"></i> Daftar Warga Terdaftar</h3>
-                        <button id="backToAdminBtn3" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    </div>
-                    <div id="usersListContainer">
-                        <p class="text-center">Memuat daftar warga...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Event Detail View (Hidden by default) -->
-            <div id="eventDetailView" class="hidden">
-                <div class="card">
-                    <div class="flex-between">
-                        <h3 id="detailEventName"><i class="fas fa-info-circle"></i> Detail Kegiatan</h3>
-                        <button id="backToEventsListBtn" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    </div>
-                    <p id="detailEventDateTime"></p>
-                    <p id="detailEventLocation"></p>
-                    <h4><i class="fas fa-user-check"></i> Daftar Hadir</h4>
-                    <div id="attendanceListContainer">
-                        <p>Memuat daftar hadir...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Absensi View (Hidden by default) -->
-            <div id="attendanceView" class="hidden">
-                <div class="card">
-                    <div class="flex-between">
-                        <h3><i class="fas fa-clipboard-check"></i> Absensi Kegiatan</h3>
-                        <button id="backToEventsListBtn2" class="secondary"><i class="fas fa-arrow-left"></i> Kembali</button>
-                    </div>
-                    <h4 id="attendanceEventTitle"></h4>
-                    <p id="attendanceEventDetails"></p>
-
-                    <!-- Selfie Section -->
-                    <div class="card" style="background-color: #f9f9f9;">
-                        <h4><i class="fas fa-camera"></i> Foto Selfie *</h4>
-                        <p>Ambil foto selfie Anda. Pastikan wajah terlihat jelas.</p>
-                        <video id="videoElement" autoplay playsinline style="display:none; width: 100%; max-width: 300px; border-radius: var(--border-radius);"></video>
-                        <canvas id="canvasElement" style="display:none;"></canvas>
-                        <img id="selfieImage" alt="Preview selfie" style="display:none;">
-                        <div>
-                            <button id="capturePhotoBtn"><i class="fas fa-camera"></i> Ambil Foto</button>
-                            <button id="retakePhotoBtn" class="danger" style="display:none;"><i class="fas fa-redo"></i> Ulang</button>
-                        </div>
-                    </div>
-
-                    <!-- Signature Section -->
-                    <div class="card" style="background-color: #f9f9f9;">
-                        <h4><i class="fas fa-signature"></i> Tanda Tangan *</h4>
-                        <canvas id="signature-pad" width="600" height="200"></canvas> <!-- Adjust size as needed -->
-                        <button id="clearSignatureBtn" class="danger"><i class="fas fa-trash-alt"></i> Hapus</button>
-                    </div>
-
-                    <!-- Location Section -->
-                    <div class="card" style="background-color: #f9f9f9;">
-                        <h4><i class="fas fa-map-marker-alt"></i> Lokasi Absen *</h4>
-                        <p>Klik tombol untuk mendapatkan koordinat lokasi Anda saat ini.</p>
-                        <button id="getLocationBtn"><i class="fas fa-location-arrow"></i> Dapatkan Lokasi Saya</button>
-                        <div id="locationDisplay">Lokasi belum diambil.</div>
-                    </div>
-
-                    <button id="submitAttendanceBtn" disabled class="success"><i class="fas fa-paper-plane"></i> Kirim Absensi</button>
-                </div>
-            </div>
-        </div>
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Kegiatan RW.01</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .signature-pad {
+      border: 2px dashed #cbd5e1;
+      border-radius: 8px;
+      touch-action: none;
+    }
+    .toast {
+      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+    .modal-overlay {
+      animation: fadeIn 0.2s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+  <div id="app" class="h-full w-full overflow-auto"><!-- Toast Container -->
+   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div><!-- Login Page -->
+   <div id="login-page" class="min-h-full flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="bg-white rounded-2xl shadow-xl p-8 border border-emerald-100">
+      <div class="text-center mb-8">
+       <div class="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+       </div>
+       <h1 id="app-title" class="text-2xl font-bold text-gray-800">Aplikasi Kegiatan RW.01</h1>
+       <p class="text-gray-500 mt-2">Silakan masuk untuk melanjutkan</p>
+      </div>
+      <form id="login-form" class="space-y-5">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Username</label> <input type="text" id="login-username" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="Masukkan username">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Password</label> <input type="password" id="login-password" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all" placeholder="Masukkan password">
+       </div><button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200"> Masuk </button>
+      </form>
+      <div class="mt-6 text-center">
+       <p class="text-gray-500">Belum punya akun?</p><button onclick="showPage('register-page')" class="text-emerald-600 font-semibold hover:text-emerald-700 mt-1"> Daftar Sekarang </button>
+      </div>
+     </div>
     </div>
-</div>
-
-    <script>
-    // 1. Inisialisasi Supabase Client
-    // Gunakan environment variable dari Netlify
-    const SUPABASE_URL = window.env?.SUPABASE_URL || 'YOUR_FALLBACK_SUPABASE_URL'; // Ganti YOUR_FALLBACK_SUPABASE_URL jika perlu, atau biarkan untuk menampilkan error
-    const SUPABASE_ANON_KEY = window.env?.SUPABASE_ANON_KEY || 'YOUR_FALLBACK_ANON_KEY'; // Ganti YOUR_FALLBACK_ANON_KEY jika perlu, atau biarkan untuk menampilkan error
-
-    if (!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_URL === 'YOUR_FALLBACK_SUPABASE_URL' || SUPABASE_ANON_KEY === 'YOUR_FALLBACK_ANON_KEY') {
-        alert('Konfigurasi Supabase belum disetel di environment variable!');
-        console.error("Supabase credentials are missing!");
-        // Opsional: Setel ke string kosong atau nilai default jika tidak ditemukan, tapi error lebih baik
-        // const SUPABASE_URL = '';
-        // const SUPABASE_ANON_KEY = '';
+   </div><!-- Register Page -->
+   <div id="register-page" class="min-h-full py-8 px-4 hidden">
+    <div class="max-w-2xl mx-auto">
+     <div class="bg-white rounded-2xl shadow-xl p-8 border border-emerald-100"><button onclick="showPage('login-page')" class="flex items-center text-gray-500 hover:text-gray-700 mb-6">
+       <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+       </svg> Kembali ke Login </button>
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Pendaftaran Warga RW.01</h2>
+      <form id="register-form" class="space-y-5">
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap *</label> <input type="text" id="reg-nama" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan nama lengkap">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">No. Telepon *</label> <input type="tel" id="reg-telp" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="08xxxxxxxxxx">
+        </div>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Alamat *</label> <textarea id="reg-alamat" required rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Masukkan alamat lengkap"></textarea>
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">RT *</label> <select id="reg-rt" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> <option value="RT 04">RT 04</option> <option value="RT 05">RT 05</option> <option value="RT 06">RT 06</option> <option value="RT 07">RT 07</option> <option value="RT 08">RT 08</option> <option value="RT 09">RT 09</option> <option value="RT 10">RT 10</option> <option value="RT 11">RT 11</option> <option value="RT 12">RT 12</option> <option value="RT 13">RT 13</option> <option value="RT 14">RT 14</option> <option value="RT 15">RT 15</option> <option value="RT 16">RT 16</option> </select>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Jabatan *</label> <select id="reg-jabatan" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"> <option value="">Pilih Jabatan</option> <option value="Pengurus RW">Pengurus RW</option> <option value="Pengurus RT">Pengurus RT</option> <option value="Kader Jumantik">Kader Jumantik</option> <option value="Kader Posyandu">Kader Posyandu</option> <option value="Kader PKK">Kader PKK</option> <option value="Kader Dasawisma">Kader Dasawisma</option> <option value="Pengurus PAUD">Pengurus PAUD</option> <option value="Warga">Warga</option> </select>
+        </div>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi Jabatan</label> <input type="text" id="reg-deskripsi" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Contoh: Ketua RT, Sekretaris PKK, dll">
+       </div>
+       <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Username *</label> <input type="text" id="reg-username" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Buat username">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Password *</label> <input type="password" id="reg-password" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Buat password">
+        </div>
+       </div><button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all shadow-lg shadow-emerald-200"> Daftar </button>
+      </form>
+     </div>
+    </div>
+   </div><!-- User Dashboard -->
+   <div id="user-dashboard" class="min-h-full hidden"><!-- Header -->
+    <header class="bg-white shadow-sm border-b border-emerald-100 sticky top-0 z-40">
+     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+       </div>
+       <div>
+        <h1 class="font-bold text-gray-800">RW.01</h1>
+        <p id="user-greeting" class="text-sm text-gray-500">Selamat datang</p>
+       </div>
+      </div><button onclick="logout()" class="flex items-center gap-2 text-gray-500 hover:text-red-500 transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+       </svg><span class="hidden sm:inline">Keluar</span> </button>
+     </div>
+    </header><!-- User Content -->
+    <div class="max-w-6xl mx-auto px-4 py-6"><!-- Tabs -->
+     <div class="flex gap-2 mb-6 overflow-x-auto pb-2"><button onclick="showUserTab('info')" id="tab-info" class="user-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-emerald-500 text-white"> 📢 Info Kegiatan </button> <button onclick="showUserTab('pengumuman')" id="tab-pengumuman" class="user-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> 📋 Pengumuman </button> <button onclick="showUserTab('riwayat')" id="tab-riwayat" class="user-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> 📅 Riwayat Kegiatan </button> <button onclick="showUserTab('absen')" id="tab-absen" class="user-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> ✅ Riwayat Absen </button>
+     </div><!-- Info Kegiatan -->
+     <div id="content-info" class="user-content">
+      <div id="kegiatan-list" class="grid gap-4">
+       <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+         </svg>
+        </div>
+        <p class="text-gray-500">Belum ada info kegiatan</p>
+       </div>
+      </div>
+     </div><!-- Pengumuman -->
+     <div id="content-pengumuman" class="user-content hidden">
+      <div id="pengumuman-list" class="grid gap-4">
+       <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+         </svg>
+        </div>
+        <p class="text-gray-500">Belum ada pengumuman</p>
+       </div>
+      </div>
+     </div><!-- Riwayat Kegiatan -->
+     <div id="content-riwayat" class="user-content hidden">
+      <div id="riwayat-list" class="grid gap-4">
+       <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+         </svg>
+        </div>
+        <p class="text-gray-500">Belum ada riwayat kegiatan</p>
+       </div>
+      </div>
+     </div><!-- Riwayat Absen -->
+     <div id="content-absen" class="user-content hidden">
+      <div id="absen-user-list" class="grid gap-4">
+       <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+         <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+         </svg>
+        </div>
+        <p class="text-gray-500">Belum ada riwayat absensi</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Admin Dashboard -->
+   <div id="admin-dashboard" class="min-h-full hidden"><!-- Header -->
+    <header class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white sticky top-0 z-40">
+     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+       <div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+       </div>
+       <div>
+        <h1 class="font-bold">Admin Panel</h1>
+        <p class="text-sm text-emerald-100">Pengurus RW.01</p>
+       </div>
+      </div><button onclick="logout()" class="flex items-center gap-2 text-emerald-100 hover:text-white transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+       </svg><span class="hidden sm:inline">Keluar</span> </button>
+     </div>
+    </header><!-- Admin Content -->
+    <div class="max-w-6xl mx-auto px-4 py-6"><!-- Stats Cards -->
+     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white rounded-2xl p-4 border border-gray-100">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+         </svg>
+        </div>
+        <div>
+         <p id="stat-users" class="text-2xl font-bold text-gray-800">0</p>
+         <p class="text-xs text-gray-500">Warga</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border border-gray-100">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+         </svg>
+        </div>
+        <div>
+         <p id="stat-kegiatan" class="text-2xl font-bold text-gray-800">0</p>
+         <p class="text-xs text-gray-500">Kegiatan</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border border-gray-100">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+         </svg>
+        </div>
+        <div>
+         <p id="stat-absen" class="text-2xl font-bold text-gray-800">0</p>
+         <p class="text-xs text-gray-500">Absensi</p>
+        </div>
+       </div>
+      </div>
+      <div class="bg-white rounded-2xl p-4 border border-gray-100">
+       <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+         <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+         </svg>
+        </div>
+        <div>
+         <p id="stat-pengumuman" class="text-2xl font-bold text-gray-800">0</p>
+         <p class="text-xs text-gray-500">Pengumuman</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Admin Tabs -->
+     <div class="flex gap-2 mb-6 overflow-x-auto pb-2"><button onclick="showAdminTab('kegiatan')" id="admin-tab-kegiatan" class="admin-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-emerald-500 text-white"> 📅 Kelola Kegiatan </button> <button onclick="showAdminTab('pengumuman')" id="admin-tab-pengumuman" class="admin-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> 📢 Pengumuman </button> <button onclick="showAdminTab('riwayat')" id="admin-tab-riwayat" class="admin-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> 📋 Riwayat Kegiatan </button> <button onclick="showAdminTab('absen')" id="admin-tab-absen" class="admin-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> ✅ Data Absensi </button> <button onclick="showAdminTab('warga')" id="admin-tab-warga" class="admin-tab px-4 py-2 rounded-xl font-medium whitespace-nowrap bg-gray-100 text-gray-600 hover:bg-gray-200"> 👥 Data Warga </button>
+     </div><!-- Kelola Kegiatan -->
+     <div id="admin-content-kegiatan" class="admin-content">
+      <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+       <h3 class="text-lg font-semibold text-gray-800 mb-4">Tambah Kegiatan Baru</h3>
+       <form id="form-kegiatan" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Kegiatan *</label> <input type="text" id="kegiatan-nama" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Contoh: Kerja Bakti">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Tanggal *</label> <input type="date" id="kegiatan-tanggal" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Waktu *</label> <input type="time" id="kegiatan-waktu" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Lokasi *</label> <input type="text" id="kegiatan-lokasi" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Contoh: Balai RW">
+        </div>
+        <div class="md:col-span-2"><label class="block text-sm font-medium text-gray-700 mb-2">Deskripsi</label> <textarea id="kegiatan-deskripsi" rows="2" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Deskripsi kegiatan..."></textarea>
+        </div>
+        <div class="md:col-span-2"><button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all"> Tambah Kegiatan </button>
+        </div>
+       </form>
+      </div>
+      <div id="admin-kegiatan-list" class="grid gap-4"><!-- Kegiatan cards will be rendered here -->
+      </div>
+     </div><!-- Pengumuman -->
+     <div id="admin-content-pengumuman" class="admin-content hidden">
+      <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+       <h3 class="text-lg font-semibold text-gray-800 mb-4">Tambah Pengumuman</h3>
+       <form id="form-pengumuman" class="space-y-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Judul Pengumuman *</label> <input type="text" id="pengumuman-judul" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Judul pengumuman">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Isi Pengumuman *</label> <textarea id="pengumuman-isi" rows="3" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Isi pengumuman..."></textarea>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Lampiran (Opsional)</label> <input type="file" id="pengumuman-file" accept="image/*,.pdf" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+         <p class="text-xs text-gray-500 mt-1">Format: Gambar atau PDF (max 5MB)</p>
+        </div><button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all"> Posting Pengumuman </button>
+       </form>
+      </div>
+      <div id="admin-pengumuman-list" class="grid gap-4"><!-- Pengumuman cards will be rendered here -->
+      </div>
+     </div><!-- Riwayat Kegiatan -->
+     <div id="admin-content-riwayat" class="admin-content hidden">
+      <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+       <h3 class="text-lg font-semibold text-gray-800 mb-4">Filter Riwayat</h3>
+       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label> <input type="date" id="filter-dari" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Sampai Tanggal</label> <input type="date" id="filter-sampai" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama Kegiatan</label> <input type="text" id="filter-nama" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Cari kegiatan...">
+        </div>
+       </div><button onclick="filterRiwayat()" class="mt-4 px-6 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"> Terapkan Filter </button>
+      </div>
+      <div id="admin-riwayat-list" class="grid gap-4"><!-- Filtered kegiatan will be rendered here -->
+      </div>
+     </div><!-- Data Absensi -->
+     <div id="admin-content-absen" class="admin-content hidden">
+      <div class="bg-white rounded-2xl p-6 border border-gray-100 mb-6">
+       <div class="flex flex-wrap items-center justify-between gap-4">
+        <h3 class="text-lg font-semibold text-gray-800">Data Absensi</h3>
+        <div class="flex gap-2"><button onclick="downloadAbsenCSV()" class="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg> CSV </button> <button onclick="downloadAbsenPDF()" class="px-4 py-2 bg-red-500 text-white rounded-xl hover:bg-red-600 transition-colors flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg> PDF </button>
+        </div>
+       </div>
+      </div>
+      <div id="admin-absen-list" class="space-y-4"><!-- Absensi data will be rendered here -->
+      </div>
+     </div><!-- Data Warga -->
+     <div id="admin-content-warga" class="admin-content hidden">
+      <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+       <div class="p-4 border-b border-gray-100">
+        <h3 class="text-lg font-semibold text-gray-800">Daftar Warga Terdaftar</h3>
+       </div>
+       <div class="overflow-x-auto">
+        <table class="w-full">
+         <thead class="bg-gray-50">
+          <tr>
+           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">RT</th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jabatan</th>
+           <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">No. Telp</th>
+          </tr>
+         </thead>
+         <tbody id="warga-table-body" class="divide-y divide-gray-100"><!-- Warga rows will be rendered here -->
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div><!-- Attendance Modal -->
+   <div id="attendance-modal" class="fixed inset-0 bg-black/50 z-50 hidden modal-overlay">
+    <div class="min-h-full flex items-center justify-center p-4">
+     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90%] overflow-y-auto">
+      <div class="p-6 border-b border-gray-100">
+       <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold text-gray-800">Form Absensi</h3><button onclick="closeAttendanceModal()" class="text-gray-400 hover:text-gray-600">
+         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+         </svg></button>
+       </div>
+       <p id="modal-kegiatan-nama" class="text-sm text-gray-500 mt-1"></p>
+      </div>
+      <form id="form-absen" class="p-6 space-y-4"><input type="hidden" id="absen-kegiatan-id">
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Nama *</label> <input type="text" id="absen-nama" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Nama lengkap">
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Alamat *</label> <input type="text" id="absen-alamat" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="Alamat">
+       </div>
+       <div class="grid grid-cols-2 gap-4">
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">RT *</label> <select id="absen-rt" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white"> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> <option value="RT 04">RT 04</option> <option value="RT 05">RT 05</option> <option value="RT 06">RT 06</option> <option value="RT 07">RT 07</option> <option value="RT 08">RT 08</option> <option value="RT 09">RT 09</option> <option value="RT 10">RT 10</option> <option value="RT 11">RT 11</option> <option value="RT 12">RT 12</option> <option value="RT 13">RT 13</option> <option value="RT 14">RT 14</option> <option value="RT 15">RT 15</option> <option value="RT 16">RT 16</option> </select>
+        </div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-2">No. Telepon *</label> <input type="tel" id="absen-telp" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500" placeholder="08xxx">
+        </div>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Photo Selfie *</label> <input type="file" id="absen-photo" accept="image/*" capture="user" required class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+        <div id="photo-preview" class="mt-2 hidden"><img id="preview-img" class="w-32 h-32 object-cover rounded-xl" alt="Preview">
+        </div>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Tag Lokasi</label>
+        <div class="flex gap-2"><input type="text" id="absen-lokasi" readonly class="flex-1 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50" placeholder="Klik tombol untuk ambil lokasi"> <button type="button" onclick="getLocation()" class="px-4 py-3 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"> 📍 </button>
+        </div>
+       </div>
+       <div><label class="block text-sm font-medium text-gray-700 mb-2">Tanda Tangan *</label>
+        <canvas id="signature-pad" class="signature-pad w-full h-40 bg-gray-50"></canvas><button type="button" onclick="clearSignature()" class="mt-2 text-sm text-emerald-600 hover:text-emerald-700"> Hapus Tanda Tangan </button>
+       </div><button type="submit" class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 rounded-xl font-semibold hover:from-emerald-600 hover:to-teal-700 transition-all"> Submit Absensi </button>
+      </form>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // ============================================
+    // KONFIGURASI SUPABASE - ISI DENGAN DATA ANDA
+    // ============================================
+    const SUPABASE_URL = 'https://scvydobptkuvfthligiw.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA';
+    
+    // Initialize Supabase
+    let supabase;
+    try {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (e) {
+      console.error('Supabase init error:', e);
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // State variables
+    // State
     let currentUser = null;
-    let currentEventIdForAttendance = null;
-    let currentSelfieBlob = null;
-    let currentSignatureDataUrl = null;
-    let currentLocationCoords = null;
-
-    // Get DOM elements
-    const loginFormContainer = document.getElementById('loginFormContainer');
-    const signupFormContainer = document.getElementById('signupFormContainer');
-    const dashboardContainer = document.getElementById('dashboardContainer');
-    const showSignupLink = document.getElementById('showSignupLink');
-    const backToLoginLink = document.getElementById('backToLoginLink');
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    const loginErrorMessage = document.getElementById('loginErrorMessage');
-    const signupErrorMessage = document.getElementById('signupErrorMessage');
-    const welcomeUserSpan = document.getElementById('welcomeUserSpan');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminPanelButtonDiv = document.getElementById('adminPanelButtonDiv');
-    const showAdminPanelBtn = document.getElementById('showAdminPanelBtn');
-    const adminPanel = document.getElementById('adminPanel');
-    const createEventBtn = document.getElementById('createEventBtn');
-    const showEventsListBtn = document.getElementById('showEventsListBtn');
-    const showAttendanceHistoryBtn = document.getElementById('showAttendanceHistoryBtn');
-    const showUsersBtn = document.getElementById('showUsersBtn');
-    const createEventForm = document.getElementById('createEventForm');
-    const eventsListView = document.getElementById('eventsListView');
-    const attendanceHistoryView = document.getElementById('attendanceHistoryView');
-    const usersListView = document.getElementById('usersListView');
-    const eventDetailView = document.getElementById('eventDetailView');
-    const attendanceView = document.getElementById('attendanceView');
-    const newEventForm = document.getElementById('newEventForm');
-    const cancelCreateEventBtn = document.getElementById('cancelCreateEventBtn');
-    const backToAdminBtn = document.getElementById('backToAdminBtn');
-    const backToAdminBtn2 = document.getElementById('backToAdminBtn2');
-    const backToAdminBtn3 = document.getElementById('backToAdminBtn3');
-    const backToEventsListBtn = document.getElementById('backToEventsListBtn');
-    const backToEventsListBtn2 = document.getElementById('backToEventsListBtn2');
-    const videoElement = document.getElementById('videoElement');
-    const canvasElement = document.getElementById('canvasElement');
-    const selfieImage = document.getElementById('selfieImage');
-    const capturePhotoBtn = document.getElementById('capturePhotoBtn');
-    const retakePhotoBtn = document.getElementById('retakePhotoBtn');
-    const signaturePadCanvas = document.getElementById('signature-pad');
-    const clearSignatureBtn = document.getElementById('clearSignatureBtn');
-    const getLocationBtn = document.getElementById('getLocationBtn');
-    const locationDisplay = document.getElementById('locationDisplay');
-    const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
-
-    // SignPad setup (simplified drawing logic)
+    let isAdmin = false;
+    let signaturePad = null;
     let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-    const ctx = signaturePadCanvas.getContext('2d');
-    ctx.lineWidth = 2;
-    ctx.lineJoin = 'round';
-    ctx.lineCap = 'round';
 
-    function startDrawing(e) {
-        isDrawing = true;
-        [lastX, lastY] = [e.offsetX, e.offsetY];
+    // Default config
+    const defaultConfig = {
+      app_title: 'Aplikasi Kegiatan RW.01'
+    };
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => {
+          const title = document.getElementById('app-title');
+          if (title) title.textContent = config.app_title || defaultConfig.app_title;
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['app_title', config.app_title || defaultConfig.app_title]
+        ])
+      });
     }
 
-    function draw(e) {
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const bgColor = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+      toast.className = `toast ${bgColor} text-white px-6 py-3 rounded-xl shadow-lg`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Page navigation
+    function showPage(pageId) {
+      document.querySelectorAll('#app > div[id$="-page"], #app > div[id$="-dashboard"]').forEach(page => {
+        page.classList.add('hidden');
+      });
+      document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    // User tabs
+    function showUserTab(tabName) {
+      document.querySelectorAll('.user-tab').forEach(tab => {
+        tab.classList.remove('bg-emerald-500', 'text-white');
+        tab.classList.add('bg-gray-100', 'text-gray-600');
+      });
+      document.getElementById(`tab-${tabName}`).classList.remove('bg-gray-100', 'text-gray-600');
+      document.getElementById(`tab-${tabName}`).classList.add('bg-emerald-500', 'text-white');
+      
+      document.querySelectorAll('.user-content').forEach(content => content.classList.add('hidden'));
+      document.getElementById(`content-${tabName}`).classList.remove('hidden');
+    }
+
+    // Admin tabs
+    function showAdminTab(tabName) {
+      document.querySelectorAll('.admin-tab').forEach(tab => {
+        tab.classList.remove('bg-emerald-500', 'text-white');
+        tab.classList.add('bg-gray-100', 'text-gray-600');
+      });
+      document.getElementById(`admin-tab-${tabName}`).classList.remove('bg-gray-100', 'text-gray-600');
+      document.getElementById(`admin-tab-${tabName}`).classList.add('bg-emerald-500', 'text-white');
+      
+      document.querySelectorAll('.admin-content').forEach(content => content.classList.add('hidden'));
+      document.getElementById(`admin-content-${tabName}`).classList.remove('hidden');
+    }
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      // Check for hardcoded admin
+      if (username === 'sekretaris' && password === 'admin') {
+        currentUser = { nama: 'Admin Sekretaris', jabatan: 'Pengurus RW' };
+        isAdmin = true;
+        showPage('admin-dashboard');
+        loadAdminData();
+        showToast('Selamat datang, Admin!');
+        return;
+      }
+
+      // Check Supabase for regular users
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('username', username)
+            .eq('password', password)
+            .single();
+
+          if (error || !data) {
+            showToast('Username atau password salah!', 'error');
+            return;
+          }
+
+          currentUser = data;
+          isAdmin = data.jabatan === 'Pengurus RW';
+          
+          if (isAdmin) {
+            showPage('admin-dashboard');
+            loadAdminData();
+          } else {
+            showPage('user-dashboard');
+            document.getElementById('user-greeting').textContent = `Selamat datang, ${data.nama}`;
+            loadUserData();
+          }
+          showToast(`Selamat datang, ${data.nama}!`);
+        } catch (err) {
+          showToast('Gagal login: ' + err.message, 'error');
+        }
+      } else {
+        showToast('Supabase belum dikonfigurasi. Gunakan akun admin: sekretaris/admin', 'info');
+      }
+    });
+
+    // Register
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const userData = {
+        nama: document.getElementById('reg-nama').value,
+        alamat: document.getElementById('reg-alamat').value,
+        rt: document.getElementById('reg-rt').value,
+        jabatan: document.getElementById('reg-jabatan').value,
+        deskripsi: document.getElementById('reg-deskripsi').value,
+        telp: document.getElementById('reg-telp').value,
+        username: document.getElementById('reg-username').value,
+        password: document.getElementById('reg-password').value,
+        created_at: new Date().toISOString()
+      };
+
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          // Check if username exists
+          const { data: existing } = await supabase
+            .from('users')
+            .select('username')
+            .eq('username', userData.username)
+            .single();
+
+          if (existing) {
+            showToast('Username sudah digunakan!', 'error');
+            return;
+          }
+
+          const { error } = await supabase.from('users').insert([userData]);
+          if (error) throw error;
+
+          showToast('Pendaftaran berhasil! Silakan login.');
+          showPage('login-page');
+          document.getElementById('register-form').reset();
+        } catch (err) {
+          showToast('Gagal mendaftar: ' + err.message, 'error');
+        }
+      } else {
+        showToast('Supabase belum dikonfigurasi. Data tidak dapat disimpan.', 'error');
+      }
+    });
+
+    // Logout
+    function logout() {
+      currentUser = null;
+      isAdmin = false;
+      showPage('login-page');
+      document.getElementById('login-form').reset();
+      showToast('Anda telah keluar');
+    }
+
+    // Load user data
+    async function loadUserData() {
+      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
+
+      try {
+        // Load kegiatan
+        const { data: kegiatan } = await supabase
+          .from('kegiatan')
+          .select('*')
+          .gte('tanggal', new Date().toISOString().split('T')[0])
+          .order('tanggal', { ascending: true });
+
+        renderUserKegiatan(kegiatan || []);
+
+        // Load pengumuman
+        const { data: pengumuman } = await supabase
+          .from('pengumuman')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        renderUserPengumuman(pengumuman || []);
+
+        // Load riwayat kegiatan (past)
+        const { data: riwayat } = await supabase
+          .from('kegiatan')
+          .select('*')
+          .lt('tanggal', new Date().toISOString().split('T')[0])
+          .order('tanggal', { ascending: false });
+
+        renderUserRiwayat(riwayat || []);
+
+        // Load user's absensi
+        const { data: absensi } = await supabase
+          .from('absensi')
+          .select('*, kegiatan(*)')
+          .order('created_at', { ascending: false });
+
+        renderUserAbsen(absensi || []);
+      } catch (err) {
+        console.error('Error loading user data:', err);
+      }
+    }
+
+    // Render user kegiatan
+    function renderUserKegiatan(kegiatan) {
+      const container = document.getElementById('kegiatan-list');
+      if (kegiatan.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <p class="text-gray-500">Belum ada info kegiatan</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = kegiatan.map(k => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-800 text-lg">${k.nama}</h4>
+              <div class="mt-2 space-y-1 text-sm text-gray-500">
+                <p>📅 ${formatDate(k.tanggal)} - ${k.waktu}</p>
+                <p>📍 ${k.lokasi}</p>
+                ${k.deskripsi ? `<p class="mt-2 text-gray-600">${k.deskripsi}</p>` : ''}
+              </div>
+            </div>
+            <button onclick="openAttendanceModal('${k.id}', '${k.nama}')"
+              class="ml-4 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors text-sm font-medium">
+              Hadir
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render user pengumuman
+    function renderUserPengumuman(pengumuman) {
+      const container = document.getElementById('pengumuman-list');
+      if (pengumuman.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+              </svg>
+            </div>
+            <p class="text-gray-500">Belum ada pengumuman</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = pengumuman.map(p => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <h4 class="font-semibold text-gray-800">${p.judul}</h4>
+          <p class="text-sm text-gray-500 mt-1">${formatDate(p.created_at)}</p>
+          <p class="mt-3 text-gray-600">${p.isi}</p>
+          ${p.file_url ? `
+            <a href="${p.file_url}" target="_blank" rel="noopener noreferrer" class="mt-3 inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+              </svg>
+              Lihat Lampiran
+            </a>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    // Render user riwayat
+    function renderUserRiwayat(riwayat) {
+      const container = document.getElementById('riwayat-list');
+      if (riwayat.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <p class="text-gray-500">Belum ada riwayat kegiatan</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = riwayat.map(r => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+              </svg>
+            </div>
+            <div>
+              <h4 class="font-semibold text-gray-800">${r.nama}</h4>
+              <p class="text-sm text-gray-500">${formatDate(r.tanggal)} - ${r.lokasi}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render user absen
+    function renderUserAbsen(absensi) {
+      const container = document.getElementById('absen-user-list');
+      if (absensi.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl p-8 text-center border border-gray-100">
+            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+              </svg>
+            </div>
+            <p class="text-gray-500">Belum ada riwayat absensi</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = absensi.map(a => `
+        <div class="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-4">
+          <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-semibold text-gray-800 truncate">${a.kegiatan?.nama || 'Kegiatan'}</h4>
+            <p class="text-sm text-gray-500">${formatDate(a.created_at)}</p>
+          </div>
+          <span class="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-sm font-medium">Hadir</span>
+        </div>
+      `).join('');
+    }
+
+    // Load admin data
+    async function loadAdminData() {
+      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+        showToast('Supabase belum dikonfigurasi', 'info');
+        return;
+      }
+
+      try {
+        // Load stats
+        const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
+        const { count: kegiatanCount } = await supabase.from('kegiatan').select('*', { count: 'exact', head: true });
+        const { count: absenCount } = await supabase.from('absensi').select('*', { count: 'exact', head: true });
+        const { count: pengumumanCount } = await supabase.from('pengumuman').select('*', { count: 'exact', head: true });
+
+        document.getElementById('stat-users').textContent = userCount || 0;
+        document.getElementById('stat-kegiatan').textContent = kegiatanCount || 0;
+        document.getElementById('stat-absen').textContent = absenCount || 0;
+        document.getElementById('stat-pengumuman').textContent = pengumumanCount || 0;
+
+        // Load kegiatan
+        const { data: kegiatan } = await supabase
+          .from('kegiatan')
+          .select('*')
+          .order('tanggal', { ascending: false });
+        renderAdminKegiatan(kegiatan || []);
+
+        // Load pengumuman
+        const { data: pengumuman } = await supabase
+          .from('pengumuman')
+          .select('*')
+          .order('created_at', { ascending: false });
+        renderAdminPengumuman(pengumuman || []);
+
+        // Load absensi
+        const { data: absensi } = await supabase
+          .from('absensi')
+          .select('*, kegiatan(*)')
+          .order('created_at', { ascending: false });
+        renderAdminAbsen(absensi || []);
+
+        // Load warga
+        const { data: warga } = await supabase
+          .from('users')
+          .select('*')
+          .order('nama');
+        renderWarga(warga || []);
+
+      } catch (err) {
+        console.error('Error loading admin data:', err);
+      }
+    }
+
+    // Render admin kegiatan
+    function renderAdminKegiatan(kegiatan) {
+      const container = document.getElementById('admin-kegiatan-list');
+      if (kegiatan.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada kegiatan</p>';
+        return;
+      }
+
+      container.innerHTML = kegiatan.map(k => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-semibold text-gray-800">${k.nama}</h4>
+              <p class="text-sm text-gray-500 mt-1">📅 ${formatDate(k.tanggal)} - ${k.waktu}</p>
+              <p class="text-sm text-gray-500">📍 ${k.lokasi}</p>
+            </div>
+            <button onclick="deleteKegiatan('${k.id}')" class="text-red-500 hover:text-red-700">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render admin pengumuman
+    function renderAdminPengumuman(pengumuman) {
+      const container = document.getElementById('admin-pengumuman-list');
+      if (pengumuman.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada pengumuman</p>';
+        return;
+      }
+
+      container.innerHTML = pengumuman.map(p => `
+        <div class="bg-white rounded-2xl p-6 border border-gray-100">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="font-semibold text-gray-800">${p.judul}</h4>
+              <p class="text-sm text-gray-500 mt-1">${formatDate(p.created_at)}</p>
+              <p class="mt-2 text-gray-600">${p.isi}</p>
+            </div>
+            <button onclick="deletePengumuman('${p.id}')" class="text-red-500 hover:text-red-700">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render admin absen
+    function renderAdminAbsen(absensi) {
+      const container = document.getElementById('admin-absen-list');
+      if (absensi.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">Belum ada data absensi</p>';
+        return;
+      }
+
+      // Group by kegiatan
+      const grouped = absensi.reduce((acc, a) => {
+        const key = a.kegiatan_id;
+        if (!acc[key]) acc[key] = { kegiatan: a.kegiatan, items: [] };
+        acc[key].items.push(a);
+        return acc;
+      }, {});
+
+      container.innerHTML = Object.values(grouped).map(g => `
+        <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+          <div class="p-4 bg-emerald-50 border-b border-emerald-100">
+            <h4 class="font-semibold text-emerald-800">${g.kegiatan?.nama || 'Kegiatan'}</h4>
+            <p class="text-sm text-emerald-600">${g.items.length} peserta hadir</p>
+          </div>
+          <div class="divide-y divide-gray-100">
+            ${g.items.map(a => `
+              <div class="p-4 flex items-center gap-4">
+                ${a.photo_url ? `<img src="${a.photo_url}" class="w-10 h-10 rounded-full object-cover" alt="${a.nama}" loading="lazy" onerror="this.style.background='#e5e7eb'; this.alt='Image unavailable';">` : `<div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center"><span class="text-gray-500 text-sm">${a.nama?.charAt(0) || '?'}</span></div>`}
+                <div class="flex-1">
+                  <p class="font-medium text-gray-800">${a.nama}</p>
+                  <p class="text-sm text-gray-500">${a.rt} • ${a.telp}</p>
+                </div>
+                <span class="text-xs text-gray-400">${formatDate(a.created_at)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Render warga table
+    function renderWarga(warga) {
+      const tbody = document.getElementById('warga-table-body');
+      if (warga.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-gray-500">Belum ada warga terdaftar</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = warga.map(w => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-sm text-gray-800">${w.nama}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${w.rt}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${w.jabatan}</td>
+          <td class="px-4 py-3 text-sm text-gray-600">${w.telp}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Add kegiatan
+    document.getElementById('form-kegiatan').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const data = {
+        nama: document.getElementById('kegiatan-nama').value,
+        tanggal: document.getElementById('kegiatan-tanggal').value,
+        waktu: document.getElementById('kegiatan-waktu').value,
+        lokasi: document.getElementById('kegiatan-lokasi').value,
+        deskripsi: document.getElementById('kegiatan-deskripsi').value,
+        created_at: new Date().toISOString()
+      };
+
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const { error } = await supabase.from('kegiatan').insert([data]);
+          if (error) throw error;
+          showToast('Kegiatan berhasil ditambahkan!');
+          document.getElementById('form-kegiatan').reset();
+          loadAdminData();
+        } catch (err) {
+          showToast('Gagal menambah kegiatan: ' + err.message, 'error');
+        }
+      } else {
+        showToast('Supabase belum dikonfigurasi', 'error');
+      }
+    });
+
+    // Add pengumuman
+    document.getElementById('form-pengumuman').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fileInput = document.getElementById('pengumuman-file');
+      let fileUrl = null;
+
+      // Upload file if exists
+      if (fileInput.files.length > 0 && supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const file = fileInput.files[0];
+          const fileName = `${Date.now()}_${file.name}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('pengumuman')
+            .upload(fileName, file);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage
+            .from('pengumuman')
+            .getPublicUrl(fileName);
+          
+          fileUrl = urlData.publicUrl;
+        } catch (err) {
+          showToast('Gagal upload file: ' + err.message, 'error');
+        }
+      }
+
+      const data = {
+        judul: document.getElementById('pengumuman-judul').value,
+        isi: document.getElementById('pengumuman-isi').value,
+        file_url: fileUrl,
+        created_at: new Date().toISOString()
+      };
+
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const { error } = await supabase.from('pengumuman').insert([data]);
+          if (error) throw error;
+          showToast('Pengumuman berhasil diposting!');
+          document.getElementById('form-pengumuman').reset();
+          loadAdminData();
+        } catch (err) {
+          showToast('Gagal posting pengumuman: ' + err.message, 'error');
+        }
+      } else {
+        showToast('Supabase belum dikonfigurasi', 'error');
+      }
+    });
+
+    // Delete kegiatan
+    async function deleteKegiatan(id) {
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const { error } = await supabase.from('kegiatan').delete().eq('id', id);
+          if (error) throw error;
+          showToast('Kegiatan berhasil dihapus');
+          loadAdminData();
+        } catch (err) {
+          showToast('Gagal menghapus: ' + err.message, 'error');
+        }
+      }
+    }
+
+    // Delete pengumuman
+    async function deletePengumuman(id) {
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+        try {
+          const { error } = await supabase.from('pengumuman').delete().eq('id', id);
+          if (error) throw error;
+          showToast('Pengumuman berhasil dihapus');
+          loadAdminData();
+        } catch (err) {
+          showToast('Gagal menghapus: ' + err.message, 'error');
+        }
+      }
+    }
+
+    // Filter riwayat
+    async function filterRiwayat() {
+      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
+
+      const dari = document.getElementById('filter-dari').value;
+      const sampai = document.getElementById('filter-sampai').value;
+      const nama = document.getElementById('filter-nama').value;
+
+      try {
+        let query = supabase.from('kegiatan').select('*');
+        
+        if (dari) query = query.gte('tanggal', dari);
+        if (sampai) query = query.lte('tanggal', sampai);
+        if (nama) query = query.ilike('nama', `%${nama}%`);
+        
+        const { data, error } = await query.order('tanggal', { ascending: false });
+        if (error) throw error;
+
+        const container = document.getElementById('admin-riwayat-list');
+        if (!data || data.length === 0) {
+          container.innerHTML = '<p class="text-gray-500 text-center py-8">Tidak ada hasil yang ditemukan</p>';
+          return;
+        }
+
+        container.innerHTML = data.map(k => `
+          <div class="bg-white rounded-2xl p-6 border border-gray-100">
+            <h4 class="font-semibold text-gray-800">${k.nama}</h4>
+            <p class="text-sm text-gray-500 mt-1">📅 ${formatDate(k.tanggal)} - ${k.waktu}</p>
+            <p class="text-sm text-gray-500">📍 ${k.lokasi}</p>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast('Gagal memfilter: ' + err.message, 'error');
+      }
+    }
+
+    // Attendance modal
+    function openAttendanceModal(kegiatanId, kegiatanNama) {
+      document.getElementById('absen-kegiatan-id').value = kegiatanId;
+      document.getElementById('modal-kegiatan-nama').textContent = kegiatanNama;
+      document.getElementById('attendance-modal').classList.remove('hidden');
+      initSignaturePad();
+
+      // Pre-fill if logged in
+      if (currentUser) {
+        document.getElementById('absen-nama').value = currentUser.nama || '';
+        document.getElementById('absen-alamat').value = currentUser.alamat || '';
+        document.getElementById('absen-rt').value = currentUser.rt || '';
+        document.getElementById('absen-telp').value = currentUser.telp || '';
+      }
+    }
+
+    function closeAttendanceModal() {
+      document.getElementById('attendance-modal').classList.add('hidden');
+      document.getElementById('form-absen').reset();
+      document.getElementById('photo-preview').classList.add('hidden');
+      if (signaturePad) clearSignature();
+    }
+
+    // Signature pad
+    function initSignaturePad() {
+      const canvas = document.getElementById('signature-pad');
+      const ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      
+      ctx.strokeStyle = '#1f2937';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      let lastX = 0;
+      let lastY = 0;
+
+      function getCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return {
+          x: clientX - rect.left,
+          y: clientY - rect.top
+        };
+      }
+
+      function startDrawing(e) {
+        isDrawing = true;
+        const coords = getCoords(e);
+        lastX = coords.x;
+        lastY = coords.y;
+      }
+
+      function draw(e) {
         if (!isDrawing) return;
-        ctx.strokeStyle = '#000';
+        e.preventDefault();
+        const coords = getCoords(e);
         ctx.beginPath();
         ctx.moveTo(lastX, lastY);
-        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.lineTo(coords.x, coords.y);
         ctx.stroke();
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-    }
+        lastX = coords.x;
+        lastY = coords.y;
+      }
 
-    function stopDrawing() {
+      function stopDrawing() {
         isDrawing = false;
+      }
+
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseleave', stopDrawing);
+      
+      canvas.addEventListener('touchstart', startDrawing);
+      canvas.addEventListener('touchmove', draw);
+      canvas.addEventListener('touchend', stopDrawing);
+
+      signaturePad = { canvas, ctx };
     }
 
-    signaturePadCanvas.addEventListener('mousedown', startDrawing);
-    signaturePadCanvas.addEventListener('mousemove', draw);
-    signaturePadCanvas.addEventListener('mouseup', stopDrawing);
-    signaturePadCanvas.addEventListener('mouseout', stopDrawing);
-
-    // Touch events for mobile
-    signaturePadCanvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        const rect = signaturePadCanvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent('mousedown', {
-            clientX: touch.clientX - rect.left,
-            clientY: touch.clientY - rect.top
-        });
-        signaturePadCanvas.dispatchEvent(mouseEvent);
-    });
-
-    signaturePadCanvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        const rect = signaturePadCanvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        const mouseEvent = new MouseEvent('mousemove', {
-            clientX: touch.clientX - rect.left,
-            clientY: touch.clientY - rect.top
-        });
-        signaturePadCanvas.dispatchEvent(mouseEvent);
-    });
-
-    signaturePadCanvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        const mouseEvent = new MouseEvent('mouseup', {});
-        signaturePadCanvas.dispatchEvent(mouseEvent);
-    });
-
-    clearSignatureBtn.addEventListener('click', () => {
-        ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
-        currentSignatureDataUrl = null;
-        checkAttendanceReady();
-    });
-
-    // Helper to check if attendance can be submitted
-    function checkAttendanceReady() {
-        const isPhotoTaken = !!currentSelfieBlob;
-        const isSignatureDrawn = signaturePadCanvas.toDataURL() !== signaturePadCanvas.getContext('2d').canvas.toDataURL();
-        const isLocationSet = !!currentLocationCoords;
-        submitAttendanceBtn.disabled = !(isPhotoTaken && isSignatureDrawn && isLocationSet);
+    function clearSignature() {
+      if (signaturePad) {
+        signaturePad.ctx.clearRect(0, 0, signaturePad.canvas.width, signaturePad.canvas.height);
+      }
     }
 
-    // --- Event Listeners ---
-
-    showSignupLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginFormContainer.classList.add('hidden');
-        signupFormContainer.classList.remove('hidden');
-        backToLoginLink.classList.remove('hidden');
+    // Photo preview
+    document.getElementById('absen-photo').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          document.getElementById('preview-img').src = e.target.result;
+          document.getElementById('photo-preview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
     });
 
-    backToLoginLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        signupFormContainer.classList.add('hidden');
-        loginFormContainer.classList.remove('hidden');
-        backToLoginLink.classList.add('hidden');
-        signupErrorMessage.classList.add('hidden'); // Clear error on switch
-    });
-
-    loginForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        loginErrorMessage.classList.add('hidden');
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-
-        try {
-            const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (authError) throw authError;
-
-            const userId = authData.user.id;
-            const { data: userData, error: userError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (userError) throw userError;
-
-            currentUser = userData;
-            console.log('Login successful:', currentUser);
-
-            welcomeUserSpan.textContent = currentUser.nama_lengkap;
-            if (currentUser.role === 'admin' || currentUser.role === 'pengurus') {
-                adminPanelButtonDiv.classList.remove('hidden');
-            }
-            loginFormContainer.classList.add('hidden');
-            dashboardContainer.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Login error:', error.message);
-            loginErrorMessage.textContent = error.error_description || error.message || 'Login gagal.';
-            loginErrorMessage.classList.remove('hidden');
-        }
-    });
-
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        signupErrorMessage.classList.add('hidden');
-        const namaLengkap = document.getElementById('signupNamaLengkap').value;
-        const alamat = document.getElementById('signupAlamat').value;
-        const rt = parseInt(document.getElementById('signupRT').value);
-        const jabatan = document.getElementById('signupJabatan').value;
-        const noTelepon = document.getElementById('signupNoTelepon').value;
-        const email = document.getElementById('signupEmail').value; // Now correctly gets email from the added field
-        const password = document.getElementById('signupPassword').value;
-
-        try {
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: email,
-                password: password,
-            });
-
-            if (authError) throw authError;
-
-            const userId = authData.user.id;
-
-            const { error: insertError } = await supabase
-                .from('users')
-                .insert([{
-                    id: userId,
-                    nama_lengkap: namaLengkap,
-                    alamat: alamat,
-                    rt: rt,
-                    jabatan: jabatan,
-                    no_telepon: noTelepon,
-                    email: email,
-                }]);
-
-            if (insertError) throw insertError;
-
-            alert('Akun berhasil dibuat! Silakan login.');
-            signupForm.reset();
-            signupFormContainer.classList.add('hidden');
-            loginFormContainer.classList.remove('hidden');
-            backToLoginLink.classList.add('hidden');
-
-        } catch (error) {
-            console.error('Signup error:', error.message);
-            signupErrorMessage.textContent = error.error_description || error.message || 'Pendaftaran gagal.';
-            signupErrorMessage.classList.remove('hidden');
-        }
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-        await supabase.auth.signOut();
-        currentUser = null;
-        loginFormContainer.classList.remove('hidden');
-        dashboardContainer.classList.add('hidden');
-        adminPanelButtonDiv.classList.add('hidden');
-        adminPanel.classList.add('hidden');
-        createEventForm.classList.add('hidden');
-        eventsListView.classList.add('hidden');
-        attendanceHistoryView.classList.add('hidden');
-        usersListView.classList.add('hidden');
-        eventDetailView.classList.add('hidden');
-        attendanceView.classList.add('hidden');
-        // Clear errors
-        loginErrorMessage.classList.add('hidden');
-        signupErrorMessage.classList.add('hidden');
-    });
-
-    showAdminPanelBtn.addEventListener('click', () => {
-        adminPanel.classList.remove('hidden');
-        createEventForm.classList.add('hidden');
-        eventsListView.classList.add('hidden');
-        attendanceHistoryView.classList.add('hidden');
-        usersListView.classList.add('hidden');
-        eventDetailView.classList.add('hidden');
-        attendanceView.classList.add('hidden');
-    });
-
-    createEventBtn.addEventListener('click', () => {
-        adminPanel.classList.add('hidden');
-        createEventForm.classList.remove('hidden');
-    });
-
-    showEventsListBtn.addEventListener('click', async () => {
-        adminPanel.classList.add('hidden');
-        document.getElementById('eventsListContainer').innerHTML = '<p class="text-center">Memuat kegiatan...</p>';
-        await loadEventsList();
-        eventsListView.classList.remove('hidden');
-    });
-
-    showAttendanceHistoryBtn.addEventListener('click', async () => {
-        adminPanel.classList.add('hidden');
-        document.getElementById('attendanceHistoryContainer').innerHTML = '<p class="text-center">Memuat riwayat...</p>';
-        await loadAttendanceHistory();
-        attendanceHistoryView.classList.remove('hidden');
-    });
-
-    showUsersBtn.addEventListener('click', async () => {
-        if (!(currentUser.role === 'admin' || currentUser.role === 'pengurus')) {
-             document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Akses ditolak.</p>';
-             usersListView.classList.remove('hidden');
-             return;
-        }
-        adminPanel.classList.add('hidden');
-        document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Memuat daftar warga...</p>';
-        await loadUsersList();
-        usersListView.classList.remove('hidden');
-    });
-
-    newEventForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const eventName = document.getElementById('eventName').value;
-        const eventDateTime = document.getElementById('eventDateTime').value;
-        const eventLocation = document.getElementById('eventLocation').value;
-
-        try {
-            const { data, error } = await supabase
-                .from('kegiatan')
-                .insert([{ nama_kegiatan: eventName, tanggal_waktu: eventDateTime, lokasi: eventLocation, pembuat_user_id: currentUser.id }]);
-
-            if (error) throw error;
-
-            alert('Kegiatan berhasil dibuat!');
-            newEventForm.reset();
-            createEventForm.classList.add('hidden');
-            adminPanel.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Error creating event:', error.message);
-            alert('Gagal membuat kegiatan: ' + error.message);
-        }
-    });
-
-    cancelCreateEventBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        createEventForm.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-    });
-
-    backToAdminBtn.addEventListener('click', () => {
-        eventsListView.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-    });
-
-    backToAdminBtn2.addEventListener('click', () => {
-        attendanceHistoryView.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-    });
-
-    backToAdminBtn3.addEventListener('click', () => {
-        usersListView.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-    });
-
-    // Capture Photo Logic
-    capturePhotoBtn.addEventListener('click', async () => {
-        if (!videoElement.srcObject) {
-             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                videoElement.srcObject = stream;
-            } catch (err) {
-                console.error("Error accessing camera:", err);
-                alert("Tidak dapat mengakses kamera: " + err.message);
-                return;
-            }
-        }
-
-        canvasElement.width = videoElement.videoWidth;
-        canvasElement.height = videoElement.videoHeight;
-        canvasElement.getContext('2d').drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-        canvasElement.toBlob((blob) => {
-            currentSelfieBlob = blob;
-            const reader = new FileReader();
-            reader.onload = () => {
-                selfieImage.src = reader.result;
-                selfieImage.style.display = 'block';
-                videoElement.style.display = 'none';
-                videoElement.srcObject.getTracks().forEach(track => track.stop());
-                capturePhotoBtn.style.display = 'none';
-                retakePhotoBtn.style.display = 'inline-block';
-                checkAttendanceReady();
-            };
-            reader.readAsDataURL(blob);
-        }, 'image/jpeg', 0.8);
-    });
-
-    retakePhotoBtn.addEventListener('click', () => {
-        selfieImage.style.display = 'none';
-        videoElement.style.display = 'block';
-        capturePhotoBtn.style.display = 'inline-block';
-        retakePhotoBtn.style.display = 'none';
-        currentSelfieBlob = null;
-        checkAttendanceReady();
-    });
-
-    getLocationBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) {
-            locationDisplay.innerHTML = '<span style="color: var(--danger);">Geolocation tidak didukung oleh browser ini.</span>';
-            return;
-        }
-
-        locationDisplay.innerHTML = '<div class="spinner"></div> Mendapatkan lokasi...';
+    // Get location
+    function getLocation() {
+      if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                currentLocationCoords = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                };
-                locationDisplay.innerHTML = `<i class="fas fa-map-marker-alt" style="color: var(--success);"></i> Lat: ${currentLocationCoords.lat.toFixed(6)}, Lng: ${currentLocationCoords.lng.toFixed(6)}`;
-                checkAttendanceReady();
-            },
-            (error) => {
-                console.error("Error getting location:", error);
-                locationDisplay.innerHTML = `<span style="color: var(--danger);">Error: ${error.message}</span>`;
-            },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          (position) => {
+            const lat = position.coords.latitude.toFixed(6);
+            const lng = position.coords.longitude.toFixed(6);
+            document.getElementById('absen-lokasi').value = `${lat}, ${lng}`;
+            showToast('Lokasi berhasil diambil');
+          },
+          (error) => {
+            showToast('Gagal mengambil lokasi: ' + error.message, 'error');
+          }
         );
-    });
-
-    submitAttendanceBtn.addEventListener('click', async () => {
-        if (!currentEventIdForAttendance || !currentSelfieBlob || !currentLocationCoords) {
-            alert('Data absensi tidak lengkap (foto, lokasi).');
-            return;
-        }
-
-        currentSignatureDataUrl = signaturePadCanvas.toDataURL();
-
-         const fileName = `selfies/${currentUser.id}_${Date.now()}.jpg`;
-         const { error: uploadError } = await supabase.storage
-             .from('selfie-fotos')
-             .upload(fileName, currentSelfieBlob, {
-                 cacheControl: '3600',
-                 upsert: false
-             });
-
-         if (uploadError) {
-             console.error("Error uploading selfie:", uploadError.message);
-             alert("Gagal mengunggah foto selfie: " + uploadError.message);
-             return;
-         }
-
-         const { data: { publicUrl: selfieUrl } } = supabase.storage
-             .from('selfie-fotos')
-             .getPublicUrl(fileName);
-
-        try {
-            const { error } = await supabase
-                .from('absensi')
-                .insert([{
-                    kegiatan_id: currentEventIdForAttendance,
-                    user_id: currentUser.id,
-                    foto_selfie_url: selfieUrl,
-                    ttd_data: currentSignatureDataUrl,
-                    lokasi_absen_lat: currentLocationCoords.lat,
-                    lokasi_absen_lng: currentLocationCoords.lng
-                }]);
-
-            if (error) throw error;
-
-            alert('Absensi berhasil dikirim!');
-            selfieImage.src = '';
-            selfieImage.style.display = 'none';
-            videoElement.style.display = 'none';
-            if (videoElement.srcObject) {
-                videoElement.srcObject.getTracks().forEach(track => track.stop());
-            }
-            ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
-            locationDisplay.innerHTML = 'Lokasi belum diambil.';
-            currentSelfieBlob = null;
-            currentSignatureDataUrl = null;
-            currentLocationCoords = null;
-            submitAttendanceBtn.disabled = true;
-            attendanceView.classList.add('hidden');
-            eventsListView.classList.remove('hidden');
-            await loadEventsList();
-
-        } catch (error) {
-            console.error('Error submitting attendance:', error.message);
-            alert('Gagal mengirim absensi: ' + error.message);
-        }
-    });
-
-    backToEventsListBtn.addEventListener('click', async () => {
-        eventDetailView.classList.add('hidden');
-        await loadEventsList();
-        eventsListView.classList.remove('hidden');
-    });
-
-     backToEventsListBtn2.addEventListener('click', () => {
-        attendanceView.classList.add('hidden');
-        eventsListView.classList.remove('hidden');
-    });
-
-    // --- Helper Functions to Load Data ---
-    // (These remain largely the same, only adding loading states and icons/classes for UI consistency)
-
-    async function loadEventsList() {
-        try {
-            const { data: events, error } = await supabase
-                .from('kegiatan')
-                .select(`
-                    id,
-                    nama_kegiatan,
-                    tanggal_waktu,
-                    lokasi,
-                    users!inner(nama_lengkap)
-                `)
-                .order('tanggal_waktu', { ascending: false });
-
-            if (error) throw error;
-
-            const container = document.getElementById('eventsListContainer');
-            if (events.length === 0) {
-                container.innerHTML = '<p class="text-center">Tidak ada kegiatan saat ini</p>';
-                return;
-            }
-
-            container.innerHTML = '<table><thead><tr><th>Nama Kegiatan</th><th>Tanggal & Waktu</th><th>Lokasi</th><th>Dibuat Oleh</th><th>Aksi</th></tr></thead><tbody></tbody></table>';
-            const tbody = container.querySelector('tbody');
-
-            events.forEach(event => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${event.nama_kegiatan}</td>
-                    <td>${new Date(event.tanggal_waktu).toLocaleString()}</td>
-                    <td>${event.lokasi}</td>
-                    <td>${event.users.nama_lengkap}</td>
-                    <td>
-                        <button class="secondary" onclick="viewEventDetails(${event.id})"><i class="fas fa-eye"></i> Detail</button>
-                        ${(currentUser.role === 'admin' || currentUser.role === 'pengurus') ? `<button class="success" onclick="openAttendanceForEvent(${event.id}, '${event.nama_kegiatan.replace(/'/g, "&apos;")}', '${new Date(event.tanggal_waktu).toLocaleString()}', '${event.lokasi.replace(/'/g, "&apos;")}')"><i class="fas fa-user-check"></i> Absen</button>` : '<span>-</span>'}
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-
-        } catch (error) {
-            console.error('Error loading events:', error.message);
-            document.getElementById('eventsListContainer').innerHTML = `<p class="text-center error-message">Error memuat kegiatan: ${error.message}</p>`;
-        }
+      } else {
+        showToast('Browser tidak mendukung geolocation', 'error');
+      }
     }
 
-    async function loadAttendanceHistory() {
+    // Submit absensi
+    document.getElementById('form-absen').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const photoFile = document.getElementById('absen-photo').files[0];
+      let photoUrl = null;
+      let signatureData = null;
+
+      // Get signature
+      if (signaturePad) {
+        signatureData = signaturePad.canvas.toDataURL('image/png');
+      }
+
+      // Upload photo
+      if (photoFile && supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-            const query = currentUser.role === 'admin' || currentUser.role === 'pengurus'
-                ? supabase.from('absensi').select(`*, kegiatan(nama_kegiatan), users(nama_lengkap)`)
-                : supabase.from('absensi').select(`*, kegiatan(nama_kegiatan)`).eq('user_id', currentUser.id);
-
-            const { data: attendanceRecords, error } = await query;
-
-            if (error) throw error;
-
-            const container = document.getElementById('attendanceHistoryContainer');
-            if (attendanceRecords.length === 0) {
-                container.innerHTML = '<p class="text-center">Belum ada riwayat absensi</p>';
-                return;
-            }
-
-            container.innerHTML = '<table><thead><tr><th>Nama Kegiatan</th><th>Nama Warga</th><th>Waktu Absen</th><th>Lokasi</th></tr></thead><tbody></tbody></table>';
-            const tbody = container.querySelector('tbody');
-
-            attendanceRecords.forEach(record => {
-                const userNama = record.users ? record.users.nama_lengkap : 'Tidak Diketahui';
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${record.kegiatan.nama_kegiatan}</td>
-                    <td>${userNama}</td>
-                    <td>${new Date(record.created_at).toLocaleString()}</td>
-                    <td>Lat: ${record.lokasi_absen_lat}, Lng: ${record.lokasi_absen_lng}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-        } catch (error) {
-            console.error('Error loading attendance history:', error.message);
-            document.getElementById('attendanceHistoryContainer').innerHTML = `<p class="text-center error-message">Error memuat riwayat: ${error.message}</p>`;
+          const fileName = `${Date.now()}_${photoFile.name}`;
+          const { error: uploadError } = await supabase.storage
+            .from('absensi')
+            .upload(fileName, photoFile);
+          
+          if (!uploadError) {
+            const { data: urlData } = supabase.storage
+              .from('absensi')
+              .getPublicUrl(fileName);
+            photoUrl = urlData.publicUrl;
+          }
+        } catch (err) {
+          console.error('Upload error:', err);
         }
-    }
+      }
 
-    async function loadUsersList() {
-        if (!(currentUser.role === 'admin' || currentUser.role === 'pengurus')) {
-             document.getElementById('usersListContainer').innerHTML = '<p class="text-center">Akses ditolak.</p>';
-             return;
-        }
+      const data = {
+        kegiatan_id: document.getElementById('absen-kegiatan-id').value,
+        nama: document.getElementById('absen-nama').value,
+        alamat: document.getElementById('absen-alamat').value,
+        rt: document.getElementById('absen-rt').value,
+        telp: document.getElementById('absen-telp').value,
+        photo_url: photoUrl,
+        lokasi: document.getElementById('absen-lokasi').value,
+        signature: signatureData,
+        created_at: new Date().toISOString()
+      };
+
+      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-            const { data: users, error } = await supabase
-                .from('users')
-                .select('*')
-                .order('nama_lengkap');
-
-            if (error) throw error;
-
-            const container = document.getElementById('usersListContainer');
-            if (users.length === 0) {
-                container.innerHTML = '<p class="text-center">Belum ada warga terdaftar</p>';
-                return;
-            }
-
-            container.innerHTML = '<table><thead><tr><th>Nama</th><th>Alamat</th><th>RT</th><th>Jabatan</th><th>No. Telepon</th><th>Email</th></tr></thead><tbody></tbody></table>';
-            const tbody = container.querySelector('tbody');
-
-            users.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.nama_lengkap}</td>
-                    <td>${user.alamat}</td>
-                    <td>RT.${user.rt.toString().padStart(2, '0')}</td>
-                    <td>${user.jabatan}</td>
-                    <td>${user.no_telepon || '-'}</td>
-                    <td>${user.email || '-'}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-        } catch (error) {
-            console.error('Error loading users:', error.message);
-            document.getElementById('usersListContainer').innerHTML = `<p class="text-center error-message">Error memuat warga: ${error.message}</p>`;
+          const { error } = await supabase.from('absensi').insert([data]);
+          if (error) throw error;
+          showToast('Absensi berhasil!');
+          closeAttendanceModal();
+          loadUserData();
+        } catch (err) {
+          showToast('Gagal submit absensi: ' + err.message, 'error');
         }
-    }
-
-    window.viewEventDetails = async function(eventId) {
-        eventsListView.classList.add('hidden');
-        document.getElementById('attendanceListContainer').innerHTML = '<p>Memuat daftar hadir...</p>';
-        try {
-            const { data: event, error: eventError } = await supabase
-                .from('kegiatan')
-                .select(`
-                    id,
-                    nama_kegiatan,
-                    tanggal_waktu,
-                    lokasi,
-                    users!inner(nama_lengkap)
-                `)
-                .eq('id', eventId)
-                .single();
-
-            if (eventError) throw eventError;
-
-            document.getElementById('detailEventName').textContent = event.nama_kegiatan;
-            document.getElementById('detailEventDateTime').textContent = `Tanggal & Waktu: ${new Date(event.tanggal_waktu).toLocaleString()}`;
-            document.getElementById('detailEventLocation').textContent = `Lokasi: ${event.lokasi}`;
-
-            const { data: attendees, error: attError } = await supabase
-                .from('absensi')
-                .select(`
-                    id,
-                    created_at,
-                    user_id,
-                    foto_selfie_url,
-                    users!absensi_user_id_fkey(nama_lengkap)
-                `)
-                .eq('kegiatan_id', eventId);
-
-            if (attError) throw attError;
-
-            const attContainer = document.getElementById('attendanceListContainer');
-            if (attendees.length === 0) {
-                attContainer.innerHTML = '<p>Belum ada yang absen.</p>';
-            } else {
-                attContainer.innerHTML = '<table><thead><tr><th>Nama Warga</th><th>Waktu Absen</th><th>Foto</th></tr></thead><tbody></tbody></table>';
-                const attTbody = attContainer.querySelector('tbody');
-                attendees.forEach(att => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${att.users.nama_lengkap}</td>
-                        <td>${new Date(att.created_at).toLocaleString()}</td>
-                        <td>${att.foto_selfie_url ? `<img src="${att.foto_selfie_url}" alt="Selfie" style="max-width: 100px; max-height: 100px; border-radius: 5px;">` : 'Tidak Ada Foto'}</td>
-                    `;
-                    attTbody.appendChild(row);
-                });
-            }
-
-            eventDetailView.classList.remove('hidden');
-
-        } catch (error) {
-            console.error('Error loading event details:', error.message);
-            alert('Gagal memuat detail kegiatan: ' + error.message);
-            eventsListView.classList.remove('hidden');
-        }
-    };
-
-    window.openAttendanceForEvent = function(eventId, eventName, eventDateTime, eventLocation) {
-        currentEventIdForAttendance = eventId;
-         document.getElementById('attendanceEventTitle').textContent = eventName;
-         document.getElementById('attendanceEventDetails').textContent = `Tanggal: ${eventDateTime} | Lokasi: ${eventLocation}`;
-         selfieImage.src = '';
-         selfieImage.style.display = 'none';
-         videoElement.style.display = 'none';
-         if (videoElement.srcObject) {
-             videoElement.srcObject.getTracks().forEach(track => track.stop());
-         }
-         ctx.clearRect(0, 0, signaturePadCanvas.width, signaturePadCanvas.height);
-         locationDisplay.innerHTML = 'Lokasi belum diambil.';
-         currentSelfieBlob = null;
-         currentSignatureDataUrl = null;
-         currentLocationCoords = null;
-         submitAttendanceBtn.disabled = true;
-
-         eventsListView.classList.add('hidden');
-         attendanceView.classList.remove('hidden');
-    };
-
-    // Check active session on page load
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session) {
-            const userId = session.user.id;
-            const { data: userData, error: userError } = await supabase
-                .from('users')
-                .select('*')
-                .eq('id', userId)
-                .single();
-
-            if (userError) {
-                console.error('Error fetching user data on load:', userError.message);
-                return;
-            }
-
-            currentUser = userData;
-            welcomeUserSpan.textContent = currentUser.nama_lengkap;
-            if (currentUser.role === 'admin' || currentUser.role === 'pengurus') {
-                adminPanelButtonDiv.classList.remove('hidden');
-            }
-            loginFormContainer.classList.add('hidden');
-            dashboardContainer.classList.remove('hidden');
-        }
+      } else {
+        showToast('Supabase belum dikonfigurasi', 'error');
+      }
     });
 
-</script>
+    // Download CSV
+    async function downloadAbsenCSV() {
+      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+        showToast('Supabase belum dikonfigurasi', 'error');
+        return;
+      }
 
-</body>
+      try {
+        const { data } = await supabase
+          .from('absensi')
+          .select('*, kegiatan(nama)')
+          .order('created_at', { ascending: false });
+
+        if (!data || data.length === 0) {
+          showToast('Tidak ada data untuk didownload', 'info');
+          return;
+        }
+
+        const headers = ['Nama', 'Alamat', 'RT', 'No. Telp', 'Kegiatan', 'Lokasi', 'Tanggal'];
+        const rows = data.map(a => [
+          a.nama,
+          a.alamat,
+          a.rt,
+          a.telp,
+          a.kegiatan?.nama || '',
+          a.lokasi || '',
+          formatDate(a.created_at)
+        ]);
+
+        const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c || ''}"`).join(','))].join('\n');
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `absensi_rw01_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        
+        showToast('File CSV berhasil didownload');
+      } catch (err) {
+        showToast('Gagal download: ' + err.message, 'error');
+      }
+    }
+
+    // Download PDF
+    async function downloadAbsenPDF() {
+      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+        showToast('Supabase belum dikonfigurasi', 'error');
+        return;
+      }
+
+      try {
+        const { data } = await supabase
+          .from('absensi')
+          .select('*, kegiatan(nama)')
+          .order('created_at', { ascending: false });
+
+        if (!data || data.length === 0) {
+          showToast('Tidak ada data untuk didownload', 'info');
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(16);
+        doc.text('Data Absensi RW.01', 105, 20, { align: 'center' });
+        doc.setFontSize(10);
+        doc.text(`Dicetak: ${new Date().toLocaleDateString('id-ID')}`, 105, 28, { align: 'center' });
+
+        let y = 40;
+        doc.setFontSize(9);
+
+        // Headers
+        doc.setFont(undefined, 'bold');
+        doc.text('No', 10, y);
+        doc.text('Nama', 20, y);
+        doc.text('RT', 70, y);
+        doc.text('No. Telp', 85, y);
+        doc.text('Kegiatan', 115, y);
+        doc.text('Tanggal', 165, y);
+        
+        y += 5;
+        doc.line(10, y, 200, y);
+        y += 5;
+
+        doc.setFont(undefined, 'normal');
+        data.forEach((a, i) => {
+          if (y > 270) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(String(i + 1), 10, y);
+          doc.text(a.nama?.substring(0, 25) || '', 20, y);
+          doc.text(a.rt || '', 70, y);
+          doc.text(a.telp || '', 85, y);
+          doc.text(a.kegiatan?.nama?.substring(0, 25) || '', 115, y);
+          doc.text(formatDate(a.created_at), 165, y);
+          y += 7;
+        });
+
+        doc.save(`absensi_rw01_${new Date().toISOString().split('T')[0]}.pdf`);
+        showToast('File PDF berhasil didownload');
+      } catch (err) {
+        showToast('Gagal download: ' + err.message, 'error');
+      }
+    }
+
+    // Format date
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'short', 
+        year: 'numeric' 
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+        showToast('⚠️ Konfigurasi Supabase diperlukan. Edit SUPABASE_URL dan SUPABASE_ANON_KEY dalam kode.', 'info');
+      }
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c93fa9741dc9cf0',t:'MTc3MDMxMDk4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
