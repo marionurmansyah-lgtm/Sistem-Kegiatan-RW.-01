@@ -1270,11 +1270,13 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA';
     
     // Initialize Supabase
-    let supabase;
+    let supabaseClient = null;
     try {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      if (window.supabase) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
     } catch (e) {
-      console.error('Supabase init error:', e);
+      // Supabase init error - will show in UI
     }
 
     // State
@@ -1377,9 +1379,9 @@
       }
 
       // Check Supabase for regular users
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { data, error } = await supabase
+          const { data, error } = await supabaseClient
             .from('users')
             .select('*')
             .eq('username', username)
@@ -1427,9 +1429,9 @@
         created_at: new Date().toISOString()
       };
 
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { data: existing } = await supabase
+          const { data: existing } = await supabaseClient
             .from('users')
             .select('username')
             .eq('username', userData.username)
@@ -1440,7 +1442,7 @@
             return;
           }
 
-          const { error } = await supabase.from('users').insert([userData]);
+          const { error } = await supabaseClient.from('users').insert([userData]);
           if (error) throw error;
 
           showToast('Pendaftaran berhasil! Silakan login.');
@@ -1465,10 +1467,10 @@
 
     // Load user data
     async function loadUserData() {
-      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
+      if (!supabaseClient || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
 
       try {
-        const { data: kegiatan } = await supabase
+        const { data: kegiatan } = await supabaseClient
           .from('kegiatan')
           .select('*')
           .gte('tanggal', new Date().toISOString().split('T')[0])
@@ -1476,14 +1478,14 @@
 
         renderUserKegiatan(kegiatan || []);
 
-        const { data: pengumuman } = await supabase
+        const { data: pengumuman } = await supabaseClient
           .from('pengumuman')
           .select('*')
           .order('created_at', { ascending: false });
 
         renderUserPengumuman(pengumuman || []);
 
-        const { data: riwayat } = await supabase
+        const { data: riwayat } = await supabaseClient
           .from('kegiatan')
           .select('*')
           .lt('tanggal', new Date().toISOString().split('T')[0])
@@ -1491,7 +1493,7 @@
 
         renderUserRiwayat(riwayat || []);
 
-        const { data: absensi } = await supabase
+        const { data: absensi } = await supabaseClient
           .from('absensi')
           .select('*, kegiatan(*)')
           .order('created_at', { ascending: false });
@@ -1632,41 +1634,41 @@
 
     // Load admin data
     async function loadAdminData() {
-      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (!supabaseClient || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
         showToast('Supabase belum dikonfigurasi', 'info');
         return;
       }
 
       try {
-        const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true });
-        const { count: kegiatanCount } = await supabase.from('kegiatan').select('*', { count: 'exact', head: true });
-        const { count: absenCount } = await supabase.from('absensi').select('*', { count: 'exact', head: true });
-        const { count: pengumumanCount } = await supabase.from('pengumuman').select('*', { count: 'exact', head: true });
+        const { count: userCount } = await supabaseClient.from('users').select('*', { count: 'exact', head: true });
+        const { count: kegiatanCount } = await supabaseClient.from('kegiatan').select('*', { count: 'exact', head: true });
+        const { count: absenCount } = await supabaseClient.from('absensi').select('*', { count: 'exact', head: true });
+        const { count: pengumumanCount } = await supabaseClient.from('pengumuman').select('*', { count: 'exact', head: true });
 
         document.getElementById('stat-users').textContent = userCount || 0;
         document.getElementById('stat-kegiatan').textContent = kegiatanCount || 0;
         document.getElementById('stat-absen').textContent = absenCount || 0;
         document.getElementById('stat-pengumuman').textContent = pengumumanCount || 0;
 
-        const { data: kegiatan } = await supabase
+        const { data: kegiatan } = await supabaseClient
           .from('kegiatan')
           .select('*')
           .order('tanggal', { ascending: false });
         renderAdminKegiatan(kegiatan || []);
 
-        const { data: pengumuman } = await supabase
+        const { data: pengumuman } = await supabaseClient
           .from('pengumuman')
           .select('*')
           .order('created_at', { ascending: false });
         renderAdminPengumuman(pengumuman || []);
 
-        const { data: absensi } = await supabase
+        const { data: absensi } = await supabaseClient
           .from('absensi')
           .select('*, kegiatan(*)')
           .order('created_at', { ascending: false });
         renderAdminAbsen(absensi || []);
 
-        const { data: warga } = await supabase
+        const { data: warga } = await supabaseClient
           .from('users')
           .select('*')
           .order('nama');
@@ -1795,9 +1797,9 @@
         created_at: new Date().toISOString()
       };
 
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { error } = await supabase.from('kegiatan').insert([data]);
+          const { error } = await supabaseClient.from('kegiatan').insert([data]);
           if (error) throw error;
           showToast('Kegiatan berhasil ditambahkan!');
           document.getElementById('form-kegiatan').reset();
@@ -1817,16 +1819,16 @@
       const fileInput = document.getElementById('pengumuman-file');
       let fileUrl = null;
 
-      if (fileInput.files.length > 0 && supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (fileInput.files.length > 0 && supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
           const file = fileInput.files[0];
           const fileName = `${Date.now()}_${file.name}`;
-          const { error: uploadError } = await supabase.storage
+          const { error: uploadError } = await supabaseClient.storage
             .from('pengumuman')
             .upload(fileName, file);
           
           if (!uploadError) {
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = supabaseClient.storage
               .from('pengumuman')
               .getPublicUrl(fileName);
             
@@ -1844,9 +1846,9 @@
         created_at: new Date().toISOString()
       };
 
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { error } = await supabase.from('pengumuman').insert([data]);
+          const { error } = await supabaseClient.from('pengumuman').insert([data]);
           if (error) throw error;
           showToast('Pengumuman berhasil diposting!');
           document.getElementById('form-pengumuman').reset();
@@ -1861,9 +1863,9 @@
 
     // Delete kegiatan
     async function deleteKegiatan(id) {
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { error } = await supabase.from('kegiatan').delete().eq('id', id);
+          const { error } = await supabaseClient.from('kegiatan').delete().eq('id', id);
           if (error) throw error;
           showToast('Kegiatan berhasil dihapus');
           loadAdminData();
@@ -1875,9 +1877,9 @@
 
     // Delete pengumuman
     async function deletePengumuman(id) {
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { error } = await supabase.from('pengumuman').delete().eq('id', id);
+          const { error } = await supabaseClient.from('pengumuman').delete().eq('id', id);
           if (error) throw error;
           showToast('Pengumuman berhasil dihapus');
           loadAdminData();
@@ -1889,14 +1891,14 @@
 
     // Filter riwayat
     async function filterRiwayat() {
-      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
+      if (!supabaseClient || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') return;
 
       const dari = document.getElementById('filter-dari').value;
       const sampai = document.getElementById('filter-sampai').value;
       const nama = document.getElementById('filter-nama').value;
 
       try {
-        let query = supabase.from('kegiatan').select('*');
+        let query = supabaseClient.from('kegiatan').select('*');
         
         if (dari) query = query.gte('tanggal', dari);
         if (sampai) query = query.lte('tanggal', sampai);
@@ -2057,15 +2059,15 @@
         signatureData = signaturePad.canvas.toDataURL('image/png');
       }
 
-      if (photoFile && supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (photoFile && supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
           const fileName = `${Date.now()}_${photoFile.name}`;
-          const { error: uploadError } = await supabase.storage
+          const { error: uploadError } = await supabaseClient.storage
             .from('absensi')
             .upload(fileName, photoFile);
           
           if (!uploadError) {
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = supabaseClient.storage
               .from('absensi')
               .getPublicUrl(fileName);
             photoUrl = urlData.publicUrl;
@@ -2087,9 +2089,9 @@
         created_at: new Date().toISOString()
       };
 
-      if (supabase && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (supabaseClient && SUPABASE_URL !== 'https://YOUR_PROJECT_URL.supabase.co') {
         try {
-          const { error } = await supabase.from('absensi').insert([data]);
+          const { error } = await supabaseClient.from('absensi').insert([data]);
           if (error) throw error;
           showToast('Absensi berhasil!');
           closeAttendanceModal();
@@ -2104,13 +2106,13 @@
 
     // Download CSV
     async function downloadAbsenCSV() {
-      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (!supabaseClient || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
         showToast('Supabase belum dikonfigurasi', 'error');
         return;
       }
 
       try {
-        const { data } = await supabase
+        const { data } = await supabaseClient
           .from('absensi')
           .select('*, kegiatan(nama)')
           .order('created_at', { ascending: false });
@@ -2147,13 +2149,13 @@
 
     // Download PDF
     async function downloadAbsenPDF() {
-      if (!supabase || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
+      if (!supabaseClient || SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
         showToast('Supabase belum dikonfigurasi', 'error');
         return;
       }
 
       try {
-        const { data } = await supabase
+        const { data } = await supabaseClient
           .from('absensi')
           .select('*, kegiatan(nama)')
           .order('created_at', { ascending: false });
@@ -2226,5 +2228,5 @@
       }
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c948fcb4542fd95',t:'MTc3MDMxNzA5My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c94b3261256880e',t:'MTc3MDMxODU0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
