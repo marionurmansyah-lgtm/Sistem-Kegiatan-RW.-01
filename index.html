@@ -7,7 +7,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <style>
+  <style type="text/css">
     body {
       box-sizing: border-box;
     }
@@ -653,8 +653,27 @@
       font-size: 0.875rem;
     }
 
-    .text-gray-500 {
+    .form-group.password-group {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 2.25rem;
+      background: none;
+      border: none;
+      cursor: pointer;
       color: #6b7280;
+      font-size: 1.25rem;
+      padding: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .password-toggle:hover {
+      color: #374151;
     }
 
     .mt-1 {
@@ -729,7 +748,7 @@
       <form id="login-form">
        <div class="form-group"><label for="login-username">Username</label> <input type="text" id="login-username" required placeholder="Masukkan username">
        </div>
-       <div class="form-group"><label for="login-password">Password</label> <input type="password" id="login-password" required placeholder="Masukkan password">
+       <div class="form-group password-group"><label for="login-password">Password</label> <input type="password" id="login-password" required placeholder="Masukkan password"> <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password')">👁️</button>
        </div><button type="submit" class="btn-submit">Masuk</button>
       </form>
       <div class="login-footer">
@@ -754,15 +773,15 @@
        <div class="form-group"><label for="reg-alamat">Alamat *</label> <textarea id="reg-alamat" required rows="2" placeholder="Masukkan alamat lengkap"></textarea>
        </div>
        <div class="form-row">
-        <div class="form-group"><label for="reg-rt">RT *</label> <select id="reg-rt" required> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> </select>
+        <div class="form-group"><label for="reg-rt">RT *</label> <select id="reg-rt" required> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> <option value="RT 04">RT 04</option> <option value="RT 05">RT 05</option> <option value="RT 06">RT 06</option> <option value="RT 07">RT 07</option> <option value="RT 08">RT 08</option> <option value="RT 09">RT 09</option> <option value="RT 10">RT 10</option> <option value="RT 11">RT 11</option> <option value="RT 12">RT 12</option> <option value="RT 13">RT 13</option> <option value="RT 14">RT 14</option> <option value="RT 15">RT 15</option> <option value="RT 16">RT 16</option> </select>
         </div>
-        <div class="form-group"><label for="reg-jabatan">Jabatan *</label> <select id="reg-jabatan" required> <option value="">Pilih Jabatan</option> <option value="Pengurus RW">Pengurus RW</option> <option value="Warga">Warga</option> </select>
+        <div class="form-group"><label for="reg-jabatan">Jabatan *</label> <select id="reg-jabatan" required> <option value="">Pilih Jabatan</option> <option value="Ketua RW">Ketua RW</option> <option value="Wakil Ketua RW">Wakil Ketua RW</option> <option value="Sekretaris RW">Sekretaris RW</option> <option value="Bendahara RW">Bendahara RW</option> <option value="Ketua RT">Ketua RT</option> <option value="Wakil Ketua RT">Wakil Ketua RT</option> <option value="Sekretaris RT">Sekretaris RT</option> <option value="Bendahara RT">Bendahara RT</option> <option value="Koordinator Keamanan">Koordinator Keamanan</option> <option value="Koordinator Kebersihan">Koordinator Kebersihan</option> <option value="Koordinator Sosial">Koordinator Sosial</option> <option value="Warga">Warga</option> </select>
         </div>
        </div>
        <div class="form-row">
         <div class="form-group"><label for="reg-username">Username *</label> <input type="text" id="reg-username" required placeholder="Buat username">
         </div>
-        <div class="form-group"><label for="reg-password">Password *</label> <input type="password" id="reg-password" required placeholder="Buat password">
+        <div class="form-group password-group"><label for="reg-password">Password *</label> <input type="password" id="reg-password" required placeholder="Buat password"> <button type="button" class="password-toggle" onclick="togglePasswordVisibility('reg-password')">👁️</button>
         </div>
        </div><button type="submit" class="btn-submit">Daftar</button>
       </form>
@@ -815,7 +834,7 @@
      </div>
     </header>
     <div class="dashboard-wrapper">
-     <div class="tabs-container"><button onclick="showAdminTab('kegiatan')" id="admin-tab-kegiatan" class="tab-button active" type="button">📅 Kegiatan</button> <button onclick="showAdminTab('absen')" id="admin-tab-absen" class="tab-button" type="button">✅ Absensi</button>
+     <div class="tabs-container"><button onclick="showAdminTab('kegiatan')" id="admin-tab-kegiatan" class="tab-button active" type="button">📅 Kegiatan</button> <button onclick="showAdminTab('absen')" id="admin-tab-absen" class="tab-button" type="button">✅ Absensi</button> <button onclick="showAdminTab('user')" id="admin-tab-user" class="tab-button" type="button">👥 Kelola User</button>
      </div>
      <div id="admin-content-kegiatan" class="content-section active">
       <div class="form-card">
@@ -835,6 +854,30 @@
      </div>
      <div id="admin-content-absen" class="content-section hidden">
       <div id="admin-absen-list" class="cards-grid"></div>
+     </div>
+     <div id="admin-content-user" class="content-section hidden">
+      <div class="table-wrapper">
+       <div class="table-header">
+        <h3>Daftar User Terdaftar</h3>
+       </div>
+       <div class="table-scroll">
+        <table id="user-table">
+         <thead>
+          <tr>
+           <th>Nama</th>
+           <th>Username</th>
+           <th>Password</th>
+           <th>Email / Telepon</th>
+           <th>RT</th>
+           <th>Jabatan</th>
+           <th>Alamat</th>
+          </tr>
+         </thead>
+         <tbody id="user-table-body">
+         </tbody>
+        </table>
+       </div>
+      </div>
      </div>
     </div>
    </div>
@@ -879,6 +922,13 @@
     let isAdmin = false;
     let signaturePad = null;
     let isDrawing = false;
+    let registeredUsers = [];
+
+    function togglePasswordVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+    }
 
     try {
       if (window.supabase) {
@@ -935,11 +985,24 @@
       const username = document.getElementById('login-username').value;
       const password = document.getElementById('login-password').value;
 
+      // Check admin
       if (username === 'sekretaris' && password === 'admin') {
-        currentUser = { nama: 'Admin Sekretaris', jabatan: 'Pengurus RW' };
+        currentUser = { nama: 'Admin Sekretaris', jabatan: 'Pengurus RW', username: 'sekretaris' };
         isAdmin = true;
+        loadUserManagement();
         showPage('admin-dashboard');
         showToast('Selamat datang, Admin!');
+        return;
+      }
+
+      // Check registered users
+      const user = registeredUsers.find(u => u.username === username && u.password === password);
+      if (user) {
+        currentUser = user;
+        isAdmin = false;
+        showPage('user-dashboard');
+        document.getElementById('user-greeting').textContent = `Selamat datang, ${user.nama}!`;
+        showToast(`Selamat datang, ${user.nama}!`);
         return;
       }
 
@@ -948,6 +1011,35 @@
 
     document.getElementById('register-form').addEventListener('submit', (e) => {
       e.preventDefault();
+      
+      const nama = document.getElementById('reg-nama').value;
+      const telp = document.getElementById('reg-telp').value;
+      const alamat = document.getElementById('reg-alamat').value;
+      const rt = document.getElementById('reg-rt').value;
+      const jabatan = document.getElementById('reg-jabatan').value;
+      const username = document.getElementById('reg-username').value;
+      const password = document.getElementById('reg-password').value;
+
+      // Check if username already exists
+      if (registeredUsers.some(u => u.username === username)) {
+        showToast('Username sudah digunakan!', 'error');
+        return;
+      }
+
+      // Store user data
+      const newUser = {
+        nama,
+        telp,
+        alamat,
+        rt,
+        jabatan,
+        username,
+        password
+      };
+
+      registeredUsers.push(newUser);
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+
       showToast('Pendaftaran berhasil! Silakan login.');
       showPage('login-page');
       document.getElementById('register-form').reset();
@@ -959,6 +1051,29 @@
       showPage('login-page');
       document.getElementById('login-form').reset();
       showToast('Anda telah keluar');
+    }
+
+    function loadUserManagement() {
+      const tbody = document.getElementById('user-table-body');
+      tbody.innerHTML = '';
+
+      registeredUsers.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><span class="text-sm">${user.nama}</span></td>
+          <td><span class="text-sm">${user.username}</span></td>
+          <td><span class="text-sm" style="font-family: monospace;">${user.password}</span></td>
+          <td><span class="text-sm">${user.telp}</span></td>
+          <td><span class="text-sm">${user.rt}</span></td>
+          <td><span class="text-sm">${user.jabatan}</span></td>
+          <td><span class="text-xs">${user.alamat}</span></td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      if (registeredUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #9ca3af;">Belum ada user terdaftar</td></tr>';
+      }
     }
 
     function formatDate(dateStr) {
@@ -1070,10 +1185,16 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
+      // Load registered users from localStorage
+      const stored = localStorage.getItem('registeredUsers');
+      if (stored) {
+        registeredUsers = JSON.parse(stored);
+      }
+
       if (SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
         showToast('⚠️ Konfigurasi Supabase diperlukan', 'info');
       }
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c94c7897555880e',t:'MTc3MDMxOTM3Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c983e684727fd03',t:'MTc3MDM1NTcwMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
