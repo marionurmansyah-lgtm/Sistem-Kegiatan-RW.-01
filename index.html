@@ -1,1200 +1,512 @@
-<!doctype html>
-<html lang="id" class="h-full">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Kegiatan RW.01</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <style type="text/css">
-    body {
-      box-sizing: border-box;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html, body {
-      height: 100%;
-      width: 100%;
-    }
-
-    body {
-      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 50%, #f0fdfa 100%);
-      color: #1f2937;
-      overflow: hidden;
-    }
-
-    #app {
-      height: 100%;
-      width: 100%;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      transition: all 0.3s ease;
-    }
-
-    input, textarea, select {
-      font-family: inherit;
-      font-size: 1rem;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    #toast-container {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      z-index: 50;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .toast {
-      animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.75rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      color: white;
-      font-size: 0.95rem;
-      font-weight: 500;
-    }
-
-    @keyframes slideIn {
-      from { transform: translateY(-100%); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
-
-    #login-page, #register-page, #user-dashboard, #admin-dashboard {
-      min-height: 100%;
-      width: 100%;
-    }
-
-    #login-page {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .login-container {
-      width: 100%;
-      max-width: 28rem;
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      border: 1px solid #ecf0f1;
-    }
-
-    .login-header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .logo-badge {
-      width: 5rem;
-      height: 5rem;
-      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-      border-radius: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 1rem;
-      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
-    }
-
-    .logo-badge svg {
-      width: 2.5rem;
-      height: 2.5rem;
-      color: white;
-    }
-
-    .login-header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1f2937;
-    }
-
-    .login-header p {
-      color: #6b7280;
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    #login-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .form-group label {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 0.5rem;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      padding: 0.75rem 1rem;
-      border: 1px solid #d1d5db;
-      border-radius: 0.75rem;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: #10b981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-    }
-
-    .btn-submit {
-      width: 100%;
-      padding: 0.75rem;
-      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-      color: white;
-      border-radius: 0.75rem;
-      font-weight: 600;
-      font-size: 0.95rem;
-      box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
-      transition: all 0.2s ease;
-    }
-
-    .btn-submit:hover {
-      background: linear-gradient(135deg, #059669 0%, #0d9488 100%);
-      box-shadow: 0 15px 25px -3px rgba(16, 185, 129, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .login-footer {
-      text-align: center;
-      padding-top: 1.5rem;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .login-footer p {
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
-
-    .btn-register {
-      color: #10b981;
-      font-weight: 600;
-      background: none;
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
-    }
-
-    .btn-register:hover {
-      color: #059669;
-    }
-
-    #register-page {
-      padding: 2rem 1rem;
-    }
-
-    .register-container {
-      max-width: 48rem;
-      margin: 0 auto;
-    }
-
-    .register-card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      padding: 2rem;
-      border: 1px solid #ecf0f1;
-    }
-
-    .back-button {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #6b7280;
-      font-weight: 500;
-      margin-bottom: 1.5rem;
-      background: none;
-      font-size: 0.95rem;
-    }
-
-    .back-button:hover {
-      color: #374151;
-    }
-
-    .back-button svg {
-      width: 1.25rem;
-      height: 1.25rem;
-    }
-
-    .register-card h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1f2937;
-      margin-bottom: 1.5rem;
-    }
-
-    #register-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 768px) {
-      .form-row {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    header {
-      background: white;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border-bottom: 1px solid #ecf0f1;
-      position: sticky;
-      top: 0;
-      z-index: 40;
-    }
-
-    header.admin {
-      background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
-      color: white;
-    }
-
-    .header-content {
-      max-width: 72rem;
-      margin: 0 auto;
-      padding: 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    .header-brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .header-icon {
-      width: 2.5rem;
-      height: 2.5rem;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 0.75rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .header-icon svg {
-      width: 1.25rem;
-      height: 1.25rem;
-    }
-
-    .header-text h1 {
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-
-    .header-text p {
-      font-size: 0.75rem;
-      opacity: 0.8;
-    }
-
-    .btn-logout {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: #6b7280;
-      background: none;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .btn-logout:hover {
-      color: #ef4444;
-    }
-
-    header.admin .btn-logout {
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    header.admin .btn-logout:hover {
-      color: white;
-    }
-
-    .dashboard-wrapper {
-      max-width: 72rem;
-      margin: 0 auto;
-      padding: 1.5rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    @media (min-width: 768px) {
-      .stats-grid {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 1rem;
-      padding: 1rem;
-      border: 1px solid #ecf0f1;
-    }
-
-    .tabs-container {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      overflow-x: auto;
-      padding-bottom: 0.5rem;
-    }
-
-    .tab-button {
-      padding: 0.5rem 1rem;
-      border-radius: 0.75rem;
-      font-weight: 500;
-      font-size: 0.9rem;
-      white-space: nowrap;
-      background: #f3f4f6;
-      color: #6b7280;
-      transition: all 0.2s;
-    }
-
-    .tab-button:hover {
-      background: #e5e7eb;
-    }
-
-    .tab-button.active {
-      background: #10b981;
-      color: white;
-    }
-
-    .content-section {
-      display: none;
-    }
-
-    .content-section.active {
-      display: block;
-    }
-
-    .cards-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      border: 1px solid #ecf0f1;
-      transition: all 0.2s;
-    }
-
-    .card:hover {
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    }
-
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .card-meta {
-      font-size: 0.85rem;
-      color: #6b7280;
-      margin-top: 0.5rem;
-    }
-
-    .card-description {
-      margin-top: 0.75rem;
-      color: #374151;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-
-    .btn-action {
-      padding: 0.5rem 1rem;
-      border-radius: 0.75rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: all 0.2s;
-      background: none;
-    }
-
-    .btn-action.primary {
-      background: #10b981;
-      color: white;
-    }
-
-    .btn-action.primary:hover {
-      background: #059669;
-    }
-
-    .form-card {
-      background: white;
-      border-radius: 1rem;
-      padding: 1.5rem;
-      border: 1px solid #ecf0f1;
-      margin-bottom: 1.5rem;
-    }
-
-    .form-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1f2937;
-      margin-bottom: 1rem;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-
-    @media (min-width: 768px) {
-      .form-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 50;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .modal-overlay.hidden {
-      display: none;
-    }
-
-    .modal-content {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      width: 100%;
-      max-width: 32rem;
-      max-height: 90%;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      padding: 1.5rem;
-      border-bottom: 1px solid #ecf0f1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .modal-header h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #1f2937;
-    }
-
-    .modal-close {
-      background: none;
-      color: #9ca3af;
-      font-size: 1.5rem;
-    }
-
-    .modal-close:hover {
-      color: #6b7280;
-    }
-
-    .modal-body {
-      padding: 1.5rem;
-    }
-
-    #form-absen {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .signature-pad {
-      border: 2px dashed #cbd5e1;
-      border-radius: 0.5rem;
-      width: 100%;
-      height: 10rem;
-      background: #f9fafb;
-      cursor: crosshair;
-      touch-action: none;
-    }
-
-    #photo-preview {
-      margin-top: 0.5rem;
-      display: none;
-    }
-
-    #photo-preview.show {
-      display: block;
-    }
-
-    #preview-img {
-      width: 8rem;
-      height: 8rem;
-      object-fit: cover;
-      border-radius: 0.75rem;
-    }
-
-    .empty-state {
-      background: white;
-      border-radius: 1rem;
-      padding: 2rem;
-      text-align: center;
-      border: 1px solid #ecf0f1;
-    }
-
-    .empty-text {
-      color: #6b7280;
-      font-size: 0.95rem;
-    }
-
-    .table-wrapper {
-      background: white;
-      border-radius: 1rem;
-      border: 1px solid #ecf0f1;
-      overflow: hidden;
-    }
-
-    .table-header {
-      padding: 1rem;
-      border-bottom: 1px solid #ecf0f1;
-    }
-
-    .table-scroll {
-      overflow-x: auto;
-    }
-
-    table {
-      width: 100%;
-      font-size: 0.9rem;
-    }
-
-    thead {
-      background: #f9fafb;
-    }
-
-    th {
-      padding: 1rem;
-      text-align: left;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #6b7280;
-    }
-
-    td {
-      padding: 1rem;
-      border-top: 1px solid #f3f4f6;
-    }
-
-    .text-xs {
-      font-size: 0.75rem;
-    }
-
-    .text-sm {
-      font-size: 0.875rem;
-    }
-
-    .form-group.password-group {
-      position: relative;
-    }
-
-    .password-toggle {
-      position: absolute;
-      right: 1rem;
-      top: 2.25rem;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #6b7280;
-      font-size: 1.25rem;
-      padding: 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .password-toggle:hover {
-      color: #374151;
-    }
-
-    .mt-1 {
-      margin-top: 0.25rem;
-    }
-
-    .mt-2 {
-      margin-top: 0.5rem;
-    }
-
-    .mt-3 {
-      margin-top: 0.75rem;
-    }
-
-    .mt-4 {
-      margin-top: 1rem;
-    }
-
-    .flex {
-      display: flex;
-    }
-
-    .items-center {
-      align-items: center;
-    }
-
-    .justify-between {
-      justify-content: space-between;
-    }
-
-    .gap-2 {
-      gap: 0.5rem;
-    }
-
-    .gap-3 {
-      gap: 0.75rem;
-    }
-
-    .gap-4 {
-      gap: 1rem;
-    }
-
-    @media (max-width: 640px) {
-      .dashboard-wrapper {
-        padding: 1rem;
-      }
-
-      .register-card, .form-card, .card {
-        padding: 1rem;
-      }
-    }
-  </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
-  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
- </head>
- <body>
-  <div id="app">
-   <div id="toast-container"></div>
-   <div id="login-page">
-    <div class="login-container">
-     <div class="login-card">
-      <div class="login-header">
-       <div class="logo-badge">
-        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-        </svg>
-       </div>
-       <h1>Aplikasi Kegiatan RW.01</h1>
-       <p>Silakan masuk untuk melanjutkan</p>
-      </div>
-      <form id="login-form">
-       <div class="form-group"><label for="login-username">Username</label> <input type="text" id="login-username" required placeholder="Masukkan username">
-       </div>
-       <div class="form-group password-group"><label for="login-password">Password</label> <input type="password" id="login-password" required placeholder="Masukkan password"> <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password')">👁️</button>
-       </div><button type="submit" class="btn-submit">Masuk</button>
-      </form>
-      <div class="login-footer">
-       <p>Belum punya akun?</p><button onclick="showPage('register-page')" class="btn-register" type="button">Daftar Sekarang</button>
-      </div>
-     </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi RW.01 Kebon Manggis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <style>
+        .signature-pad { border: 2px dashed #cbd5e1; background: #ffffff; touch-action: none; cursor: crosshair; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans">
+
+    <div id="toast" class="fixed top-4 right-4 z-[99] hidden px-6 py-3 rounded-lg shadow-2xl text-white transition-all"></div>
+
+    <div id="page-login" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center">
+            <img src="URL_LOGO_RW_ANDA" alt="Logo RW.01" class="w-24 h-24 mx-auto mb-4 object-contain">
+            <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tight">Login RW.01</h1>
+            <p class="text-xs text-slate-500 mb-8 font-medium">Kebon Manggis, Matraman, Jakarta Timur</p>
+            
+            <form id="form-login" class="space-y-4 text-left">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 ml-1 mb-1">Username</label>
+                    <input type="text" id="login-user" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" placeholder="Username Anda" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-600 ml-1 mb-1">Password</label>
+                    <input type="password" id="login-pass" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 transition-all">Masuk Aplikasi</button>
+            </form>
+            <p class="text-center mt-6 text-sm text-slate-600">
+                Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button>
+            </p>
+        </div>
     </div>
-   </div>
-   <div id="register-page" class="hidden">
-    <div class="register-container">
-     <div class="register-card"><button onclick="showPage('login-page')" class="back-button" type="button">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-       </svg> Kembali ke Login </button>
-      <h2>Pendaftaran Warga RW.01</h2>
-      <form id="register-form">
-       <div class="form-row">
-        <div class="form-group"><label for="reg-nama">Nama Lengkap *</label> <input type="text" id="reg-nama" required placeholder="Masukkan nama lengkap">
+
+    <div id="page-register" class="hidden min-h-screen p-4 flex justify-center items-start">
+        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl my-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Formulir Pendaftaran Warga</h2>
+            <p class="text-sm text-slate-500 mb-6 border-b pb-4">Silakan lengkapi data diri Anda sesuai KTP.</p>
+            
+            <form id="form-register" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500">NAMA LENGKAP</label>
+                    <input type="text" name="nama" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500">ALAMAT LENGKAP</label>
+                    <textarea name="alamat" class="w-full border border-slate-200 p-2.5 rounded-lg h-20" required></textarea>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">RT (01-16)</label>
+                    <select name="rt" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                        <option value="">Pilih RT</option>
+                        <script>for(let i=1; i<=16; i++) { 
+                            let rtVal = "RT " + i.toString().padStart(2,'0');
+                            document.write(`<option value="${rtVal}">${rtVal}</option>`);
+                        }</script>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">JABATAN</label>
+                    <select name="jabatan" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                        <option value="Warga">Warga</option>
+                        <option value="Pengurus RW">Pengurus RW</option>
+                        <option value="Pengurus RT">Pengurus RT</option>
+                        <option value="Kader Jumantik">Kader Jumantik</option>
+                        <option value="Kader Posyandu">Kader Posyandu</option>
+                        <option value="Kader PKK">Kader PKK</option>
+                        <option value="Kader Dasawisma">Kader Dasawisma</option>
+                        <option value="Pengurus PAUD">Pengurus PAUD</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="text-xs font-bold text-slate-500">DESKRIPSI JABATAN / KETERANGAN</label>
+                    <input type="text" name="deskripsi" placeholder="Contoh: Bendahara RT 05 / Kader Melati" class="w-full border border-slate-200 p-2.5 rounded-lg">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">NO. WHATSAPP/TELP</label>
+                    <input type="tel" name="telp" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500">USERNAME</label>
+                    <input type="text" name="username" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                </div>
+                <div class="md:col-span-2 border-t pt-4">
+                    <label class="text-xs font-bold text-slate-500">PASSWORD</label>
+                    <input type="password" name="password" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
+                </div>
+                <div class="md:col-span-2 flex gap-3 mt-4">
+                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg">Simpan & Daftar</button>
+                    <button type="button" onclick="showPage('page-login')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold">Kembali</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group"><label for="reg-telp">No. Telepon *</label> <input type="tel" id="reg-telp" required placeholder="08xxxxxxxxxx">
-        </div>
-       </div>
-       <div class="form-group"><label for="reg-alamat">Alamat *</label> <textarea id="reg-alamat" required rows="2" placeholder="Masukkan alamat lengkap"></textarea>
-       </div>
-       <div class="form-row">
-        <div class="form-group"><label for="reg-rt">RT *</label> <select id="reg-rt" required> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> <option value="RT 04">RT 04</option> <option value="RT 05">RT 05</option> <option value="RT 06">RT 06</option> <option value="RT 07">RT 07</option> <option value="RT 08">RT 08</option> <option value="RT 09">RT 09</option> <option value="RT 10">RT 10</option> <option value="RT 11">RT 11</option> <option value="RT 12">RT 12</option> <option value="RT 13">RT 13</option> <option value="RT 14">RT 14</option> <option value="RT 15">RT 15</option> <option value="RT 16">RT 16</option> </select>
-        </div>
-        <div class="form-group"><label for="reg-jabatan">Jabatan *</label> <select id="reg-jabatan" required> <option value="">Pilih Jabatan</option> <option value="Ketua RW">Ketua RW</option> <option value="Wakil Ketua RW">Wakil Ketua RW</option> <option value="Sekretaris RW">Sekretaris RW</option> <option value="Bendahara RW">Bendahara RW</option> <option value="Ketua RT">Ketua RT</option> <option value="Wakil Ketua RT">Wakil Ketua RT</option> <option value="Sekretaris RT">Sekretaris RT</option> <option value="Bendahara RT">Bendahara RT</option> <option value="Koordinator Keamanan">Koordinator Keamanan</option> <option value="Koordinator Kebersihan">Koordinator Kebersihan</option> <option value="Koordinator Sosial">Koordinator Sosial</option> <option value="Warga">Warga</option> </select>
-        </div>
-       </div>
-       <div class="form-row">
-        <div class="form-group"><label for="reg-username">Username *</label> <input type="text" id="reg-username" required placeholder="Buat username">
-        </div>
-        <div class="form-group password-group"><label for="reg-password">Password *</label> <input type="password" id="reg-password" required placeholder="Buat password"> <button type="button" class="password-toggle" onclick="togglePasswordVisibility('reg-password')">👁️</button>
-        </div>
-       </div><button type="submit" class="btn-submit">Daftar</button>
-      </form>
-     </div>
     </div>
-   </div>
-   <div id="user-dashboard" class="hidden">
-    <header>
-     <div class="header-content">
-      <div class="header-brand">
-       <div class="header-icon">
-        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-       </div>
-       <div class="header-text">
-        <h1>RW.01</h1>
-        <p id="user-greeting">Selamat datang</p>
-       </div>
-      </div><button onclick="logout()" class="btn-logout" type="button">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-       </svg><span>Keluar</span> </button>
-     </div>
-    </header>
-    <div class="dashboard-wrapper">
-     <div class="tabs-container"><button onclick="showUserTab('info')" id="tab-info" class="tab-button active" type="button">📢 Info</button> <button onclick="showUserTab('absen')" id="tab-absen" class="tab-button" type="button">✅ Absensi</button>
-     </div>
-     <div id="content-info" class="content-section active">
-      <div id="kegiatan-list" class="cards-grid"></div>
-     </div>
-     <div id="content-absen" class="content-section hidden">
-      <div id="absen-user-list" class="cards-grid"></div>
-     </div>
+
+    <div id="page-user" class="hidden min-h-screen">
+        <nav class="bg-white border-b p-4 sticky top-0 z-40 flex justify-between items-center px-6 shadow-sm">
+            <div class="flex items-center gap-3">
+                <img src="URL_LOGO_RW_ANDA" class="w-10 h-10 object-contain">
+                <div>
+                    <h2 class="text-sm font-black text-slate-800 leading-none">RW.01</h2>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest" id="user-name-display"></p>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-xs font-bold bg-rose-50 text-rose-600 px-4 py-2 rounded-full border border-rose-100">LOGOUT</button>
+        </nav>
+
+        <div class="max-w-4xl mx-auto p-4 space-y-6 pb-20">
+            <section>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-6 bg-amber-400 rounded-full"></div>
+                    <h3 class="font-black text-slate-700 uppercase tracking-tighter">Pengumuman Terbaru</h3>
+                </div>
+                <div id="list-pengumuman" class="grid gap-3"></div>
+            </section>
+
+            <section>
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+                    <h3 class="font-black text-slate-700 uppercase tracking-tighter">Kegiatan Aktif</h3>
+                </div>
+                <div id="list-kegiatan" class="grid gap-4"></div>
+            </section>
+
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-4 bg-slate-50 border-b">
+                    <h3 class="font-bold text-sm text-slate-600 uppercase tracking-widest">Riwayat Kehadiran Saya</h3>
+                </div>
+                <div id="riwayat-absen-user" class="overflow-x-auto"></div>
+            </section>
+        </div>
     </div>
-   </div>
-   <div id="admin-dashboard" class="hidden">
-    <header class="admin">
-     <div class="header-content">
-      <div class="header-brand">
-       <div class="header-icon">
-        <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-        </svg>
-       </div>
-       <div class="header-text">
-        <h1>Admin Panel</h1>
-        <p>Pengurus RW.01</p>
-       </div>
-      </div><button onclick="logout()" class="btn-logout" type="button">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-       </svg><span>Keluar</span> </button>
-     </div>
-    </header>
-    <div class="dashboard-wrapper">
-     <div class="tabs-container"><button onclick="showAdminTab('kegiatan')" id="admin-tab-kegiatan" class="tab-button active" type="button">📅 Kegiatan</button> <button onclick="showAdminTab('absen')" id="admin-tab-absen" class="tab-button" type="button">✅ Absensi</button> <button onclick="showAdminTab('user')" id="admin-tab-user" class="tab-button" type="button">👥 Kelola User</button>
-     </div>
-     <div id="admin-content-kegiatan" class="content-section active">
-      <div class="form-card">
-       <h3>Tambah Kegiatan Baru</h3>
-       <form id="form-kegiatan" class="form-grid">
-        <div class="form-group"><label for="kegiatan-nama">Nama Kegiatan *</label> <input type="text" id="kegiatan-nama" required placeholder="Contoh: Kerja Bakti">
+
+    <div id="page-admin" class="hidden min-h-screen">
+        <header class="bg-slate-900 text-white p-5 flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-4">
+                <img src="URL_LOGO_RW_ANDA" class="w-10 h-10 brightness-200 grayscale">
+                <h1 class="font-black tracking-tighter uppercase">Admin Sekretariat RW.01</h1>
+            </div>
+            <button onclick="logout()" class="text-xs bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg">KELUAR</button>
+        </header>
+
+        <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div class="xl:col-span-4 space-y-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg text-xs">NEW</span>
+                        Tambah Informasi
+                    </h3>
+                    <form id="form-admin-kegiatan" class="space-y-4">
+                        <select id="adm-tipe" class="w-full border border-slate-200 p-3 rounded-xl font-bold text-sm" onchange="toggleAdminInput()">
+                            <option value="kegiatan">Kegiatan (Ada Absensi)</option>
+                            <option value="pengumuman">Pengumuman (Lampiran File)</option>
+                        </select>
+                        <input type="text" id="adm-judul" placeholder="Judul / Nama Agenda" class="w-full border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 ring-emerald-100 transition" required>
+                        <div id="row-kegiatan" class="grid grid-cols-2 gap-2">
+                            <input type="date" id="adm-tgl" class="border border-slate-200 p-3 rounded-xl text-sm">
+                            <input type="time" id="adm-wkt" class="border border-slate-200 p-3 rounded-xl text-sm">
+                        </div>
+                        <textarea id="adm-desc" placeholder="Lokasi atau Detail Pengumuman..." class="w-full border border-slate-200 p-3 rounded-xl h-24 text-sm"></textarea>
+                        <div id="row-pengumuman" class="hidden border-2 border-dashed border-slate-200 p-6 text-center rounded-xl bg-slate-50">
+                            <input type="file" id="adm-file" class="text-xs mb-2">
+                            <p class="text-[10px] text-slate-400">Pilih file PDF atau Gambar Undangan</p>
+                        </div>
+                        <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-xl">Posting Informasi</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="xl:col-span-8">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b flex flex-col md:flex-row justify-between items-center gap-4">
+                        <h3 class="font-black text-slate-800 uppercase tracking-tighter">Laporan Real-time Absensi</h3>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="text" id="filter-nama" placeholder="Cari nama..." class="border border-slate-200 px-4 py-2 rounded-lg text-sm flex-1" oninput="loadAdminAbsensi()">
+                            <button onclick="downloadPDF()" class="bg-rose-600 text-white px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[600px]">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] font-bold tracking-widest sticky top-0">
+                                <tr>
+                                    <th class="p-4">Warga / RT</th>
+                                    <th class="p-4">Kegiatan</th>
+                                    <th class="p-4">Foto & TTD</th>
+                                    <th class="p-4">GPS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-absensi-admin" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group"><label for="kegiatan-tanggal">Tanggal *</label> <input type="date" id="kegiatan-tanggal" required>
-        </div>
-        <div class="form-group"><label for="kegiatan-waktu">Waktu *</label> <input type="time" id="kegiatan-waktu" required>
-        </div>
-        <div class="form-group"><label for="kegiatan-lokasi">Lokasi *</label> <input type="text" id="kegiatan-lokasi" required placeholder="Contoh: Balai RW">
-        </div><button type="submit" class="btn-submit" style="grid-column: 1 / -1;">Tambah Kegiatan</button>
-       </form>
-      </div>
-      <div id="admin-kegiatan-list" class="cards-grid"></div>
-     </div>
-     <div id="admin-content-absen" class="content-section hidden">
-      <div id="admin-absen-list" class="cards-grid"></div>
-     </div>
-     <div id="admin-content-user" class="content-section hidden">
-      <div class="table-wrapper">
-       <div class="table-header">
-        <h3>Daftar User Terdaftar</h3>
-       </div>
-       <div class="table-scroll">
-        <table id="user-table">
-         <thead>
-          <tr>
-           <th>Nama</th>
-           <th>Username</th>
-           <th>Password</th>
-           <th>Email / Telepon</th>
-           <th>RT</th>
-           <th>Jabatan</th>
-           <th>Alamat</th>
-          </tr>
-         </thead>
-         <tbody id="user-table-body">
-         </tbody>
-        </table>
-       </div>
-      </div>
-     </div>
     </div>
-   </div>
-   <div id="attendance-modal" class="modal-overlay hidden">
-    <div class="modal-content">
-     <div class="modal-header">
-      <div>
-       <h3>Form Absensi</h3>
-       <p id="modal-kegiatan-nama" class="text-sm text-gray-500 mt-1"></p>
-      </div><button onclick="closeAttendanceModal()" class="modal-close" type="button">
-       <svg fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-       </svg></button>
-     </div>
-     <div class="modal-body">
-      <form id="form-absen"><input type="hidden" id="absen-kegiatan-id">
-       <div class="form-group"><label for="absen-nama">Nama *</label> <input type="text" id="absen-nama" required placeholder="Nama lengkap">
-       </div>
-       <div class="form-row">
-        <div class="form-group"><label for="absen-rt">RT *</label> <select id="absen-rt" required> <option value="">Pilih RT</option> <option value="RT 01">RT 01</option> <option value="RT 02">RT 02</option> <option value="RT 03">RT 03</option> </select>
+
+    <div id="modal-absen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden p-4 z-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-300">
+            <h2 class="font-black text-xl text-slate-800 mb-1" id="mdl-keg-nama">Form Kehadiran</h2>
+            <p class="text-xs text-slate-500 mb-6">Pastikan GPS aktif dan wajah terlihat jelas.</p>
+            
+            <form id="form-absen" class="space-y-4">
+                <input type="hidden" id="absen-kegiatan-id">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="abs-nama" class="bg-slate-50 border-none p-3 rounded-xl text-sm font-bold text-slate-700" readonly>
+                    <input type="text" id="abs-rt" class="bg-slate-50 border-none p-3 rounded-xl text-sm font-bold text-slate-700" readonly>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block">Ambil Selfie Kehadiran</label>
+                    <input type="file" id="abs-photo" accept="image/*" capture="user" class="text-xs w-full mb-2" required>
+                    <div class="h-1 bg-emerald-100 rounded-full overflow-hidden">
+                        <div id="upload-progress" class="h-full bg-emerald-500 w-0 transition-all"></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block">Tanda Tangan Digital</label>
+                    <canvas id="canvas-signature" width="400" height="150" class="signature-pad w-full rounded-xl"></canvas>
+                    <button type="button" onclick="clearSignature()" class="text-[10px] font-bold text-rose-500 mt-2 uppercase tracking-widest">Hapus Tanda Tangan</button>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" id="btn-submit-absen" class="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-100">KIRIM ABSENSI</button>
+                    <button type="button" onclick="closeModal()" class="px-6 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold text-sm underline">BATAL</button>
+                </div>
+            </form>
         </div>
-        <div class="form-group"><label for="absen-telp">No. Telepon *</label> <input type="tel" id="absen-telp" required placeholder="08xxx">
-        </div>
-       </div>
-       <div class="form-group"><label for="absen-photo">Photo Selfie *</label> <input type="file" id="absen-photo" accept="image/*" capture="user" required>
-        <div id="photo-preview"><img id="preview-img" alt="Preview" loading="lazy">
-        </div>
-       </div>
-       <div class="form-group"><label>Tanda Tangan *</label>
-        <canvas id="signature-pad" class="signature-pad"></canvas>
-       </div><button type="submit" class="btn-submit">Submit Absensi</button>
-      </form>
-     </div>
     </div>
-   </div>
-  </div>
-  <script>
-    const SUPABASE_URL = 'https://scvydobptkuvfthligiw.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA';
-    
-    let supabaseClient = null;
-    let currentUser = null;
-    let isAdmin = false;
-    let signaturePad = null;
-    let isDrawing = false;
-    let registeredUsers = [];
 
-    function togglePasswordVisibility(inputId) {
-      const input = document.getElementById(inputId);
-      const isPassword = input.type === 'password';
-      input.type = isPassword ? 'text' : 'password';
-    }
+    <script>
+        // --- 1. CONFIGURATION (GANTI DISINI) ---
+        const SUPABASE_URL = 'https://scvydobptkuvfthligiw.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA';
+        const LOGO_URL = 'https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    try {
-      if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.error('Supabase init error:', e);
-    }
+        let currentUser = null;
+        let currentKegiatanId = null;
 
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      const bgColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6';
-      toast.className = 'toast';
-      toast.style.backgroundColor = bgColor;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
+        // --- 2. SIGNATURE LOGIC ---
+        const canvas = document.getElementById('canvas-signature');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
 
-    function showPage(pageId) {
-      document.querySelectorAll('[id$="-page"], [id$="-dashboard"]').forEach(page => {
-        page.classList.add('hidden');
-      });
-      document.getElementById(pageId).classList.remove('hidden');
-    }
-
-    function showUserTab(tabName) {
-      document.querySelectorAll('#user-dashboard .tab-button').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.getElementById(`tab-${tabName}`).classList.add('active');
-      
-      document.querySelectorAll('#user-dashboard .content-section').forEach(content => {
-        content.classList.add('hidden');
-      });
-      document.getElementById(`content-${tabName}`).classList.remove('hidden');
-    }
-
-    function showAdminTab(tabName) {
-      document.querySelectorAll('#admin-dashboard .tab-button').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.getElementById(`admin-tab-${tabName}`).classList.add('active');
-      
-      document.querySelectorAll('#admin-dashboard .content-section').forEach(content => {
-        content.classList.add('hidden');
-      });
-      document.getElementById(`admin-content-${tabName}`).classList.remove('hidden');
-    }
-
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const username = document.getElementById('login-username').value;
-      const password = document.getElementById('login-password').value;
-
-      // Check admin
-      if (username === 'sekretaris' && password === 'admin') {
-        currentUser = { nama: 'Admin Sekretaris', jabatan: 'Pengurus RW', username: 'sekretaris' };
-        isAdmin = true;
-        loadUserManagement();
-        showPage('admin-dashboard');
-        showToast('Selamat datang, Admin!');
-        return;
-      }
-
-      // Check registered users
-      const user = registeredUsers.find(u => u.username === username && u.password === password);
-      if (user) {
-        currentUser = user;
-        isAdmin = false;
-        showPage('user-dashboard');
-        document.getElementById('user-greeting').textContent = `Selamat datang, ${user.nama}!`;
-        showToast(`Selamat datang, ${user.nama}!`);
-        return;
-      }
-
-      showToast('Username atau password salah!', 'error');
-    });
-
-    document.getElementById('register-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      
-      const nama = document.getElementById('reg-nama').value;
-      const telp = document.getElementById('reg-telp').value;
-      const alamat = document.getElementById('reg-alamat').value;
-      const rt = document.getElementById('reg-rt').value;
-      const jabatan = document.getElementById('reg-jabatan').value;
-      const username = document.getElementById('reg-username').value;
-      const password = document.getElementById('reg-password').value;
-
-      // Check if username already exists
-      if (registeredUsers.some(u => u.username === username)) {
-        showToast('Username sudah digunakan!', 'error');
-        return;
-      }
-
-      // Store user data
-      const newUser = {
-        nama,
-        telp,
-        alamat,
-        rt,
-        jabatan,
-        username,
-        password
-      };
-
-      registeredUsers.push(newUser);
-      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
-
-      showToast('Pendaftaran berhasil! Silakan login.');
-      showPage('login-page');
-      document.getElementById('register-form').reset();
-    });
-
-    function logout() {
-      currentUser = null;
-      isAdmin = false;
-      showPage('login-page');
-      document.getElementById('login-form').reset();
-      showToast('Anda telah keluar');
-    }
-
-    function loadUserManagement() {
-      const tbody = document.getElementById('user-table-body');
-      tbody.innerHTML = '';
-
-      registeredUsers.forEach(user => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><span class="text-sm">${user.nama}</span></td>
-          <td><span class="text-sm">${user.username}</span></td>
-          <td><span class="text-sm" style="font-family: monospace;">${user.password}</span></td>
-          <td><span class="text-sm">${user.telp}</span></td>
-          <td><span class="text-sm">${user.rt}</span></td>
-          <td><span class="text-sm">${user.jabatan}</span></td>
-          <td><span class="text-xs">${user.alamat}</span></td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      if (registeredUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: #9ca3af;">Belum ada user terdaftar</td></tr>';
-      }
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('id-ID', { 
-        day: 'numeric', 
-        month: 'short', 
-        year: 'numeric' 
-      });
-    }
-
-    document.getElementById('form-kegiatan').addEventListener('submit', (e) => {
-      e.preventDefault();
-      showToast('Kegiatan berhasil ditambahkan!');
-      document.getElementById('form-kegiatan').reset();
-    });
-
-    function openAttendanceModal(kegiatanId, kegiatanNama) {
-      document.getElementById('absen-kegiatan-id').value = kegiatanId;
-      document.getElementById('modal-kegiatan-nama').textContent = kegiatanNama;
-      document.getElementById('attendance-modal').classList.remove('hidden');
-      initSignaturePad();
-    }
-
-    function closeAttendanceModal() {
-      document.getElementById('attendance-modal').classList.add('hidden');
-      document.getElementById('form-absen').reset();
-      document.getElementById('photo-preview').classList.remove('show');
-    }
-
-    function initSignaturePad() {
-      const canvas = document.getElementById('signature-pad');
-      const ctx = canvas.getContext('2d');
-      
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      ctx.strokeStyle = '#1f2937';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      let lastX = 0;
-      let lastY = 0;
-
-      function getCoords(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return {
-          x: clientX - rect.left,
-          y: clientY - rect.top
+        const startDraw = (e) => { drawing = true; draw(e); };
+        const endDraw = () => { drawing = false; ctx.beginPath(); };
+        const draw = (e) => {
+            if(!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineTo(clientX - rect.left, clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(clientX - rect.left, clientY - rect.top);
         };
-      }
 
-      function startDrawing(e) {
-        isDrawing = true;
-        const coords = getCoords(e);
-        lastX = coords.x;
-        lastY = coords.y;
-      }
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
+        canvas.addEventListener('touchend', endDraw);
+        function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
-      function draw(e) {
-        if (!isDrawing) return;
-        e.preventDefault();
-        const coords = getCoords(e);
-        ctx.beginPath();
-        ctx.moveTo(lastX, lastY);
-        ctx.lineTo(coords.x, coords.y);
-        ctx.stroke();
-        lastX = coords.x;
-        lastY = coords.y;
-      }
+        // --- 3. NAVIGATION & UI ---
+        function showPage(id) {
+            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
 
-      function stopDrawing() {
-        isDrawing = false;
-      }
+        function notify(msg, color='bg-emerald-600') {
+            const t = document.getElementById('toast');
+            t.textContent = msg; t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-lg shadow-2xl text-white font-bold ${color}`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
 
-      canvas.addEventListener('mousedown', startDrawing);
-      canvas.addEventListener('mousemove', draw);
-      canvas.addEventListener('mouseup', stopDrawing);
-      canvas.addEventListener('mouseleave', stopDrawing);
-      
-      canvas.addEventListener('touchstart', startDrawing);
-      canvas.addEventListener('touchmove', draw);
-      canvas.addEventListener('touchend', stopDrawing);
-
-      signaturePad = { canvas, ctx };
-    }
-
-    document.getElementById('absen-photo').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          document.getElementById('preview-img').src = e.target.result;
-          document.getElementById('photo-preview').classList.add('show');
+        // --- 4. AUTHENTICATION ---
+        document.getElementById('form-register').onsubmit = async (e) => {
+            e.preventDefault();
+            const d = Object.fromEntries(new FormData(e.target));
+            const { error } = await _supabase.from('users').insert([d]);
+            if(error) return notify("Username sudah digunakan!", "bg-rose-500");
+            notify("Pendaftaran Berhasil! Silakan Login."); showPage('page-login');
         };
-        reader.readAsDataURL(file);
-      }
-    });
 
-    document.getElementById('form-absen').addEventListener('submit', (e) => {
-      e.preventDefault();
-      showToast('Absensi berhasil!');
-      closeAttendanceModal();
-    });
+        document.getElementById('form-login').onsubmit = async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      // Load registered users from localStorage
-      const stored = localStorage.getItem('registeredUsers');
-      if (stored) {
-        registeredUsers = JSON.parse(stored);
-      }
+            if(user === 'sekretaris' && pass === 'admin') {
+                showPage('page-admin'); loadAdminAbsensi(); return;
+            }
 
-      if (SUPABASE_URL === 'https://YOUR_PROJECT_URL.supabase.co') {
-        showToast('⚠️ Konfigurasi Supabase diperlukan', 'info');
-      }
-    });
-  </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c98f95d03d05ce9',t:'MTc3MDM2MzM2MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+            const { data, error } = await _supabase.from('users').select('*').eq('username', user).eq('password', pass).single();
+            if(data) {
+                currentUser = data;
+                document.getElementById('user-name-display').textContent = `${data.nama} | ${data.jabatan}`;
+                showPage('page-user'); loadUserContent();
+            } else {
+                notify("Login Gagal! Cek Username/Password.", "bg-rose-500");
+            }
+        };
+
+        function logout() { currentUser = null; showPage('page-login'); }
+
+        // --- 5. USER FEATURES ---
+        async function loadUserContent() {
+            // Load Pengumuman
+            const { data: p } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending:false});
+            document.getElementById('list-pengumuman').innerHTML = p.map(x => `
+                <div class="bg-amber-50 p-4 border-l-4 border-amber-400 rounded-xl">
+                    <h4 class="font-bold text-amber-900">${x.judul}</h4>
+                    <p class="text-sm text-amber-800 mt-1">${x.isi}</p>
+                    ${x.file_url ? `<a href="${x.file_url}" target="_blank" class="inline-flex items-center gap-1 mt-3 text-xs bg-white px-3 py-1.5 rounded-lg border border-amber-200 text-amber-600 font-bold">Buka Lampiran 🔗</a>` : ''}
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400 italic">Belum ada pengumuman.</p>';
+
+            // Load Kegiatan Aktif
+            const { data: k } = await _supabase.from('kegiatan').select('*').order('tanggal', {ascending:false});
+            document.getElementById('list-kegiatan').innerHTML = k.map(x => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center">
+                    <div>
+                        <h4 class="font-black text-slate-800 uppercase tracking-tight">${x.nama}</h4>
+                        <div class="flex gap-3 mt-1 italic text-[11px] text-slate-500">
+                            <span>📅 ${x.tanggal}</span>
+                            <span>⏰ ${x.waktu}</span>
+                        </div>
+                        <p class="text-xs text-emerald-600 mt-2 font-bold">📍 ${x.lokasi}</p>
+                    </div>
+                    <button onclick="openAbsen('${x.id}', '${x.nama}')" class="bg-emerald-600 text-white px-6 py-2.5 rounded-xl text-xs font-black shadow-lg shadow-emerald-100">HADIR</button>
+                </div>
+            `).join('') || '<p class="text-xs text-slate-400 italic">Tidak ada kegiatan terjadwal.</p>';
+
+            // Riwayat Saya
+            const { data: a } = await _supabase.from('absensi').select('*, kegiatan(nama)').eq('nama', currentUser.nama);
+            document.getElementById('riwayat-absen-user').innerHTML = `
+                <table class="w-full text-xs">
+                    <thead class="bg-slate-50"><tr><th class="p-4 text-left">KEGIATAN</th><th class="p-4 text-left">TANGGAL ABSEN</th></tr></thead>
+                    <tbody class="divide-y divide-slate-50">${a.map(x => `<tr><td class="p-4 font-bold text-slate-700">${x.kegiatan?.nama || 'Umum'}</td><td class="p-4">${new Date(x.created_at).toLocaleString('id-ID')}</td></tr>`).join('')}</tbody>
+                </table>
+            `;
+        }
+
+        function openAbsen(id, nama) {
+            currentKegiatanId = id;
+            document.getElementById('mdl-keg-nama').textContent = nama;
+            document.getElementById('abs-nama').value = currentUser.nama;
+            document.getElementById('abs-rt').value = currentUser.rt;
+            document.getElementById('modal-absen').classList.remove('hidden');
+            clearSignature();
+        }
+
+        function closeModal() { document.getElementById('modal-absen').classList.add('hidden'); }
+
+        document.getElementById('form-absen').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-absen');
+            btn.disabled = true; btn.textContent = "SEDANG MENGIRIM...";
+
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                try {
+                    const loc = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+                    const file = document.getElementById('abs-photo').files[0];
+                    const fName = `ABS_${Date.now()}.jpg`;
+
+                    // Upload Photo
+                    const { error: stErr } = await _supabase.storage.from('absensi').upload(fName, file);
+                    if(stErr) throw stErr;
+                    const pUrl = `${SUPABASE_URL}/storage/v1/object/public/absensi/${fName}`;
+
+                    // Insert DB
+                    const { error: dbErr } = await _supabase.from('absensi').insert([{
+                        kegiatan_id: currentKegiatanId,
+                        nama: currentUser.nama,
+                        alamat: currentUser.alamat,
+                        rt: currentUser.rt,
+                        telp: currentUser.telp,
+                        photo_url: pUrl,
+                        lokasi: loc,
+                        signature: canvas.toDataURL()
+                    }]);
+
+                    if(dbErr) throw dbErr;
+                    notify("Kehadiran Terkirim!"); closeModal(); loadUserContent();
+                } catch (err) {
+                    alert("Gagal: " + err.message);
+                } finally {
+                    btn.disabled = false; btn.textContent = "KIRIM ABSENSI";
+                }
+            }, () => {
+                alert("Gagal! Aktifkan Izin Lokasi/GPS untuk absen.");
+                btn.disabled = false; btn.textContent = "KIRIM ABSENSI";
+            });
+        };
+
+        // --- 6. ADMIN FEATURES ---
+        function toggleAdminInput() {
+            const tipe = document.getElementById('adm-tipe').value;
+            document.getElementById('row-kegiatan').className = tipe === 'kegiatan' ? 'grid grid-cols-2 gap-2' : 'hidden';
+            document.getElementById('row-pengumuman').className = tipe === 'pengumuman' ? 'border-2 border-dashed p-4 text-center rounded-xl bg-slate-50' : 'hidden';
+        }
+
+        document.getElementById('form-admin-kegiatan').onsubmit = async (e) => {
+            e.preventDefault();
+            const tipe = document.getElementById('adm-tipe').value;
+            const judul = document.getElementById('adm-judul').value;
+            const desc = document.getElementById('adm-desc').value;
+
+            if(tipe === 'kegiatan') {
+                const tgl = document.getElementById('adm-tgl').value;
+                const wkt = document.getElementById('adm-wkt').value;
+                await _supabase.from('kegiatan').insert([{nama: judul, tanggal: tgl, waktu: wkt, lokasi: desc}]);
+            } else {
+                const file = document.getElementById('adm-file').files[0];
+                let fUrl = null;
+                if(file) {
+                    const fName = `ANN_${Date.now()}_${file.name}`;
+                    await _supabase.storage.from('pengumuman').upload(fName, file);
+                    fUrl = `${SUPABASE_URL}/storage/v1/object/public/pengumuman/${fName}`;
+                }
+                await _supabase.from('pengumuman').insert([{judul: judul, isi: desc, file_url: fUrl}]);
+            }
+            notify("Data Berhasil Diupdate!"); e.target.reset();
+        };
+
+        async function loadAdminAbsensi() {
+            const filter = document.getElementById('filter-nama').value;
+            let query = _supabase.from('absensi').select('*, kegiatan(nama)');
+            if(filter) query = query.ilike('nama', `%${filter}%`);
+            
+            const { data } = await query.order('created_at', {ascending:false});
+            document.getElementById('list-absensi-admin').innerHTML = data.map(x => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4">
+                        <div class="font-bold text-slate-800">${x.nama}</div>
+                        <div class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full inline-block font-bold">${x.rt}</div>
+                    </td>
+                    <td class="p-4 font-medium text-slate-600">${x.kegiatan?.nama || 'Umum'}</td>
+                    <td class="p-4 flex gap-2">
+                        <img src="${x.photo_url}" class="w-10 h-10 object-cover rounded-lg border shadow-sm">
+                        <img src="${x.signature}" class="w-10 h-10 object-contain bg-white border rounded-lg">
+                    </td>
+                    <td class="p-4">
+                        <a href="https://www.google.com/maps?q=${x.lokasi}" target="_blank" class="text-[10px] text-blue-600 underline font-bold">LIHAT MAPS</a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // --- 7. PDF GENERATOR ---
+        async function downloadPDF() {
+            const { data } = await _supabase.from('absensi').select('*, kegiatan(nama)').order('created_at', {ascending:false});
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Logo Header
+            try { doc.addImage(LOGO_URL, 'PNG', 14, 10, 20, 20); } catch(e){}
+
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("Absen Kegiatan RW.01", 38, 16);
+            
+            doc.setFontSize(9);
+            doc.setFont("helvetica", "normal");
+            doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 38, 21);
+            doc.text("Jakarta Timur, DKI Jakarta", 38, 25);
+            
+            doc.setLineWidth(0.5);
+            doc.line(14, 32, 196, 32);
+
+            const tableBody = data.map((x, i) => [
+                i + 1,
+                x.nama,
+                x.rt,
+                x.kegiatan?.nama || 'Umum',
+                new Date(x.created_at).toLocaleDateString('id-ID'),
+                x.lokasi
+            ]);
+
+            doc.autoTable({
+                startY: 38,
+                head: [['No', 'Nama Warga', 'RT', 'Agenda Kegiatan', 'Tgl Absen', 'Koordinat GPS']],
+                body: tableBody,
+                headStyles: { fillColor: [5, 150, 105], fontSize: 9 },
+                styles: { fontSize: 8 },
+                theme: 'grid'
+            });
+
+            doc.save(`Laporan_RW01_${Date.now()}.pdf`);
+        }
+    </script>
+</body>
 </html>
