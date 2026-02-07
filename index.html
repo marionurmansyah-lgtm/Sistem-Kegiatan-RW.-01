@@ -152,13 +152,18 @@
     </div>
 
     <div id="page-admin" class="hidden min-h-screen animate-page">
-        <header class="bg-slate-900 text-white p-5 flex justify-between items-center shadow-lg">
-            <div class="flex items-center gap-4">
-                <img class="logo-display w-10 h-10 brightness-200 grayscale" alt="Logo RW.01">
-                <h1 class="font-black tracking-tighter uppercase">Admin Sekretariat RW.01</h1>
-            </div>
-            <button onclick="logout()" class="text-xs bg-slate-800 border border-slate-700 px-4 py-2 rounded-lg">KELUAR</button>
-        </header>
+        <header class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg border-b border-slate-700">
+    <div class="flex items-center gap-4">
+        <div class="bg-white p-1 rounded-full shadow-md">
+            <img class="logo-display w-10 h-10 object-contain rounded-full" alt="Logo RW.01">
+        </div>
+        <div>
+            <h1 class="font-black tracking-tighter uppercase text-sm md:text-base leading-none">Admin Sekretariat</h1>
+            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-1">RW.01 Kebon Manggis</p>
+        </div>
+    </div>
+    <button onclick="logout()" class="text-[10px] font-black bg-slate-800 hover:bg-rose-600 border border-slate-700 px-4 py-2 rounded-lg transition-all uppercase tracking-widest">Keluar</button>
+</header>
 
         <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
             <div class="xl:col-span-4 space-y-6">
