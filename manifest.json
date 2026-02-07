@@ -1,0 +1,17 @@
+{
+  "name": "RW.01 Kebon Manggis",
+  "short_name": "RW01-KM",
+  "description": "Sistem Informasi & Absensi RW.01 Kebon Manggis",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
