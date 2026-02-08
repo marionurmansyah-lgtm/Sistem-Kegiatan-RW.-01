@@ -4,720 +4,285 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kegiatan RW.01</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        .signature-pad { border: 2px dashed #cbd5e1; background: #ffffff; touch-action: none; cursor: crosshair; }
-        .hidden { display: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .animate-page { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-page { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans">
+<body class="bg-slate-50 text-slate-900">
 
-    <div id="toast" class="fixed top-4 right-4 z-[99] hidden px-6 py-3 rounded-lg shadow-2xl text-white transition-all"></div>
+    <div id="toast" class="fixed top-4 right-4 z-[99] hidden px-6 py-3 rounded-lg shadow-2xl text-white transition-all font-bold"></div>
 
     <div id="page-login" class="min-h-screen flex items-center justify-center p-4 animate-page">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-50">
-            <img class="logo-display w-24 h-24 mx-auto mb-4 object-contain" alt="Logo RW.01">
-            <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tight">SINERGI RW.01</h1>
-            <p class="text-xs text-slate-500 mb-8 font-medium">KEL.Kebon Manggis, KEC.Matraman, Jakarta Timur</p>
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
+            <img class="w-20 h-20 mx-auto mb-4 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png" alt="Logo RW.01">
+            <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tight">Sinergi RW.01</h1>
+            <p class="text-xs text-slate-500 mb-8 font-medium italic">Kel. Kebon Manggis, Kec. Matraman, Jakarta Timur</p>
             
             <form id="form-login" class="space-y-4 text-left">
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 ml-1 mb-1">Username</label>
-                    <input type="text" id="login-user" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" placeholder="Username Anda" required>
+                    <label class="block text-xs font-bold uppercase text-slate-500 ml-1 mb-1">Username</label>
+                    <input type="text" id="login-user" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" required>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 ml-1 mb-1">Password</label>
-                    <div class="relative">
-                        <input type="password" id="login-pass" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition pr-12" placeholder="••••••••" required>
-                        <button type="button" onclick="togglePass('login-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-emerald-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </button>
-                    </div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 ml-1 mb-1">Password</label>
+                    <input type="password" id="login-pass" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" required>
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 transition-all transform active:scale-95">Masuk Aplikasi</button>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-black shadow-lg shadow-emerald-200 transition-all uppercase tracking-widest">Masuk Aplikasi</button>
             </form>
-            <p class="text-center mt-6 text-sm text-slate-600">
-                Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button>
-            </p>
-        </div>
-    </div>
-    <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-    <div class="p-5 border-b bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div>
-            <h3 class="font-black text-slate-800 uppercase tracking-tighter">Database Akun Warga</h3>
-            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total warga terdaftar akan muncul di sini</p>
-        </div>
-        <input type="text" id="cari-warga" placeholder="Cari nama atau username..." 
-               class="border border-slate-200 px-4 py-2 rounded-lg text-sm w-full md:w-64 focus:ring-2 ring-emerald-100 outline-none" 
-               oninput="loadDataWarga()">
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-            <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold tracking-widest">
-                <tr>
-                    <th class="p-4">Nama Lengkap</th>
-                    <th class="p-4">Akses Akun</th>
-                    <th class="p-4">Jabatan / RT</th>
-                    <th class="p-4 text-center">Tindakan</th>
-                </tr>
-            </thead>
-            <tbody id="list-warga-admin" class="divide-y divide-slate-100">
-                </tbody>
-        </table>
-    </div>
-</div>
-
-<div id="modal-edit-warga" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden p-4 z-[60] flex items-center justify-center">
-    <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl">
-        <h2 class="font-black text-xl text-slate-800 mb-4 uppercase tracking-tighter">Edit Data Warga</h2>
-        <form id="form-edit-warga" class="space-y-3">
-            <input type="hidden" id="edit-id">
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
-                <input type="text" id="edit-nama" class="w-full border border-slate-200 p-2 rounded-lg text-sm" required>
-            </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">RT</label>
-                    <select id="edit-rt" class="w-full border border-slate-200 p-2 rounded-lg text-sm"></select>
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan</label>
-                    <input type="text" id="edit-jabatan" class="w-full border border-slate-200 p-2 rounded-lg text-sm">
-                </div>
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Username</label>
-                <input type="text" id="edit-user" class="w-full border border-slate-200 p-2 rounded-lg text-sm" readonly>
-            </div>
-            <div>
-                <label class="text-[10px] font-bold text-slate-400 uppercase">Password Baru</label>
-                <input type="text" id="edit-pass" class="w-full border border-slate-200 p-2 rounded-lg text-sm">
-            </div>
-            <div class="flex gap-2 pt-4">
-                <button type="submit" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold text-sm">Simpan Perubahan</button>
-                <button type="button" onclick="tutupModalEdit()" class="px-4 bg-slate-100 text-slate-500 py-2 rounded-xl font-bold text-sm">Batal</button>
-            </div>
-        </form>
-    </div>
-</div>
-    
-
-    <div id="page-register" class="hidden min-h-screen p-4 flex justify-center items-start animate-page">
-        <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl my-8 border border-slate-50">
-            <h2 class="text-xl font-bold text-slate-800 mb-2">Formulir Pendaftaran Warga</h2>
-            <p class="text-sm text-slate-500 mb-6 border-b pb-4">Silakan lengkapi data diri Anda sesuai KTP.</p>
-            
-            <form id="form-register" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">NAMA LENGKAP</label>
-                    <input type="text" name="nama" class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 ring-emerald-100 outline-none" required>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">ALAMAT LENGKAP</label>
-                    <textarea name="alamat" class="w-full border border-slate-200 p-2.5 rounded-lg h-20 focus:ring-2 ring-emerald-100 outline-none" required></textarea>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500">RT (01-16)</label>
-                    <select name="rt" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
-                        <option value="">Pilih RT</option>
-                        <script>for(let i=1; i<=16; i++) { 
-                            let rtVal = "RT " + i.toString().padStart(2,'0');
-                            document.write(`<option value="${rtVal}">${rtVal}</option>`);
-                        }</script>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500">JABATAN</label>
-                    <select name="jabatan" class="w-full border border-slate-200 p-2.5 rounded-lg" required>
-                        <option value="Warga">Warga</option>
-                        <option value="Pengurus RW">Pengurus RW</option>
-                        <option value="Pengurus RT">Pengurus RT</option>
-                        <option value="Kader Jumantik">Kader Jumantik</option>
-                        <option value="Kader Posyandu">Kader Posyandu</option>
-                        <option value="Kader PKK">Kader PKK</option>
-                        <option value="Kader Dasawisma">Kader Dasawisma</option>
-                        <option value="Pengurus PAUD">Pengurus PAUD</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label class="text-xs font-bold text-slate-500">DESKRIPSI JABATAN / KETERANGAN</label>
-                    <input type="text" name="deskripsi" placeholder="Contoh: Bendahara RT 05 / Kader Melati" class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 ring-emerald-100 outline-none">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500">NO. WHATSAPP/TELP</label>
-                    <input type="tel" name="telp" class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 ring-emerald-100 outline-none" required>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500">USERNAME</label>
-                    <input type="text" name="username" class="w-full border border-slate-200 p-2.5 rounded-lg focus:ring-2 ring-emerald-100 outline-none" required>
-                </div>
-                <div class="md:col-span-2 border-t pt-4">
-                    <label class="text-xs font-bold text-slate-500 uppercase">Password Baru</label>
-                    <div class="relative">
-                        <input type="password" name="password" id="reg-pass" class="w-full border border-slate-200 p-2.5 rounded-lg pr-12 focus:ring-2 ring-emerald-100 outline-none" required>
-                        <button type="button" onclick="togglePass('reg-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="md:col-span-2 flex gap-3 mt-4">
-                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition-all">Simpan & Daftar</button>
-                    <button type="button" onclick="showPage('page-login')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold">Kembali</button>
-                </div>
-            </form>
+            <p class="mt-6 text-sm text-slate-500">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
         </div>
     </div>
 
-    <div id="page-user" class="hidden min-h-screen animate-page">
-        <nav class="bg-white border-b p-4 sticky top-0 z-40 flex justify-between items-center px-6 shadow-sm">
+    <div id="page-admin" class="hidden min-h-screen animate-page pb-20">
+        <header class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
             <div class="flex items-center gap-3">
-                <img class="logo-display w-10 h-10 object-contain" alt="Logo RW.01">
+                <div class="bg-white p-1 rounded-full shadow-md">
+                    <img class="w-10 h-10 object-contain rounded-full" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png" alt="Logo">
+                </div>
                 <div>
-                    <h2 class="text-sm font-black text-slate-800 leading-none">RW.01</h2>
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest" id="user-name-display"></p>
+                    <h1 class="font-black tracking-tighter uppercase text-sm leading-none">Admin Sekretariat</h1>
+                    <p class="text-[10px] text-emerald-400 font-bold uppercase mt-1">RW.01 Kel.Kebon Manggis</p>
                 </div>
             </div>
-            <button onclick="logout()" class="text-xs font-bold bg-rose-50 text-rose-600 px-4 py-2 rounded-full border border-rose-100">LOGOUT</button>
-        </nav>
+            <button onclick="logout()" class="text-[10px] font-black bg-slate-800 hover:bg-rose-600 px-4 py-2 rounded-lg transition-all uppercase tracking-widest border border-slate-700">Keluar</button>
+        </header>
 
-        <div class="max-w-4xl mx-auto p-4 space-y-6 pb-20">
-            <section>
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-1.5 h-6 bg-amber-400 rounded-full"></div>
-                    <h3 class="font-black text-slate-700 uppercase tracking-tighter">Pengumuman Terbaru</h3>
+        <main class="p-4 max-w-5xl mx-auto space-y-8">
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center gap-2 mb-6">
+                    <span class="bg-emerald-100 text-emerald-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">Posting</span>
+                    <h2 class="font-black text-slate-800 uppercase tracking-tighter text-xl">Info / Agenda Baru</h2>
                 </div>
-                <div id="list-pengumuman" class="grid gap-3"></div>
-            </section>
+                <form id="form-posting" class="space-y-4">
+                    <input type="text" id="post-judul" placeholder="Judul / Nama Agenda" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <textarea id="post-detail" placeholder="Lokasi atau Detail Pengumuman..." class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl h-24 focus:bg-white focus:border-emerald-500 outline-none transition"></textarea>
+                    <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">Posting Sekarang</button>
+                </form>
+            </div>
 
-            <section>
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
-                    <h3 class="font-black text-slate-700 uppercase tracking-tighter">Kegiatan Aktif</h3>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b flex justify-between items-center">
+                    <h2 class="font-black text-slate-800 uppercase tracking-tighter">Laporan Real-Time Absensi</h2>
+                    <button onclick="downloadPDF()" class="bg-rose-500 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase">Unduh PDF</button>
                 </div>
-                <div id="list-kegiatan" class="grid gap-4"></div>
-            </section>
-
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b">
-                    <h3 class="font-bold text-sm text-slate-600 uppercase tracking-widest">Riwayat Kehadiran Saya</h3>
-                </div>
-                <div id="riwayat-absen-user" class="overflow-x-auto"></div>
-            </section>
-        </div>
-    </div>
-
-    <div id="page-admin" class="hidden min-h-screen animate-page">
-        <header class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg border-b border-slate-700">
-    <div class="flex items-center gap-4">
-        <div class="bg-white p-1 rounded-full shadow-md">
-            <img class="logo-display w-10 h-10 object-contain rounded-full" alt="Logo RW.01">
-        </div>
-        <div>
-            <h1 class="font-black tracking-tighter uppercase text-sm md:text-base leading-none">Admin Sekretariat</h1>
-            <p class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest mt-1">RW.01 Kebon Manggis</p>
-        </div>
-    </div>
-    <button onclick="logout()" class="text-[10px] font-black bg-slate-800 hover:bg-rose-600 border border-slate-700 px-4 py-2 rounded-lg transition-all uppercase tracking-widest">Keluar</button>
-</header>
-
-        <div class="p-6 grid grid-cols-1 xl:grid-cols-12 gap-6">
-            <div class="xl:col-span-4 space-y-6">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                    <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
-                        <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg text-xs font-bold uppercase">Posting</span>
-                        Info Baru
-                    </h3>
-                    <form id="form-admin-kegiatan" class="space-y-4">
-                        <select id="adm-tipe" class="w-full border border-slate-200 p-3 rounded-xl font-bold text-sm bg-slate-50" onchange="toggleAdminInput()">
-                            <option value="kegiatan">Kegiatan (Ada Absensi)</option>
-                            <option value="pengumuman">Pengumuman (Lampiran File)</option>
-                        </select>
-                        <input type="text" id="adm-judul" placeholder="Judul / Nama Agenda" class="w-full border border-slate-200 p-3 rounded-xl outline-none focus:ring-2 ring-emerald-100 transition" required>
-                        <div id="row-kegiatan" class="grid grid-cols-2 gap-2">
-                            <input type="date" id="adm-tgl" class="border border-slate-200 p-3 rounded-xl text-sm">
-                            <input type="time" id="adm-wkt" class="border border-slate-200 p-3 rounded-xl text-sm">
-                        </div>
-                        <textarea id="adm-desc" placeholder="Lokasi atau Detail Pengumuman..." class="w-full border border-slate-200 p-3 rounded-xl h-24 text-sm"></textarea>
-                        <div id="row-pengumuman" class="hidden border-2 border-dashed border-slate-200 p-6 text-center rounded-xl bg-slate-50">
-                            <input type="file" id="adm-file" class="text-xs mb-2">
-                            <p class="text-[10px] text-slate-400 font-bold">Pilih file PDF atau Gambar Undangan</p>
-                        </div>
-                        <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold shadow-xl active:scale-95 transition-all">Posting Sekarang</button>
-                    </form>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px]">
+                            <tr>
+                                <th class="p-4">Warga / RT</th>
+                                <th class="p-4">Kegiatan</th>
+                                <th class="p-4">Waktu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-absensi-admin" class="divide-y divide-slate-100">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="xl:col-span-8">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-5 border-b flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50/50">
-                        <h3 class="font-black text-slate-800 uppercase tracking-tighter">Laporan Real-time Absensi</h3>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="filter-nama" placeholder="Cari nama..." class="border border-slate-200 px-4 py-2 rounded-lg text-sm flex-1 focus:ring-2 ring-emerald-100 outline-none" oninput="loadAdminAbsensi()">
-                            <button onclick="downloadPDF()" class="bg-rose-600 text-white px-5 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-rose-700 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                PDF
-                            </button>
-                        </div>
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="p-6 border-b bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="font-black text-slate-800 uppercase tracking-tighter">Database Akun Warga</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Kelola Username & Password</p>
                     </div>
-                    <div class="overflow-x-auto max-h-[600px]">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold tracking-widest sticky top-0">
-                                <tr>
-                                    <th class="p-4">Warga / RT</th>
-                                    <th class="p-4">Kegiatan</th>
-                                    <th class="p-4">Foto & TTD</th>
-                                    <th class="p-4">GPS</th>
-                                </tr>
-                            </thead>
-                            <tbody id="list-absensi-admin" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
+                    <input type="text" id="cari-warga" oninput="loadDataWarga()" placeholder="Cari nama atau username..." class="w-full md:w-64 border border-slate-200 p-2 rounded-xl text-sm outline-none focus:ring-2 ring-emerald-100">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold">
+                            <tr>
+                                <th class="p-4">Nama Lengkap</th>
+                                <th class="p-4">Akses Akun</th>
+                                <th class="p-4">Jabatan / RT</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="list-warga-admin" class="divide-y divide-slate-50">
+                            </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
-    <div id="modal-absen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden p-4 z-50 flex items-center justify-center">
-        <div class="bg-white p-6 rounded-3xl w-full max-w-lg shadow-2xl">
-            <h2 class="font-black text-xl text-slate-800 mb-1" id="mdl-keg-nama">Form Kehadiran</h2>
-            <p class="text-xs text-slate-500 mb-6 font-medium">Pastikan GPS aktif dan wajah terlihat jelas.</p>
-            
-            <form id="form-absen" class="space-y-4">
-                <input type="hidden" id="absen-kegiatan-id">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="abs-nama" class="bg-slate-50 border-none p-3 rounded-xl text-sm font-bold text-slate-700" readonly>
-                    <input type="text" id="abs-rt" class="bg-slate-50 border-none p-3 rounded-xl text-sm font-bold text-slate-700" readonly>
+    <div id="modal-edit-warga" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden p-4 z-[60] flex items-center justify-center">
+        <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl animate-page">
+            <h2 class="font-black text-xl text-slate-800 mb-4 uppercase tracking-tighter">Edit Data Warga</h2>
+            <form id="form-edit-warga" class="space-y-3">
+                <input type="hidden" id="edit-id">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
+                    <input type="text" id="edit-nama" class="w-full border border-slate-200 p-2 rounded-lg text-sm" required>
                 </div>
-                
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block">Ambil Selfie Kehadiran</label>
-                    <input type="file" id="abs-photo" accept="image/*" capture="user" class="text-xs w-full mb-2" required>
-                    <div class="h-1 bg-emerald-100 rounded-full overflow-hidden">
-                        <div id="upload-progress" class="h-full bg-emerald-500 w-0 transition-all"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">RT</label>
+                        <select id="edit-rt" class="w-full border border-slate-200 p-2 rounded-lg text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan</label>
+                        <input type="text" id="edit-jabatan" class="w-full border border-slate-200 p-2 rounded-lg text-sm">
                     </div>
                 </div>
-
-                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <label class="text-[10px] font-black uppercase text-slate-400 mb-2 block">Tanda Tangan Digital</label>
-                    <canvas id="canvas-signature" width="400" height="150" class="signature-pad w-full rounded-xl"></canvas>
-                    <button type="button" onclick="clearSignature()" class="text-[10px] font-bold text-rose-500 mt-2 uppercase tracking-widest hover:underline">Hapus Tanda Tangan</button>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Password Baru</label>
+                    <input type="text" id="edit-pass" class="w-full border border-slate-200 p-2 rounded-lg text-sm" required>
                 </div>
-
-                <div class="flex gap-3 pt-2">
-                    <button type="submit" id="btn-submit-absen" class="flex-1 bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-100 active:scale-95 transition-all">KIRIM ABSENSI</button>
-                    <button type="button" onclick="closeModal()" class="px-6 bg-slate-100 text-slate-500 py-4 rounded-2xl font-bold text-sm underline tracking-tight">BATAL</button>
+                <div class="flex gap-2 pt-4">
+                    <button type="submit" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-sm uppercase">Simpan Perubahan</button>
+                    <button type="button" onclick="tutupModalEdit()" class="px-6 bg-slate-100 text-slate-500 py-3 rounded-xl font-bold text-sm uppercase">Batal</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION ---
-        const SUPABASE_URL = 'https://scvydobptkuvfthligiw.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA';
-        const LOGO_URL = 'https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // --- KONFIGURASI SUPABASE ---
+        const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
+        const SB_KEY = "MASUKKAN_KEY_SUPABASE_ANDA_DI_SINI";
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        let currentUser = null;
-        let currentKegiatanId = null;
-
-        // Auto-load logo ke semua image
-        document.querySelectorAll('.logo-display').forEach(img => { img.src = LOGO_URL; });
-
-        // --- 2. UI UTILS ---
-        function togglePass(inputId, btn) {
-            const input = document.getElementById(inputId);
-            if(input.type === "password") {
-                input.type = "text";
-                btn.classList.add('text-emerald-600');
-            } else {
-                input.type = "password";
-                btn.classList.remove('text-emerald-600');
-            }
-        }
-
-        function showPage(id) {
+        // --- FUNGSI NAVIGASI ---
+        function showPage(pageId) {
             document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            const target = document.getElementById(id);
-            target.classList.remove('hidden');
+            document.getElementById(pageId).classList.remove('hidden');
             window.scrollTo(0,0);
         }
 
-        function notify(msg, color='bg-emerald-600') {
+        function notify(msg, color = "bg-emerald-600") {
             const t = document.getElementById('toast');
-            t.textContent = msg; t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-lg shadow-2xl text-white font-black uppercase text-xs tracking-widest ${color}`;
+            t.textContent = msg;
+            t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-page ${color}`;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
-        // --- 3. SIGNATURE LOGIC ---
-        const canvas = document.getElementById('canvas-signature');
-        const ctx = canvas.getContext('2d');
-        let drawing = false;
-
-        const startDraw = (e) => { drawing = true; draw(e); };
-        const endDraw = () => { drawing = false; ctx.beginPath(); };
-        const draw = (e) => {
-            if(!drawing) return;
-            const rect = canvas.getBoundingClientRect();
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineTo(clientX - rect.left, clientY - rect.top);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(clientX - rect.left, clientY - rect.top);
-        };
-
-        canvas.addEventListener('mousedown', startDraw);
-        canvas.addEventListener('mousemove', draw);
-        canvas.addEventListener('mouseup', endDraw);
-        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDraw(e); });
-        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e); });
-        canvas.addEventListener('touchend', endDraw);
-        function clearSignature() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-        // --- 4. AUTHENTICATION ---
-        document.getElementById('form-register').onsubmit = async (e) => {
-            e.preventDefault();
-            const d = Object.fromEntries(new FormData(e.target));
-            const { error } = await _supabase.from('users').insert([d]);
-            if(error) return notify("Username sudah digunakan!", "bg-rose-500");
-            notify("Pendaftaran Berhasil! Silakan Login."); showPage('page-login');
-            e.target.reset();
-        };
-
+        // --- LOGIN & LOGOUT ---
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
 
-            // Login Admin Hardcoded
-            if(user.toLowerCase() === 'sekretaris' && pass === 'admin') {
-                notify("Sambut Admin Sekretariat!");
-                showPage('page-admin'); loadAdminAbsensi(); return;
+            if(u === 'sekretaris' && p === 'admin') {
+                showPage('page-admin');
+                loadDataWarga(); // Panggil data warga otomatis
+                notify("Selamat Datang Admin!");
+                return;
             }
-
-            // Login Warga Database
-            const { data, error } = await _supabase.from('users').select('*').eq('username', user).eq('password', pass).single();
-            if(data) {
-                currentUser = data;
-                document.getElementById('user-name-display').textContent = `${data.nama} | ${data.rt}`;
-                showPage('page-user'); loadUserContent();
-            } else {
-                notify("Akses Ditolak! Cek User/Pass.", "bg-rose-500");
-            }
+            // Tambahkan logika login warga Anda di sini...
         };
 
-        function logout() { currentUser = null; showPage('page-login'); }
-
-        // --- 5. USER FEATURES ---
-        async function loadUserContent() {
-            // Load Pengumuman
-            const { data: p } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending:false});
-            document.getElementById('list-pengumuman').innerHTML = p.map(x => `
-                <div class="bg-amber-50 p-4 border-l-4 border-amber-400 rounded-xl shadow-sm">
-                    <h4 class="font-black text-amber-900 uppercase text-sm tracking-tight">${x.judul}</h4>
-                    <p class="text-xs text-amber-800 mt-1 leading-relaxed">${x.isi}</p>
-                    ${x.file_url ? `<a href="${x.file_url}" target="_blank" class="inline-flex items-center gap-1 mt-3 text-[10px] bg-white px-3 py-1.5 rounded-lg border border-amber-200 text-amber-600 font-black uppercase">Lihat Dokumen 🔗</a>` : ''}
-                </div>
-            `).join('') || '<p class="text-xs text-slate-400 italic">Belum ada pengumuman.</p>';
-
-            // Load Kegiatan
-            const { data: k } = await _supabase.from('kegiatan').select('*').order('tanggal', {ascending:false});
-            document.getElementById('list-kegiatan').innerHTML = k.map(x => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex justify-between items-center transition-transform active:scale-[0.98]">
-                    <div>
-                        <h4 class="font-black text-slate-800 uppercase tracking-tighter text-sm">${x.nama}</h4>
-                        <div class="flex gap-3 mt-1 font-bold text-[10px] text-slate-400">
-                            <span>📅 ${x.tanggal}</span>
-                            <span>⏰ ${x.waktu}</span>
-                        </div>
-                        <p class="text-[11px] text-emerald-600 mt-2 font-bold uppercase tracking-wider">📍 ${x.lokasi}</p>
-                    </div>
-                    <button onclick="openAbsen('${x.id}', '${x.nama}')" class="bg-emerald-600 text-white px-5 py-2.5 rounded-xl text-[10px] font-black shadow-lg shadow-emerald-100 uppercase">Hadir</button>
-                </div>
-            `).join('') || '<p class="text-xs text-slate-400 italic">Tidak ada kegiatan aktif.</p>';
-
-            // Riwayat Absensi Saya
-            const { data: a } = await _supabase.from('absensi').select('*, kegiatan(nama)').eq('nama', currentUser.nama);
-            document.getElementById('riwayat-absen-user').innerHTML = `
-                <table class="w-full text-left text-[11px]">
-                    <thead class="bg-slate-50 text-slate-400 uppercase font-black tracking-widest text-[9px]"><tr><th class="p-4">Nama Kegiatan</th><th class="p-4 text-right">Waktu</th></tr></thead>
-                    <tbody class="divide-y divide-slate-50">${a.map(x => `<tr><td class="p-4 font-bold text-slate-700 uppercase">${x.kegiatan?.nama || 'Umum'}</td><td class="p-4 text-right text-slate-400 font-medium">${new Date(x.created_at).toLocaleString('id-ID')}</td></tr>`).join('')}</tbody>
-                </table>
-            `;
+        function logout() {
+            location.reload();
         }
 
-        function openAbsen(id, nama) {
-            currentKegiatanId = id;
-            document.getElementById('mdl-keg-nama').textContent = nama;
-            document.getElementById('abs-nama').value = currentUser.nama;
-            document.getElementById('abs-rt').value = currentUser.rt;
-            document.getElementById('modal-absen').classList.remove('hidden');
-            clearSignature();
-        }
-
-        function closeModal() { document.getElementById('modal-absen').classList.add('hidden'); }
-
-        document.getElementById('form-absen').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-absen');
-            btn.disabled = true; btn.textContent = "SEDANG MENGIRIM...";
-
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                try {
-                    const loc = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-                    const file = document.getElementById('abs-photo').files[0];
-                    const fName = `ABS_${Date.now()}.jpg`;
-
-                    const { error: stErr } = await _supabase.storage.from('absensi').upload(fName, file);
-                    if(stErr) throw stErr;
-                    const pUrl = `${SUPABASE_URL}/storage/v1/object/public/absensi/${fName}`;
-
-                    const { error: dbErr } = await _supabase.from('absensi').insert([{
-                        kegiatan_id: currentKegiatanId,
-                        nama: currentUser.nama,
-                        alamat: currentUser.alamat,
-                        rt: currentUser.rt,
-                        telp: currentUser.telp,
-                        photo_url: pUrl,
-                        lokasi: loc,
-                        signature: canvas.toDataURL()
-                    }]);
-
-                    if(dbErr) throw dbErr;
-                    notify("Berhasil! Absen Tercatat."); closeModal(); loadUserContent();
-                } catch (err) {
-                    alert("System Error: " + err.message);
-                } finally {
-                    btn.disabled = false; btn.textContent = "KIRIM ABSENSI";
-                }
-            }, () => {
-                alert("Gagal! Aktifkan GPS / Lokasi di HP Anda.");
-                btn.disabled = false; btn.textContent = "KIRIM ABSENSI";
-            });
-        };
-
-        // --- 6. ADMIN FEATURES ---
-        function toggleAdminInput() {
-            const tipe = document.getElementById('adm-tipe').value;
-            document.getElementById('row-kegiatan').className = tipe === 'kegiatan' ? 'grid grid-cols-2 gap-2' : 'hidden';
-            document.getElementById('row-pengumuman').className = tipe === 'pengumuman' ? 'border-2 border-dashed p-4 text-center rounded-xl bg-slate-50' : 'hidden';
-        }
-
-        document.getElementById('form-admin-kegiatan').onsubmit = async (e) => {
-            e.preventDefault();
-            const tipe = document.getElementById('adm-tipe').value;
-            const judul = document.getElementById('adm-judul').value;
-            const desc = document.getElementById('adm-desc').value;
-
-            if(tipe === 'kegiatan') {
-                const tgl = document.getElementById('adm-tgl').value;
-                const wkt = document.getElementById('adm-wkt').value;
-                await _supabase.from('kegiatan').insert([{nama: judul, tanggal: tgl, waktu: wkt, lokasi: desc}]);
-            } else {
-                const file = document.getElementById('adm-file').files[0];
-                let fUrl = null;
-                if(file) {
-                    const fName = `ANN_${Date.now()}_${file.name}`;
-                    await _supabase.storage.from('pengumuman').upload(fName, file);
-                    fUrl = `${SUPABASE_URL}/storage/v1/object/public/pengumuman/${fName}`;
-                }
-                await _supabase.from('pengumuman').insert([{judul: judul, isi: desc, file_url: fUrl}]);
-            }
-            notify("Data Terposting!"); e.target.reset();
-        };
-
-        async function loadAdminAbsensi() {
-            const filter = document.getElementById('filter-nama').value;
-            let query = _supabase.from('absensi').select('*, kegiatan(nama)');
-            if(filter) query = query.ilike('nama', `%${filter}%`);
+        // --- KELOLA DATA WARGA (ADMIN) ---
+        async function loadDataWarga() {
+            const filter = document.getElementById('cari-warga').value;
+            let query = _supabase.from('users').select('*');
+            if(filter) query = query.or(`nama.ilike.%${filter}%,username.ilike.%${filter}%`);
             
-            const { data } = await query.order('created_at', {ascending:false});
-            document.getElementById('list-absensi-admin').innerHTML = data.map(x => `
+            const { data } = await query.order('nama', {ascending: true});
+            const container = document.getElementById('list-warga-admin');
+            
+            if(!data || data.length === 0) {
+                container.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Data warga tidak ditemukan...</td></tr>';
+                return;
+            }
+
+            container.innerHTML = data.map(w => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-4">
-                        <div class="font-black text-slate-800 uppercase text-xs tracking-tighter">${x.nama}</div>
-                        <div class="text-[9px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full inline-block font-bold mt-1 uppercase">${x.rt}</div>
-                    </td>
-                    <td class="p-4 font-bold text-slate-400 text-xs uppercase">${x.kegiatan?.nama || 'Umum'}</td>
-                    <td class="p-4 flex gap-2">
-                        <img src="${x.photo_url}" class="w-10 h-10 object-cover rounded-lg border shadow-sm" onclick="window.open(this.src)">
-                        <img src="${x.signature}" class="w-10 h-10 object-contain bg-slate-50 border rounded-lg">
+                        <div class="font-bold text-slate-800">${w.nama}</div>
+                        <div class="text-[10px] text-slate-400">${w.telp || '-'}</div>
                     </td>
                     <td class="p-4">
-                        <a href="https://www.google.com/maps?q=${x.lokasi}" target="_blank" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1.5 rounded-lg font-black uppercase tracking-tight inline-block">MAPS</a>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase">User: <span class="text-blue-600">${w.username}</span></div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="font-mono text-emerald-600 font-bold text-xs" id="txt-pass-${w.id}">••••••••</span>
+                            <button onclick="lihatPassword('${w.id}', '${w.password}')" class="text-slate-300 hover:text-slate-500">👁️</button>
+                        </div>
+                    </td>
+                    <td class="p-4 uppercase">
+                        <div class="text-[10px] font-black text-slate-700">${w.jabatan}</div>
+                        <div class="text-[9px] bg-slate-200 px-2 py-0.5 rounded inline-block font-bold">${w.rt}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex justify-center gap-2">
+                            <button onclick='bukaModalEdit(${JSON.stringify(w)})' class="text-[10px] font-black text-amber-600 hover:underline">EDIT</button>
+                            <button onclick="hapusWarga('${w.id}', '${w.nama}')" class="text-[10px] font-black text-rose-600 hover:underline">HAPUS</button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
         }
 
-        // --- FITUR KELOLA DATA WARGA (ADMIN) ---
-
-async function loadDataWarga() {
-    const filter = document.getElementById('cari-warga').value;
-    let query = _supabase.from('users').select('*');
-    
-    // Fitur pencarian berdasarkan nama atau username
-    if(filter) {
-        query = query.or(`nama.ilike.%${filter}%,username.ilike.%${filter}%`);
-    }
-    
-    const { data, error } = await query.order('nama', {ascending: true});
-    const container = document.getElementById('list-warga-admin');
-    
-    if(!data || data.length === 0) {
-        container.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Data tidak ditemukan...</td></tr>';
-        return;
-    }
-
-    container.innerHTML = data.map(w => `
-        <tr class="hover:bg-slate-50 transition">
-            <td class="p-4">
-                <div class="font-bold text-slate-800">${w.nama}</div>
-                <div class="text-[10px] text-slate-400 font-mono">${w.telp || '-'}</div>
-            </td>
-            <td class="p-4">
-                <div class="text-[10px] text-slate-500 uppercase font-bold">User: <span class="text-blue-600">${w.username}</span></div>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="font-mono text-emerald-600 font-bold" id="txt-pass-${w.id}">••••••••</span>
-                    <button onclick="lihatPassword('${w.id}', '${w.password}')" class="text-slate-300 hover:text-slate-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                    </button>
-                </div>
-            </td>
-            <td class="p-4">
-                <div class="text-xs font-bold text-slate-600 uppercase">${w.jabatan}</div>
-                <div class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">${w.rt}</div>
-            </td>
-            <td class="p-4">
-                <div class="flex justify-center gap-2">
-                    <button onclick='bukaModalEdit(${JSON.stringify(w)})' class="bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border border-amber-100 hover:bg-amber-500 hover:text-white transition-all">Edit</button>
-                    <button onclick="hapusWarga('${w.id}', '${w.nama}')" class="bg-rose-50 text-rose-500 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border border-rose-100 hover:bg-rose-500 hover:text-white transition-all">Hapus</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function lihatPassword(id, pass) {
-    const el = document.getElementById(`txt-pass-${id}`);
-    el.textContent = (el.textContent === '••••••••') ? pass : '••••••••';
-}
-
-function bukaModalEdit(w) {
-    document.getElementById('edit-id').value = w.id;
-    document.getElementById('edit-nama').value = w.nama;
-    document.getElementById('edit-jabatan').value = w.jabatan;
-    document.getElementById('edit-user').value = w.username;
-    document.getElementById('edit-pass').value = w.password;
-    
-    // Generate pilihan RT secara otomatis
-    const rtSelect = document.getElementById('edit-rt');
-    rtSelect.innerHTML = '';
-    for(let i=1; i<=16; i++) {
-        let val = `RT ${i.toString().padStart(2,'0')}`;
-        rtSelect.innerHTML += `<option value="${val}" ${w.rt === val ? 'selected' : ''}>${val}</option>`;
-    }
-    
-    document.getElementById('modal-edit-warga').classList.remove('hidden');
-}
-
-function tutupModalEdit() { 
-    document.getElementById('modal-edit-warga').classList.add('hidden'); 
-}
-
-document.getElementById('form-edit-warga').onsubmit = async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('edit-id').value;
-    const updateData = {
-        nama: document.getElementById('edit-nama').value,
-        rt: document.getElementById('edit-rt').value,
-        jabatan: document.getElementById('edit-jabatan').value,
-        password: document.getElementById('edit-pass').value
-    };
-    
-    const { error } = await _supabase.from('users').update(updateData).eq('id', id);
-    if(!error) {
-        notify("Data Warga Berhasil Diperbarui!");
-        tutupModalEdit();
-        loadDataWarga(); // Refresh tabel
-    } else {
-        notify("Gagal update: " + error.message, "bg-rose-600");
-    }
-};
-
-async function hapusWarga(id, nama) {
-    if(confirm(`PERHATIAN: Anda akan menghapus akun ${nama} secara permanen. Lanjutkan?`)) {
-        const { error } = await _supabase.from('users').delete().eq('id', id);
-        if(!error) {
-            notify("Akun warga telah dihapus", "bg-rose-600");
-            loadDataWarga();
+        function lihatPassword(id, pass) {
+            const el = document.getElementById(`txt-pass-${id}`);
+            el.textContent = (el.textContent === '••••••••') ? pass : '••••••••';
         }
-    }
-}
 
-        
-        // --- 7. PDF ENGINE ---
-        async function downloadPDF() {
-            const { data } = await _supabase.from('absensi').select('*, kegiatan(nama)').order('created_at', {ascending:false});
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            try { doc.addImage(LOGO_URL, 'PNG', 14, 10, 20, 20); } catch(e){}
-
-            doc.setFontSize(14);
-            doc.setFont("helvetica", "bold");
-            doc.text("Laporan Kehadiran Warga RW.01", 38, 16);
+        function bukaModalEdit(w) {
+            document.getElementById('edit-id').value = w.id;
+            document.getElementById('edit-nama').value = w.nama;
+            document.getElementById('edit-jabatan').value = w.jabatan;
+            document.getElementById('edit-pass').value = w.password;
             
-            doc.setFontSize(9);
-            doc.setFont("helvetica", "normal");
-            doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman, Jakarta Timur", 38, 21);
-            doc.text("Tanggal Cetak: " + new Date().toLocaleString('id-ID'), 38, 26);
-            
-            doc.setLineWidth(0.5);
-            doc.line(14, 32, 196, 32);
+            const rtSelect = document.getElementById('edit-rt');
+            rtSelect.innerHTML = '';
+            for(let i=1; i<=16; i++) {
+                let val = `RT ${i.toString().padStart(2,'0')}`;
+                rtSelect.innerHTML += `<option value="${val}" ${w.rt === val ? 'selected' : ''}>${val}</option>`;
+            }
+            document.getElementById('modal-edit-warga').classList.remove('hidden');
+        }
 
-            const tableBody = data.map((x, i) => [
-                i + 1,
-                x.nama.toUpperCase(),
-                x.rt,
-                (x.kegiatan?.nama || 'UMUM').toUpperCase(),
-                new Date(x.created_at).toLocaleDateString('id-ID'),
-                x.lokasi
-            ]);
+        function tutupModalEdit() { document.getElementById('modal-edit-warga').classList.add('hidden'); }
 
-            doc.autoTable({
-                startY: 38,
-                head: [['No', 'Nama Warga', 'RT', 'Kegiatan', 'Tanggal', 'Koordinat GPS']],
-                body: tableBody,
-                headStyles: { fillColor: [5, 150, 105], fontSize: 9, halign: 'center' },
-                styles: { fontSize: 8 },
-                theme: 'grid'
+        document.getElementById('form-edit-warga').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const upd = {
+                nama: document.getElementById('edit-nama').value,
+                rt: document.getElementById('edit-rt').value,
+                jabatan: document.getElementById('edit-jabatan').value,
+                password: document.getElementById('edit-pass').value
+            };
+            const { error } = await _supabase.from('users').update(upd).eq('id', id);
+            if(!error) {
+                notify("Data warga diperbarui!");
+                tutupModalEdit();
+                loadDataWarga();
+            }
+        };
+
+        async function hapusWarga(id, nama) {
+            if(confirm(`Hapus permanen akun ${nama}?`)) {
+                await _supabase.from('users').delete().eq('id', id);
+                notify("Akun dihapus", "bg-rose-600");
+                loadDataWarga();
+            }
+        }
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(() => console.log('PWA RW.01 Siap!'));
             });
-            
-            
-          if ('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('PWA RW.01 Siap!'))
-            .catch(err => console.log('PWA Gagal:', err));
-    });
-  }
-            doc.save(`Laporan_Absensi_RW01_${Date.now()}.pdf`);
         }
     </script>
 </body>
