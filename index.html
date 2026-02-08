@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinergi RW.01</title>
+    <title>Sinergi RW.01 - Kebon Manggis</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
         .animate-fade { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -21,7 +21,7 @@
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
             <img class="w-16 h-16 mx-auto mb-4" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tighter">Sinergi RW.01</h1>
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Kel. Matraman</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Matraman</p>
             
             <form id="form-login" class="space-y-4 text-left">
                 <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
@@ -35,85 +35,66 @@
     <div id="page-register" class="hidden min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100">
             <h2 class="text-xl font-black text-slate-800 uppercase mb-1">Formulir Warga</h2>
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 tracking-widest">Daftar Akun Sinergi RW.01</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 tracking-widest">Lengkapi Data Jabatan Anda</p>
             
             <form id="form-register" class="space-y-4">
-                <input type="text" id="reg-nama" placeholder="NAMA LENGKAP (Sesuai KTP)" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                <input type="text" id="reg-nama" placeholder="NAMA LENGKAP" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="reg-user" placeholder="BUAT USERNAME" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
-                    <input type="text" id="reg-pass" placeholder="BUAT PASSWORD" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <input type="text" id="reg-user" placeholder="USERNAME" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <input type="text" id="reg-pass" placeholder="PASSWORD" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
                 </div>
+
                 <select id="reg-rt" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
-                    <option value="">PILIH RT ANDA</option>
+                    <option value="">PILIH RT (01-16)</option>
                     <script>for(let i=1;i<=16;i++) document.write(`<option value="RT ${i.toString().padStart(2,'0')}">RT ${i.toString().padStart(2,'0')}</option>`)</script>
                 </select>
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">Daftar Sekarang</button>
-                <button type="button" onclick="showPage('page-login')" class="w-full text-xs text-slate-400 font-bold uppercase tracking-widest">Kembali ke Login</button>
+
+                <select id="reg-kategori" onchange="updateSubJabatan()" class="w-full border-2 border-slate-100 p-3 rounded-xl font-bold text-sm outline-none bg-slate-50 focus:border-emerald-500" required>
+                    <option value="">-- PILIH KATEGORI --</option>
+                    <option value="Pengurus RW">PENGURUS RW</option>
+                    <option value="Pengurus RT">PENGURUS RT</option>
+                    <option value="Kader">KADER (PKK/JUMANTIK/DLL)</option>
+                    <option value="Seksi Keamanan">SEKSI KEAMANAN</option>
+                    <option value="Seksi Kebersihan">SEKSI KEBERSIHAN</option>
+                    <option value="Warga">WARGA BIASA</option>
+                </select>
+
+                <select id="reg-sub-jabatan" class="hidden w-full border-2 border-slate-100 p-3 rounded-xl font-bold text-sm outline-none bg-emerald-50 focus:border-emerald-500">
+                </select>
+
+                <input type="text" id="reg-detail-manual" placeholder="Tulis detail (misal: Komandan / Anggota)" class="hidden w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition">
+
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">Daftar Akun</button>
+                <button type="button" onclick="showPage('page-login')" class="w-full text-xs text-slate-400 font-bold uppercase">Kembali</button>
             </form>
         </div>
     </div>
 
-    <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
-        <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img class="w-8 h-8" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-                <h1 class="font-black text-emerald-700 uppercase text-sm">Dashboard Warga</h1>
-            </div>
-            <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg uppercase">Keluar</button>
-        </header>
-        
-        <main class="p-4 space-y-4">
-            <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl shadow-emerald-100">
-                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Selamat Datang,</p>
+    <div id="page-user" class="hidden min-h-screen animate-fade p-4">
+        <div class="max-w-md mx-auto space-y-4">
+            <div class="bg-emerald-600 p-8 rounded-3xl text-white shadow-xl shadow-emerald-100 text-center">
+                <img class="w-16 h-16 mx-auto mb-4 bg-white p-2 rounded-full" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Profil Terdaftar</p>
                 <h2 id="user-display-nama" class="text-2xl font-black leading-tight mb-1">...</h2>
-                <div class="flex gap-2 mt-2">
-                    <span id="user-display-rt" class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold">RT --</span>
-                    <span id="user-display-jabatan" class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold uppercase">WARGA</span>
+                <p id="user-display-jabatan" class="bg-black/20 inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase mt-2 tracking-tighter">...</p>
+                <div class="mt-6 pt-6 border-t border-white/20 flex justify-around">
+                    <div class="text-center"><p class="text-[9px] opacity-60">RT</p><p id="user-display-rt" class="font-bold">--</p></div>
+                    <div class="text-center"><p class="text-[9px] opacity-60">STATUS</p><p class="font-bold text-emerald-300 italic">AKTIF</p></div>
                 </div>
             </div>
-
-            <h3 class="font-black text-slate-800 uppercase text-xs ml-1 mt-6">Pengumuman Terbaru</h3>
-            <div id="list-pengumuman-warga" class="space-y-3">
-                <div class="p-8 text-center text-slate-400 text-xs italic">Belum ada pengumuman...</div>
-            </div>
-        </main>
-    </div>
-
-    <div id="page-admin" class="hidden min-h-screen animate-fade pb-20">
-        <header class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
-            <h1 class="font-black uppercase text-sm tracking-tighter text-emerald-400">Panel Sekretariat</h1>
-            <button onclick="logout()" class="text-[10px] font-black border border-slate-700 px-3 py-2 rounded-lg uppercase">Keluar</button>
-        </header>
-        <main class="p-4 space-y-6">
-            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                <h2 class="font-black text-slate-800 uppercase text-sm mb-4">Buat Pengumuman</h2>
-                <form id="form-posting" class="space-y-3">
-                    <input type="text" id="post-judul" placeholder="Judul Agenda" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl outline-none focus:bg-white focus:border-emerald-500 transition" required>
-                    <textarea id="post-detail" placeholder="Detail pengumuman..." class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl h-24 outline-none focus:bg-white focus:border-emerald-500 transition" required></textarea>
-                    <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest">Terbitkan Info</button>
-                </form>
-            </div>
-            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                <div class="p-4 border-b bg-slate-50 font-black text-[10px] uppercase text-slate-400">Database Warga Terdaftar</div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <tbody id="list-warga-admin" class="divide-y divide-slate-50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+            <button onclick="logout()" class="w-full bg-slate-100 py-4 rounded-2xl font-black uppercase text-xs tracking-widest text-slate-400">Keluar Aplikasi</button>
+        </div>
     </div>
 
     <script>
         const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA"; 
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmF0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         function showPage(pageId) {
             document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            const el = document.getElementById(pageId);
-            if(el) el.classList.remove('hidden');
-            window.scrollTo(0,0);
+            document.getElementById(pageId).classList.remove('hidden');
         }
 
         function notify(msg, color = "bg-emerald-600") {
@@ -124,39 +105,50 @@
             setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
-        // --- LOGIN ---
-        document.getElementById('form-login').onsubmit = async (e) => {
-            e.preventDefault();
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
+        // LOGIKA DROPDOWN JABATAN
+        function updateSubJabatan() {
+            const kat = document.getElementById('reg-kategori').value;
+            const sub = document.getElementById('reg-sub-jabatan');
+            const detail = document.getElementById('reg-detail-manual');
+            
+            sub.innerHTML = ""; 
+            sub.classList.add('hidden');
+            detail.classList.add('hidden');
 
-            if(u.toLowerCase() === 'sekretaris' && p === 'admin') {
-                showPage('page-admin');
-                loadDataWarga(); 
-                return;
+            if(kat === 'Pengurus RW') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua RW">Wakil Ketua RW</option><option value="Sekretaris RW">Sekretaris RW</option><option value="Bendahara RW">Bendahara RW</option><option value="Lainnya">Pengurus Lainnya</option>';
+            } else if(kat === 'Pengurus RT') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
+            } else if(kat === 'Kader') {
+                sub.classList.remove('hidden');
+                detail.classList.remove('hidden'); // Membolehkan ketik detail posyandu apa
+                sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="Dawis">Kader Dasawisma</option><option value="Paud">Kader Paud</option><option value="Posyandu">Kader Posyandu</option>';
+            } else if(kat === 'Seksi Keamanan' || kat === 'Seksi Kebersihan') {
+                detail.classList.remove('hidden');
+                detail.placeholder = "Contoh: Komandan / Anggota / Bank Sampah";
             }
+        }
 
-            const { data, error } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
-            if (data) {
-                document.getElementById('user-display-nama').innerText = data.nama;
-                document.getElementById('user-display-rt').innerText = data.rt;
-                document.getElementById('user-display-jabatan').innerText = data.jabatan;
-                showPage('page-user');
-                loadPengumuman();
-            } else {
-                notify("Akun tidak ditemukan!", "bg-rose-600");
-            }
-        };
-
-        // --- DAFTAR BARU ---
+        // PROSES DAFTAR
         document.getElementById('form-register').onsubmit = async (e) => {
             e.preventDefault();
+            const kat = document.getElementById('reg-kategori').value;
+            const sub = document.getElementById('reg-sub-jabatan').value;
+            const manual = document.getElementById('reg-detail-manual').value;
+            
+            // Gabungkan jabatan untuk disimpan ke profil
+            let jabatanFinal = kat;
+            if(sub) jabatanFinal += ": " + sub;
+            if(manual) jabatanFinal += " (" + manual + ")";
+
             const newUser = {
                 nama: document.getElementById('reg-nama').value,
                 username: document.getElementById('reg-user').value,
                 password: document.getElementById('reg-pass').value,
                 rt: document.getElementById('reg-rt').value,
-                jabatan: 'Warga'
+                jabatan: jabatanFinal
             };
 
             const { error } = await _supabase.from('users').insert([newUser]);
@@ -168,54 +160,22 @@
             }
         };
 
-        // --- ADMIN: LOAD DATA WARGA ---
-        async function loadDataWarga() {
-            const { data } = await _supabase.from('users').select('*').order('nama', {ascending: true});
-            const container = document.getElementById('list-warga-admin');
-            container.innerHTML = data.map(w => `
-                <tr>
-                    <td class="p-4 font-bold text-slate-800">${w.nama}</td>
-                    <td class="p-4 text-emerald-600 font-mono">${w.username} / ${w.password}</td>
-                    <td class="p-4 uppercase font-black text-slate-400 text-[9px]">${w.jabatan} - ${w.rt}</td>
-                    <td class="p-4"><button onclick="hapusWarga('${w.id}')" class="text-rose-600 font-bold uppercase text-[9px]">Hapus</button></td>
-                </tr>
-            `).join('');
-        }
-
-        async function hapusWarga(id) {
-            if(confirm('Hapus warga ini?')) {
-                await _supabase.from('users').delete().eq('id', id);
-                loadDataWarga();
-            }
-        }
-
-        // --- ADMIN: POSTING PENGUMUMAN ---
-        document.getElementById('form-posting').onsubmit = async (e) => {
+        // PROSES LOGIN
+        document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
-            const { error } = await _supabase.from('pengumuman').insert([{
-                judul: document.getElementById('post-judul').value,
-                detail: document.getElementById('post-detail').value
-            }]);
-            if(!error) {
-                notify("Pengumuman Terbit!");
-                e.target.reset();
-                loadDataWarga();
+            const u = document.getElementById('login-user').value.trim();
+            const p = document.getElementById('login-pass').value.trim();
+
+            const { data, error } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
+            if (data) {
+                document.getElementById('user-display-nama').innerText = data.nama;
+                document.getElementById('user-display-jabatan').innerText = data.jabatan;
+                document.getElementById('user-display-rt').innerText = data.rt;
+                showPage('page-user');
+            } else {
+                notify("Username/Password Salah!", "bg-rose-600");
             }
         };
-
-        // --- USER: LOAD PENGUMUMAN ---
-        async function loadPengumuman() {
-            const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
-            const container = document.getElementById('list-pengumuman-warga');
-            if(data.length > 0) {
-                container.innerHTML = data.map(p => `
-                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
-                        <h4 class="font-black text-slate-800 uppercase text-sm mb-1">${p.judul}</h4>
-                        <p class="text-slate-500 text-xs leading-relaxed">${p.detail}</p>
-                    </div>
-                `).join('');
-            }
-        }
 
         function logout() { location.reload(); }
     </script>
