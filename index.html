@@ -3,116 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Kegiatan RW.01</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#059669">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-
+    <title>Sinergi RW.01</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .animate-page { animation: fadeIn 0.3s ease-out; }
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .animate-fade { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900">
 
-    <div id="toast" class="fixed top-4 right-4 z-[99] hidden px-6 py-3 rounded-lg shadow-2xl text-white transition-all font-bold"></div>
+    <div id="toast" class="fixed top-4 right-4 z-[99] hidden px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade"></div>
 
-    <div id="page-login" class="min-h-screen flex items-center justify-center p-4 animate-page">
+    <div id="page-login" class="min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
-            <img class="w-20 h-20 mx-auto mb-4 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png" alt="Logo RW.01">
-            <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tight">Sinergi RW.01</h1>
-            <p class="text-xs text-slate-500 mb-8 font-medium italic">Kel. Kebon Manggis, Kec. Matraman, Jakarta Timur</p>
+            <img class="w-16 h-16 mx-auto mb-4" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+            <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tighter">Sinergi RW.01</h1>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Matraman</p>
             
             <form id="form-login" class="space-y-4 text-left">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 ml-1 mb-1">Username</label>
-                    <input type="text" id="login-user" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" required>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-500 ml-1 mb-1">Password</label>
-                    <input type="password" id="login-pass" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-emerald-500 outline-none transition" required>
-                </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-xl font-black shadow-lg shadow-emerald-200 transition-all uppercase tracking-widest">Masuk Aplikasi</button>
+                <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black shadow-lg transition-all uppercase tracking-widest">Masuk Aplikasi</button>
             </form>
-            <p class="mt-6 text-sm text-slate-500">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
+            <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
         </div>
     </div>
 
-    <div id="page-register" class="hidden min-h-screen flex items-center justify-center p-4 animate-page">
+    <div id="page-register" class="hidden min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100">
-            <h2 class="text-xl font-black text-slate-800 uppercase mb-2">Pendaftaran Warga</h2>
-            <p class="text-xs text-slate-500 mb-6 font-medium uppercase tracking-widest">Lengkapi Data Akun Anda</p>
+            <h2 class="text-xl font-black text-slate-800 uppercase mb-1">Formulir Warga</h2>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-6 tracking-widest">Daftar Akun Sinergi RW.01</p>
             
             <form id="form-register" class="space-y-4">
-                <input type="text" id="reg-nama" placeholder="NAMA LENGKAP" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                <input type="text" id="reg-nama" placeholder="NAMA LENGKAP (Sesuai KTP)" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
                 <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="reg-user" placeholder="USERNAME" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
-                    <input type="text" id="reg-pass" placeholder="PASSWORD" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <input type="text" id="reg-user" placeholder="BUAT USERNAME" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <input type="text" id="reg-pass" placeholder="BUAT PASSWORD" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
                 </div>
-                <select id="reg-rt" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition">
-                    <option value="">PILIH RT (01-16)</option>
+                <select id="reg-rt" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
+                    <option value="">PILIH RT ANDA</option>
                     <script>for(let i=1;i<=16;i++) document.write(`<option value="RT ${i.toString().padStart(2,'0')}">RT ${i.toString().padStart(2,'0')}</option>`)</script>
                 </select>
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest">Daftar Akun</button>
-                <button type="button" onclick="showPage('page-login')" class="w-full text-sm text-slate-400 font-bold">Batal / Kembali</button>
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">Daftar Sekarang</button>
+                <button type="button" onclick="showPage('page-login')" class="w-full text-xs text-slate-400 font-bold uppercase tracking-widest">Kembali ke Login</button>
             </form>
         </div>
     </div>
 
-    <div id="page-admin" class="hidden min-h-screen animate-page pb-20">
-        <header class="bg-slate-900 text-white p-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
+    <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
+        <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="bg-white p-1 rounded-full">
-                    <img class="w-10 h-10 object-contain rounded-full" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png" alt="Logo">
-                </div>
-                <div>
-                    <h1 class="font-black tracking-tighter uppercase text-sm leading-none">Admin Sekretariat</h1>
-                    <p class="text-[10px] text-emerald-400 font-bold uppercase mt-1">RW.01 Kebon Manggis</p>
+                <img class="w-8 h-8" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+                <h1 class="font-black text-emerald-700 uppercase text-sm">Dashboard Warga</h1>
+            </div>
+            <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg uppercase">Keluar</button>
+        </header>
+        
+        <main class="p-4 space-y-4">
+            <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl shadow-emerald-100">
+                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Selamat Datang,</p>
+                <h2 id="user-display-nama" class="text-2xl font-black leading-tight mb-1">...</h2>
+                <div class="flex gap-2 mt-2">
+                    <span id="user-display-rt" class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold">RT --</span>
+                    <span id="user-display-jabatan" class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold uppercase">WARGA</span>
                 </div>
             </div>
-            <button onclick="logout()" class="text-[10px] font-black bg-slate-800 px-4 py-2 rounded-lg uppercase tracking-widest border border-slate-700">Keluar</button>
-        </header>
 
-        <main class="p-4 max-w-5xl mx-auto space-y-8">
-            <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="font-black text-slate-800 uppercase tracking-tighter">Database Akun Warga</h2>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Kelola Username & Password</p>
-                    </div>
-                    <input type="text" id="cari-warga" oninput="loadDataWarga()" placeholder="Cari nama..." class="w-full md:w-64 border border-slate-200 p-2 rounded-xl text-sm outline-none">
-                </div>
+            <h3 class="font-black text-slate-800 uppercase text-xs ml-1 mt-6">Pengumuman Terbaru</h3>
+            <div id="list-pengumuman-warga" class="space-y-3">
+                <div class="p-8 text-center text-slate-400 text-xs italic">Belum ada pengumuman...</div>
+            </div>
+        </main>
+    </div>
+
+    <div id="page-admin" class="hidden min-h-screen animate-fade pb-20">
+        <header class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
+            <h1 class="font-black uppercase text-sm tracking-tighter text-emerald-400">Panel Sekretariat</h1>
+            <button onclick="logout()" class="text-[10px] font-black border border-slate-700 px-3 py-2 rounded-lg uppercase">Keluar</button>
+        </header>
+        <main class="p-4 space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+                <h2 class="font-black text-slate-800 uppercase text-sm mb-4">Buat Pengumuman</h2>
+                <form id="form-posting" class="space-y-3">
+                    <input type="text" id="post-judul" placeholder="Judul Agenda" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl outline-none focus:bg-white focus:border-emerald-500 transition" required>
+                    <textarea id="post-detail" placeholder="Detail pengumuman..." class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl h-24 outline-none focus:bg-white focus:border-emerald-500 transition" required></textarea>
+                    <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase tracking-widest">Terbitkan Info</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 border-b bg-slate-50 font-black text-[10px] uppercase text-slate-400">Database Warga Terdaftar</div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold">
-                            <tr>
-                                <th class="p-4">Nama Lengkap</th>
-                                <th class="p-4">Akses Akun</th>
-                                <th class="p-4">Jabatan / RT</th>
-                                <th class="p-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
+                    <table class="w-full text-left text-xs">
                         <tbody id="list-warga-admin" class="divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
         </main>
-    </div>
-
-    <div id="page-user" class="hidden min-h-screen animate-page p-4 text-center">
-        <div class="bg-white p-10 rounded-3xl shadow-xl max-w-md mx-auto">
-            <h2 id="welcome-name" class="font-black text-2xl text-emerald-700 uppercase">Halo Warga!</h2>
-            <p class="text-slate-500 mt-2">Selamat datang di sistem RW.01 Kebon Manggis.</p>
-            <button onclick="logout()" class="mt-8 w-full bg-slate-100 py-3 rounded-xl font-black uppercase text-xs tracking-widest">Keluar Aplikasi</button>
-        </div>
     </div>
 
     <script>
@@ -122,14 +111,15 @@
 
         function showPage(pageId) {
             document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
+            const el = document.getElementById(pageId);
+            if(el) el.classList.remove('hidden');
             window.scrollTo(0,0);
         }
 
         function notify(msg, color = "bg-emerald-600") {
             const t = document.getElementById('toast');
             t.textContent = msg;
-            t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-page ${color}`;
+            t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade ${color}`;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 3000);
         }
@@ -148,14 +138,17 @@
 
             const { data, error } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
             if (data) {
-                document.getElementById('welcome-name').innerText = "Halo, " + data.nama;
+                document.getElementById('user-display-nama').innerText = data.nama;
+                document.getElementById('user-display-rt').innerText = data.rt;
+                document.getElementById('user-display-jabatan').innerText = data.jabatan;
                 showPage('page-user');
+                loadPengumuman();
             } else {
-                notify("Username atau Password Salah!", "bg-rose-600");
+                notify("Akun tidak ditemukan!", "bg-rose-600");
             }
         };
 
-        // --- REGISTER (DAFTAR BARU) ---
+        // --- DAFTAR BARU ---
         document.getElementById('form-register').onsubmit = async (e) => {
             e.preventDefault();
             const newUser = {
@@ -168,24 +161,23 @@
 
             const { error } = await _supabase.from('users').insert([newUser]);
             if(!error) {
-                notify("Pendaftaran Berhasil! Silakan Login.");
+                notify("Pendaftaran Berhasil!");
                 showPage('page-login');
             } else {
-                notify("Gagal Daftar: " + error.message, "bg-rose-600");
+                notify("Gagal: " + error.message, "bg-rose-600");
             }
         };
 
+        // --- ADMIN: LOAD DATA WARGA ---
         async function loadDataWarga() {
             const { data } = await _supabase.from('users').select('*').order('nama', {ascending: true});
             const container = document.getElementById('list-warga-admin');
             container.innerHTML = data.map(w => `
-                <tr class="border-b border-slate-50">
+                <tr>
                     <td class="p-4 font-bold text-slate-800">${w.nama}</td>
-                    <td class="p-4 text-[10px] font-bold text-blue-600 uppercase">${w.username} / ${w.password}</td>
-                    <td class="p-4 text-[10px] font-black uppercase text-slate-500">${w.jabatan} (${w.rt})</td>
-                    <td class="p-4 text-center">
-                        <button onclick="hapusWarga('${w.id}')" class="text-rose-600 font-bold text-[10px]">HAPUS</button>
-                    </td>
+                    <td class="p-4 text-emerald-600 font-mono">${w.username} / ${w.password}</td>
+                    <td class="p-4 uppercase font-black text-slate-400 text-[9px]">${w.jabatan} - ${w.rt}</td>
+                    <td class="p-4"><button onclick="hapusWarga('${w.id}')" class="text-rose-600 font-bold uppercase text-[9px]">Hapus</button></td>
                 </tr>
             `).join('');
         }
@@ -194,6 +186,34 @@
             if(confirm('Hapus warga ini?')) {
                 await _supabase.from('users').delete().eq('id', id);
                 loadDataWarga();
+            }
+        }
+
+        // --- ADMIN: POSTING PENGUMUMAN ---
+        document.getElementById('form-posting').onsubmit = async (e) => {
+            e.preventDefault();
+            const { error } = await _supabase.from('pengumuman').insert([{
+                judul: document.getElementById('post-judul').value,
+                detail: document.getElementById('post-detail').value
+            }]);
+            if(!error) {
+                notify("Pengumuman Terbit!");
+                e.target.reset();
+                loadDataWarga();
+            }
+        };
+
+        // --- USER: LOAD PENGUMUMAN ---
+        async function loadPengumuman() {
+            const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
+            const container = document.getElementById('list-pengumuman-warga');
+            if(data.length > 0) {
+                container.innerHTML = data.map(p => `
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                        <h4 class="font-black text-slate-800 uppercase text-sm mb-1">${p.judul}</h4>
+                        <p class="text-slate-500 text-xs leading-relaxed">${p.detail}</p>
+                    </div>
+                `).join('');
             }
         }
 
