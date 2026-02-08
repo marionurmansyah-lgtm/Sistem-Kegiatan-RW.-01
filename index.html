@@ -152,138 +152,148 @@
 
     <script>
         // --- KONFIGURASI SUPABASE ---
-        const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA";
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA"; // Pastikan key benar
+const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // --- FUNGSI NAVIGASI ---
-        function showPage(pageId) {
-            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
-            window.scrollTo(0,0);
+// --- FUNGSI NAVIGASI ---
+function showPage(pageId) {
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+    document.getElementById(pageId).classList.remove('hidden');
+    window.scrollTo(0,0);
+}
+
+function notify(msg, color = "bg-emerald-600") {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-page ${color}`;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3000);
+}
+
+// --- FUNGSI LOGIN (ADMIN & WARGA) ---
+document.getElementById('form-login').onsubmit = async (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login-user').value;
+    const p = document.getElementById('login-pass').value;
+
+    // 1. Cek Login Admin
+    if(u.toLowerCase() === 'sekretaris' && p === 'admin') {
+        notify("Selamat Datang Admin!");
+        showPage('page-admin');
+        loadDataWarga(); 
+        return;
+    }
+
+    // 2. Cek Login Warga ke Supabase
+    try {
+        const { data, error } = await _supabase
+            .from('users')
+            .select('*')
+            .eq('username', u)
+            .eq('password', p)
+            .single();
+
+        if (data) {
+            notify("Login Berhasil! Halo " + data.nama);
+            window.currentUser = data; 
+            showPage('page-user');
+        } else {
+            notify("Username atau Password Salah!", "bg-rose-600");
         }
+    } catch (err) {
+        notify("Terjadi kesalahan koneksi", "bg-rose-600");
+    }
+};
 
-        function notify(msg, color = "bg-emerald-600") {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.className = `fixed top-4 right-4 z-[99] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-page ${color}`;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
+// --- KELOLA DATA WARGA (ADMIN) ---
+async function loadDataWarga() {
+    const filter = document.getElementById('cari-warga').value;
+    let query = _supabase.from('users').select('*');
+    if(filter) query = query.or(`nama.ilike.%${filter}%,username.ilike.%${filter}%`);
+    
+    const { data } = await query.order('nama', {ascending: true});
+    const container = document.getElementById('list-warga-admin');
+    
+    if(!data || data.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Data tidak ditemukan...</td></tr>';
+        return;
+    }
 
-        // --- LOGIN & LOGOUT ---
-        document.getElementById('form-login').onsubmit = async (e) => {
-            e.preventDefault();
-            const u = document.getElementById('login-user').value;
-            const p = document.getElementById('login-pass').value;
+    container.innerHTML = data.map(w => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-4 font-bold text-slate-800">${w.nama}</td>
+            <td class="p-4">
+                <div class="text-[10px] font-bold uppercase text-blue-600">${w.username}</div>
+                <div class="flex items-center gap-2">
+                    <span class="font-mono text-emerald-600 text-xs" id="txt-pass-${w.id}">••••••••</span>
+                    <button onclick="lihatPassword('${w.id}', '${w.password}')" class="text-slate-300">👁️</button>
+                </div>
+            </td>
+            <td class="p-4 uppercase text-[10px] font-black">${w.jabatan} (${w.rt})</td>
+            <td class="p-4 text-center">
+                <button onclick='bukaModalEdit(${JSON.stringify(w)})' class="text-amber-600 font-bold mr-2">EDIT</button>
+                <button onclick="hapusWarga('${w.id}', '${w.nama}')" class="text-rose-600 font-bold">HAPUS</button>
+            </td>
+        </tr>
+    `).join('');
+}
 
-            if(u === 'sekretaris' && p === 'admin') {
-                showPage('page-admin');
-                loadDataWarga(); // Panggil data warga otomatis
-                notify("Selamat Datang Admin!");
-                return;
-            }
-            // Tambahkan logika login warga Anda di sini...
-        };
+function lihatPassword(id, pass) {
+    const el = document.getElementById(`txt-pass-${id}`);
+    el.textContent = (el.textContent === '••••••••') ? pass : '••••••••';
+}
 
-        function logout() {
-            location.reload();
-        }
+function bukaModalEdit(w) {
+    document.getElementById('edit-id').value = w.id;
+    document.getElementById('edit-nama').value = w.nama;
+    document.getElementById('edit-jabatan').value = w.jabatan;
+    document.getElementById('edit-pass').value = w.password;
+    
+    const rtSelect = document.getElementById('edit-rt');
+    rtSelect.innerHTML = '';
+    for(let i=1; i<=16; i++) {
+        let val = `RT ${i.toString().padStart(2,'0')}`;
+        rtSelect.innerHTML += `<option value="${val}" ${w.rt === val ? 'selected' : ''}>${val}</option>`;
+    }
+    document.getElementById('modal-edit-warga').classList.remove('hidden');
+}
 
-        // --- KELOLA DATA WARGA (ADMIN) ---
-        async function loadDataWarga() {
-            const filter = document.getElementById('cari-warga').value;
-            let query = _supabase.from('users').select('*');
-            if(filter) query = query.or(`nama.ilike.%${filter}%,username.ilike.%${filter}%`);
-            
-            const { data } = await query.order('nama', {ascending: true});
-            const container = document.getElementById('list-warga-admin');
-            
-            if(!data || data.length === 0) {
-                container.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Data warga tidak ditemukan...</td></tr>';
-                return;
-            }
+function tutupModalEdit() { document.getElementById('modal-edit-warga').classList.add('hidden'); }
 
-            container.innerHTML = data.map(w => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-4">
-                        <div class="font-bold text-slate-800">${w.nama}</div>
-                        <div class="text-[10px] text-slate-400">${w.telp || '-'}</div>
-                    </td>
-                    <td class="p-4">
-                        <div class="text-[10px] text-slate-500 font-bold uppercase">User: <span class="text-blue-600">${w.username}</span></div>
-                        <div class="flex items-center gap-2 mt-1">
-                            <span class="font-mono text-emerald-600 font-bold text-xs" id="txt-pass-${w.id}">••••••••</span>
-                            <button onclick="lihatPassword('${w.id}', '${w.password}')" class="text-slate-300 hover:text-slate-500">👁️</button>
-                        </div>
-                    </td>
-                    <td class="p-4 uppercase">
-                        <div class="text-[10px] font-black text-slate-700">${w.jabatan}</div>
-                        <div class="text-[9px] bg-slate-200 px-2 py-0.5 rounded inline-block font-bold">${w.rt}</div>
-                    </td>
-                    <td class="p-4">
-                        <div class="flex justify-center gap-2">
-                            <button onclick='bukaModalEdit(${JSON.stringify(w)})' class="text-[10px] font-black text-amber-600 hover:underline">EDIT</button>
-                            <button onclick="hapusWarga('${w.id}', '${w.nama}')" class="text-[10px] font-black text-rose-600 hover:underline">HAPUS</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
+document.getElementById('form-edit-warga').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const upd = {
+        nama: document.getElementById('edit-nama').value,
+        rt: document.getElementById('edit-rt').value,
+        jabatan: document.getElementById('edit-jabatan').value,
+        password: document.getElementById('edit-pass').value
+    };
+    const { error } = await _supabase.from('users').update(upd).eq('id', id);
+    if(!error) {
+        notify("Data diperbarui!");
+        tutupModalEdit();
+        loadDataWarga();
+    }
+};
 
-        function lihatPassword(id, pass) {
-            const el = document.getElementById(`txt-pass-${id}`);
-            el.textContent = (el.textContent === '••••••••') ? pass : '••••••••';
-        }
+async function hapusWarga(id, nama) {
+    if(confirm(`Hapus akun ${nama}?`)) {
+        await _supabase.from('users').delete().eq('id', id);
+        notify("Akun dihapus", "bg-rose-600");
+        loadDataWarga();
+    }
+}
 
-        function bukaModalEdit(w) {
-            document.getElementById('edit-id').value = w.id;
-            document.getElementById('edit-nama').value = w.nama;
-            document.getElementById('edit-jabatan').value = w.jabatan;
-            document.getElementById('edit-pass').value = w.password;
-            
-            const rtSelect = document.getElementById('edit-rt');
-            rtSelect.innerHTML = '';
-            for(let i=1; i<=16; i++) {
-                let val = `RT ${i.toString().padStart(2,'0')}`;
-                rtSelect.innerHTML += `<option value="${val}" ${w.rt === val ? 'selected' : ''}>${val}</option>`;
-            }
-            document.getElementById('modal-edit-warga').classList.remove('hidden');
-        }
+function logout() { location.reload(); }
 
-        function tutupModalEdit() { document.getElementById('modal-edit-warga').classList.add('hidden'); }
-
-        document.getElementById('form-edit-warga').onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const upd = {
-                nama: document.getElementById('edit-nama').value,
-                rt: document.getElementById('edit-rt').value,
-                jabatan: document.getElementById('edit-jabatan').value,
-                password: document.getElementById('edit-pass').value
-            };
-            const { error } = await _supabase.from('users').update(upd).eq('id', id);
-            if(!error) {
-                notify("Data warga diperbarui!");
-                tutupModalEdit();
-                loadDataWarga();
-            }
-        };
-
-        async function hapusWarga(id, nama) {
-            if(confirm(`Hapus permanen akun ${nama}?`)) {
-                await _supabase.from('users').delete().eq('id', id);
-                notify("Akun dihapus", "bg-rose-600");
-                loadDataWarga();
-            }
-        }
-
-        // PWA Service Worker Registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').then(() => console.log('PWA RW.01 Siap!'));
-            });
-        }
+// Registrasi Service Worker PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('PWA Error', err));
+    });
+}          
     </script>
 </body>
 </html>
