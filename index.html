@@ -30,7 +30,7 @@
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
             <img class="w-16 h-16 mx-auto mb-4" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tighter">Sinergi RW.01</h1>
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Kec. Matraman</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Matraman</p>
             <form id="form-login" class="space-y-4 text-left">
                 <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
                 <div class="relative">
@@ -41,6 +41,7 @@
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black shadow-lg transition-all uppercase tracking-widest">Masuk Aplikasi</button>
             </form>
+            
             <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
         </div>
     </div>
@@ -159,8 +160,22 @@
                     </div>
                     <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg">Posting Sekarang</button>
                 </form>
-            </div>
-
+                <div class="mt-8 border-t pt-6">
+    <h3 class="font-black text-slate-800 uppercase text-[10px] mb-4 tracking-widest">Daftar Postingan Aktif</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-[10px]">
+            <thead class="bg-slate-50 text-slate-400 font-black uppercase">
+                <tr>
+                    <th class="p-3">Tipe</th>
+                    <th class="p-3">Judul</th>
+                    <th class="p-3 text-right">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="list-konten-admin" class="divide-y divide-slate-100">
+                </tbody>
+        </table>
+    </div>
+</div>
             <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div class="p-4 border-b bg-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <span class="font-black text-[10px] uppercase text-slate-400">
@@ -278,10 +293,11 @@
     const p = document.getElementById('login-pass').value.trim();
 
     if(u.toLowerCase() === 'sekretaris' && p === 'admin') {
-        showPage('page-admin');
-        loadDataWarga();
-        return;
-    }
+    showPage('page-admin');
+    loadDataWarga();
+    loadKontenAdmin(); // TAMBAHKAN INI
+    return;
+}
 
     const { data } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
     if (data) {
@@ -497,6 +513,94 @@
             `).join('');
         }
 
+        // 1. Fungsi untuk menampilkan semua postingan di Admin
+  
+   async function loadKontenAdmin() {
+        const { data, error } = await _supabase
+        .from('pengumuman')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (!error) {
+        const list = document.getElementById('list-konten-admin');
+        list.innerHTML = data.map(p => `
+            <tr class="hover:bg-slate-50 transition">
+                <td class="p-3">
+                    <span class="px-2 py-0.5 rounded text-[8px] font-bold uppercase ${p.tipe === 'kegiatan' ? 'bg-amber-100 text-amber-600' : 'bg-blue-100 text-blue-600'}">${p.tipe}</span>
+                </td>
+                <td class="p-3 font-bold text-slate-700">${p.judul}</td>
+                <td class="p-3 text-right space-x-2">
+                    <button onclick="editPost('${p.id}', '${p.judul}', '${p.detail.replace(/'/g, "\\'")}')" class="text-blue-600 font-black uppercase">Edit</button>
+                    <button onclick="hapusPost('${p.id}')" class="text-rose-600 font-black uppercase">Hapus</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+}
+
+      // 2. Fungsi Hapus Postingan
+      async function hapusPost(id) {
+        if (confirm("Hapus postingan ini? Warga tidak akan bisa melihatnya lagi.")) {
+        const { error } = await _supabase.from('pengumuman').delete().eq('id', id);
+        if (!error) {
+            notify("Postingan dihapus!");
+            loadKontenAdmin(); // Refresh list admin
+            loadPengumumanWarga(); // Refresh tampilan warga
+        }
+    }
+}
+
+// 3. Fungsi Edit Postingan
+function editPost(id, judul, detail) {
+    // Isi kembali form posting dengan data lama
+    document.getElementById('post-judul').value = judul;
+    document.getElementById('post-detail').value = detail;
+    
+    // Ubah tombol posting menjadi tombol update (sementara)
+    const btn = document.querySelector('#form-posting-terpadu button[type="submit"]');
+    btn.innerText = "Simpan Perubahan";
+    btn.className = "w-full bg-blue-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg";
+    
+    // Tambahkan mode edit ke form
+    document.getElementById('form-posting-terpadu').dataset.editId = id;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 4. Modifikasi Submit Form (Agar bisa simpan hasil edit)
+// Ganti fungsi document.getElementById('form-posting-terpadu').onsubmit lama Anda dengan ini:
+document.getElementById('form-posting-terpadu').onsubmit = async (e) => {
+    e.preventDefault();
+    const editId = e.target.dataset.editId;
+    const tipe = document.getElementById('post-tipe').value;
+    const judul = document.getElementById('post-judul').value;
+    const detail = document.getElementById('post-detail').value;
+
+    notify("Sedang memproses...", "bg-blue-600");
+    
+    let res;
+    if (editId) {
+        // MODE EDIT
+        res = await _supabase.from('pengumuman').update({ judul, detail }).eq('id', editId);
+        delete e.target.dataset.editId;
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.innerText = "Posting Sekarang";
+        btn.className = "w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg";
+    } else {
+        // MODE BARU
+        res = await _supabase.from('pengumuman').insert([{ judul, detail, tipe, created_at: new Date() }]);
+    }
+
+    if (!res.error) {
+        notify("Berhasil!");
+        e.target.reset();
+        loadKontenAdmin();
+        loadPengumumanWarga();
+    } else {
+        notify("Gagal: " + res.error.message, "bg-rose-600");
+    }
+};
+
+        
         // --- MANAJEMEN WARGA (LOGIKA LAMA DIBAWAH) ---
         async function loadDataWarga() {
             const { data } = await _supabase.from('users').select('*').order('nama', {ascending: true});
