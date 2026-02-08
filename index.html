@@ -52,6 +52,67 @@
             </p>
         </div>
     </div>
+    <div class="mt-8 bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="p-5 border-b bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+            <h3 class="font-black text-slate-800 uppercase tracking-tighter">Database Akun Warga</h3>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Total warga terdaftar akan muncul di sini</p>
+        </div>
+        <input type="text" id="cari-warga" placeholder="Cari nama atau username..." 
+               class="border border-slate-200 px-4 py-2 rounded-lg text-sm w-full md:w-64 focus:ring-2 ring-emerald-100 outline-none" 
+               oninput="loadDataWarga()">
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead class="bg-slate-100 text-slate-500 uppercase text-[10px] font-bold tracking-widest">
+                <tr>
+                    <th class="p-4">Nama Lengkap</th>
+                    <th class="p-4">Akses Akun</th>
+                    <th class="p-4">Jabatan / RT</th>
+                    <th class="p-4 text-center">Tindakan</th>
+                </tr>
+            </thead>
+            <tbody id="list-warga-admin" class="divide-y divide-slate-100">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal-edit-warga" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden p-4 z-[60] flex items-center justify-center">
+    <div class="bg-white p-6 rounded-3xl w-full max-w-md shadow-2xl">
+        <h2 class="font-black text-xl text-slate-800 mb-4 uppercase tracking-tighter">Edit Data Warga</h2>
+        <form id="form-edit-warga" class="space-y-3">
+            <input type="hidden" id="edit-id">
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Nama Lengkap</label>
+                <input type="text" id="edit-nama" class="w-full border border-slate-200 p-2 rounded-lg text-sm" required>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">RT</label>
+                    <select id="edit-rt" class="w-full border border-slate-200 p-2 rounded-lg text-sm"></select>
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">Jabatan</label>
+                    <input type="text" id="edit-jabatan" class="w-full border border-slate-200 p-2 rounded-lg text-sm">
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Username</label>
+                <input type="text" id="edit-user" class="w-full border border-slate-200 p-2 rounded-lg text-sm" readonly>
+            </div>
+            <div>
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Password Baru</label>
+                <input type="text" id="edit-pass" class="w-full border border-slate-200 p-2 rounded-lg text-sm">
+            </div>
+            <div class="flex gap-2 pt-4">
+                <button type="submit" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl font-bold text-sm">Simpan Perubahan</button>
+                <button type="button" onclick="tutupModalEdit()" class="px-4 bg-slate-100 text-slate-500 py-2 rounded-xl font-bold text-sm">Batal</button>
+            </div>
+        </form>
+    </div>
+</div>
+    
 
     <div id="page-register" class="hidden min-h-screen p-4 flex justify-center items-start animate-page">
         <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-2xl my-8 border border-slate-50">
@@ -506,6 +567,112 @@
             `).join('');
         }
 
+        // --- FITUR KELOLA DATA WARGA (ADMIN) ---
+
+async function loadDataWarga() {
+    const filter = document.getElementById('cari-warga').value;
+    let query = _supabase.from('users').select('*');
+    
+    // Fitur pencarian berdasarkan nama atau username
+    if(filter) {
+        query = query.or(`nama.ilike.%${filter}%,username.ilike.%${filter}%`);
+    }
+    
+    const { data, error } = await query.order('nama', {ascending: true});
+    const container = document.getElementById('list-warga-admin');
+    
+    if(!data || data.length === 0) {
+        container.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-slate-400 italic">Data tidak ditemukan...</td></tr>';
+        return;
+    }
+
+    container.innerHTML = data.map(w => `
+        <tr class="hover:bg-slate-50 transition">
+            <td class="p-4">
+                <div class="font-bold text-slate-800">${w.nama}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${w.telp || '-'}</div>
+            </td>
+            <td class="p-4">
+                <div class="text-[10px] text-slate-500 uppercase font-bold">User: <span class="text-blue-600">${w.username}</span></div>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="font-mono text-emerald-600 font-bold" id="txt-pass-${w.id}">••••••••</span>
+                    <button onclick="lihatPassword('${w.id}', '${w.password}')" class="text-slate-300 hover:text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                </div>
+            </td>
+            <td class="p-4">
+                <div class="text-xs font-bold text-slate-600 uppercase">${w.jabatan}</div>
+                <div class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-bold">${w.rt}</div>
+            </td>
+            <td class="p-4">
+                <div class="flex justify-center gap-2">
+                    <button onclick='bukaModalEdit(${JSON.stringify(w)})' class="bg-amber-50 text-amber-600 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border border-amber-100 hover:bg-amber-500 hover:text-white transition-all">Edit</button>
+                    <button onclick="hapusWarga('${w.id}', '${w.nama}')" class="bg-rose-50 text-rose-500 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase border border-rose-100 hover:bg-rose-500 hover:text-white transition-all">Hapus</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function lihatPassword(id, pass) {
+    const el = document.getElementById(`txt-pass-${id}`);
+    el.textContent = (el.textContent === '••••••••') ? pass : '••••••••';
+}
+
+function bukaModalEdit(w) {
+    document.getElementById('edit-id').value = w.id;
+    document.getElementById('edit-nama').value = w.nama;
+    document.getElementById('edit-jabatan').value = w.jabatan;
+    document.getElementById('edit-user').value = w.username;
+    document.getElementById('edit-pass').value = w.password;
+    
+    // Generate pilihan RT secara otomatis
+    const rtSelect = document.getElementById('edit-rt');
+    rtSelect.innerHTML = '';
+    for(let i=1; i<=16; i++) {
+        let val = `RT ${i.toString().padStart(2,'0')}`;
+        rtSelect.innerHTML += `<option value="${val}" ${w.rt === val ? 'selected' : ''}>${val}</option>`;
+    }
+    
+    document.getElementById('modal-edit-warga').classList.remove('hidden');
+}
+
+function tutupModalEdit() { 
+    document.getElementById('modal-edit-warga').classList.add('hidden'); 
+}
+
+document.getElementById('form-edit-warga').onsubmit = async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const updateData = {
+        nama: document.getElementById('edit-nama').value,
+        rt: document.getElementById('edit-rt').value,
+        jabatan: document.getElementById('edit-jabatan').value,
+        password: document.getElementById('edit-pass').value
+    };
+    
+    const { error } = await _supabase.from('users').update(updateData).eq('id', id);
+    if(!error) {
+        notify("Data Warga Berhasil Diperbarui!");
+        tutupModalEdit();
+        loadDataWarga(); // Refresh tabel
+    } else {
+        notify("Gagal update: " + error.message, "bg-rose-600");
+    }
+};
+
+async function hapusWarga(id, nama) {
+    if(confirm(`PERHATIAN: Anda akan menghapus akun ${nama} secara permanen. Lanjutkan?`)) {
+        const { error } = await _supabase.from('users').delete().eq('id', id);
+        if(!error) {
+            notify("Akun warga telah dihapus", "bg-rose-600");
+            loadDataWarga();
+        }
+    }
+}
+
+        
         // --- 7. PDF ENGINE ---
         async function downloadPDF() {
             const { data } = await _supabase.from('absensi').select('*, kegiatan(nama)').order('created_at', {ascending:false});
