@@ -611,6 +611,40 @@ function aturFormAdmin() {
     // Hanya tampilkan input file jika tipenya Dokumentasi (Foto)
     fileInput.style.display = (tipe === 'dokumentasi') ? 'block' : 'none';
 }
+       function updateRealTime() {
+    const now = new Date();
+    
+    // Format Tanggal: Selasa, 10 Februari 2026
+    const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const dateString = now.toLocaleDateString('id-ID', optionsDate);
+    
+    // Format Jam: 14:05:01
+    const timeString = now.toLocaleTimeString('id-ID', { 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: false 
+    }).replace(/\./g, ':'); // Pastikan format menggunakan titik dua
+
+    // Update di Halaman User
+    if (document.getElementById('user-realtime-date')) {
+        document.getElementById('user-realtime-date').innerText = dateString;
+        document.getElementById('user-realtime-clock').innerText = timeString + " WIB";
+    }
+
+    // Update di Halaman Admin
+    if (document.getElementById('admin-realtime-date')) {
+        document.getElementById('admin-realtime-date').innerText = dateString;
+        document.getElementById('admin-realtime-clock').innerText = timeString;
+    }
+}
+
+// Jalankan fungsi setiap 1 detik
+setInterval(updateRealTime, 1000);
+
+// Panggil sekali saat awal load agar tidak kosong selama 1 detik pertama
+updateRealTime();
+ 
 
     </script>
 </body>
