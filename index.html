@@ -17,8 +17,30 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+<style>
+    /* Membuat tampilan kartu lebih proporsional */
+    #list-kegiatan-warga > div {
+        background: white;
+        border-radius: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #f1f5f9;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease;
+    }
+    
+    #list-kegiatan-warga > div:hover {
+        transform: translateY(-2px);
+    }
 
-    <style>
+    /* Penyesuaian gambar dokumentasi agar tidak pecah/gepeng */
+    .doc-img {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        border-radius: 1.5rem;
+        margin-bottom: 1rem;
+    }    
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .animate-fade { animation: fadeIn 0.3s ease-out; }
@@ -78,36 +100,41 @@
         </div>
     </div>
         <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
-    <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-            <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-            <h1 class="font-black text-emerald-700 uppercase text-xs">Sinergi RW.01</h1>
+    <header class="bg-white/80 backdrop-blur-md p-4 border-b sticky top-0 z-[60] flex justify-between items-center px-6">
+    <div class="flex items-center gap-3">
+        <img class="w-10 h-10 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+        <div>
+            <h1 class="font-black text-emerald-700 uppercase text-sm tracking-tighter">Sinergi RW.01</h1>
+            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Kebon Manggis</p>
         </div>
-        <div class="text-right">
-    <div id="user-realtime-date" class="text-[9px] font-bold text-slate-500 uppercase"></div>
-    <div id="user-realtime-clock" class="text-xs font-black text-emerald-600"></div>
-</div>
-
-        <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg text-rose-600">KELUAR</button>
-    </header>
-
-    <main class="p-4 max-w-md mx-auto space-y-6">
-        <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl">
-            <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Warga Terdaftar,</p>
-            <h2 id="user-display-nama" class="text-2xl font-black tracking-tight">...</h2>
-            <div class="flex flex-wrap gap-2 mt-2">
-                <span id="user-display-jabatan" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">...</span>
-                <span id="user-display-rt" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">RT --</span>
-            </div>
+    </div>
+    
+    <div class="text-right hidden sm:block">
+        <div id="user-realtime-date" class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter"></div>
+        <div id="user-realtime-clock" class="text-sm font-black text-emerald-600 tracking-tighter"></div>
+    </div>
+    
+    <button onclick="logout()" class="ml-4 text-[10px] font-black bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all">KELUAR</button>
+</header>
+            
+    <main class="p-4 w-full max-w-2xl mx-auto min-h-[80vh] flex flex-col space-y-6">
+    <div class="bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-900/20">
+        <p class="text-[10px] font-bold opacity-80 uppercase tracking-[0.2em] mb-1">Warga Terdaftar,</p>
+        <h2 id="user-display-nama" class="text-3xl font-black tracking-tight leading-none mb-4">...</h2>
+        <div class="flex flex-wrap gap-3">
+            <span id="user-display-jabatan" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase">...</span>
+            <span id="user-display-rt" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase">RT --</span>
         </div>
+    </div>
 
-        <div class="flex bg-slate-200/50 p-1 rounded-2xl gap-1">
-            <button onclick="switchTabWarga('pengumuman')" id="tab-p" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-white text-emerald-700 shadow-sm transition-all">Pengumuman</button>
-            <button onclick="switchTabWarga('dokumentasi')" id="tab-d" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Dokumentasi</button>
-            <button onclick="switchTabWarga('riwayat')" id="tab-r" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Riwayat</button>
+    <div class="flex bg-slate-200/50 p-1.5 rounded-[1.5rem] gap-1.5 sticky top-20 z-40 backdrop-blur-md">
+        <button onclick="switchTabWarga('pengumuman')" id="tab-p" class="flex-1 py-3.5 text-xs font-black uppercase rounded-xl bg-white text-emerald-700 shadow-md transition-all duration-300">Pengumuman</button>
+        <button onclick="switchTabWarga('dokumentasi')" id="tab-d" class="flex-1 py-3.5 text-xs font-black uppercase rounded-xl text-slate-500 hover:bg-white/50 transition-all">Dokumentasi</button>
+        <button onclick="switchTabWarga('riwayat')" id="tab-r" class="flex-1 py-3.5 text-xs font-black uppercase rounded-xl text-slate-500 hover:bg-white/50 transition-all">Riwayat</button>
+    </div>
+
+    <div id="list-kegiatan-warga" class="space-y-6 flex-grow">
         </div>
-
-        <div id="list-kegiatan-warga" class="space-y-4"></div>
 
         <footer class="mt-12 pb-24 text-center">
             <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
@@ -470,19 +497,19 @@ async function switchTabWarga(tab) {
 
     // Reset Styling Tombol
     [btnP, btnD, btnR].forEach(b => {
-        b.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
+        b.classList.remove('bg-white', 'text-emerald-700', 'shadow-md');
         b.classList.add('text-slate-500');
     });
-
+     
     // Aktifkan Tombol & Load Data
     if (tab === 'pengumuman') {
-        btnP.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        btnP.classList.add('bg-white', 'text-emerald-700', 'shadow-md');
         loadPengumumanWarga();
     } else if (tab === 'dokumentasi') {
-        btnD.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        btnD.classList.add('bg-white', 'text-emerald-700', 'shadow-md');
         loadDokumentasiWarga();
     } else if (tab === 'riwayat') {
-        btnR.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        btnR.classList.add('bg-white', 'text-emerald-700', 'shadow-md');
         loadRiwayatWarga();
     }
 }
