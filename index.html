@@ -83,6 +83,11 @@
             <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="font-black text-emerald-700 uppercase text-xs">Sinergi RW.01</h1>
         </div>
+        <div class="text-right">
+    <div id="user-realtime-date" class="text-[9px] font-bold text-slate-500 uppercase"></div>
+    <div id="user-realtime-clock" class="text-xs font-black text-emerald-600"></div>
+</div>
+
         <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg text-rose-600">KELUAR</button>
     </header>
 
@@ -143,6 +148,11 @@
                     <span class="text-[8px] font-bold text-slate-400 uppercase">Panel Sekretariat</span>
                 </div>
             </div>
+            <div class="text-right">
+    <div id="user-realtime-date" class="text-[9px] font-bold text-slate-500 uppercase"></div>
+    <div id="user-realtime-clock" class="text-xs font-black text-emerald-600"></div>
+</div>
+
             <button onclick="logout()" class="text-[10px] font-black bg-rose-50 px-3 py-2 rounded-lg text-rose-600 border border-rose-100">KELUAR</button>
         </header>
 
@@ -487,7 +497,7 @@ async function loadDokumentasiWarga() {
     if (data && data.length > 0) {
         container.innerHTML = data.map(d => `
             <div class="bg-white rounded-3xl overflow-hidden border shadow-sm animate-fade">
-                ${d.foto_urls && d.foto_urls.length > 0 ? `<img src="${d.foto_urls[0]}" class="w-full h-48 object-cover">` : ''}
+                ${d.foto_urls && d.foto_urls.length > 0 ? `<img src="${d.foto_urls[0]}" class="w-full h-48 object-cover shadow-md rounded-2xl mb-2">` : ''}
                 <div class="p-4">
                     <h4 class="font-black text-slate-800 text-xs uppercase">${d.judul}</h4>
                     <p class="text-[10px] text-slate-500 mt-1">${d.detail}</p>
