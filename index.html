@@ -109,22 +109,27 @@
         </div>
     </div>
     
-    <div class="text-right hidden sm:block">
-        <div id="user-realtime-date" class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter"></div>
-        <div id="user-realtime-clock" class="text-sm font-black text-emerald-600 tracking-tighter"></div>
-    </div>
-    
     <button onclick="logout()" class="ml-4 text-[10px] font-black bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all">KELUAR</button>
 </header>
-            
-    <main class="p-4 w-full max-w-2xl mx-auto min-h-[80vh] flex flex-col space-y-6">
-    <div class="bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl shadow-emerald-900/20">
-        <p class="text-[10px] font-bold opacity-80 uppercase tracking-[0.2em] mb-1">Warga Terdaftar,</p>
+    <main class="px-4 md:px-8 py-6 w-full max-w-2xl mx-auto">
+    <div class="relative bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl overflow-hidden">
+    <div class="absolute top-6 right-8 text-right border-l border-white/20 pl-4">
+        <div id="user-realtime-date" class="text-[8px] font-bold opacity-70 uppercase tracking-tighter mb-1"></div>
+        <div id="user-realtime-clock" class="text-lg font-black tracking-tighter leading-none"></div>
+    </div>
+
+    <div class="relative z-10">
+        <p class="text-[10px] font-bold opacity-70 uppercase tracking-[0.2em] mb-1">Warga Terdaftar,</p>
         <h2 id="user-display-nama" class="text-3xl font-black tracking-tight leading-none mb-4">...</h2>
-        <div class="flex flex-wrap gap-3">
-            <span id="user-display-jabatan" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase">...</span>
-            <span id="user-display-rt" class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase">RT --</span>
+        <div class="flex flex-wrap gap-2">
+            <span id="user-display-jabatan" class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase">...</span>
+            <span id="user-display-rt" class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase">RT --</span>
         </div>
+    </div>
+    
+    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+</div>
+
     </div>
 
     <div class="flex bg-slate-200/50 p-1.5 rounded-[1.5rem] gap-1.5 sticky top-20 z-40 backdrop-blur-md">
