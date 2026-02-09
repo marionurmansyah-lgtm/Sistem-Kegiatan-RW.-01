@@ -4,18 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.1">
     <title>Sinergi RW.01 - Kebon Manggis</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#059669">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -38,12 +33,7 @@
             <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Kec. Matraman</p>
             <form id="form-login" class="space-y-4 text-left">
                 <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
-                <div class="relative">
-                    <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
-                    <button type="button" onclick="togglePass('login-pass', 'eye-icon')" class="absolute right-4 top-4 text-slate-400">
-                        <i id="eye-icon" data-lucide="eye" class="w-5 h-5"></i>
-                    </button>
-                </div>
+                <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
                 <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest">Masuk Aplikasi</button>
             </form>
             <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
@@ -52,7 +42,7 @@
 
     <div id="page-register" class="hidden min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100">
-            <h2 class="text-xl font-black text-slate-800 uppercase mb-1">Formulir Warga</h2>
+            <h2 class="text-xl font-black text-slate-800 uppercase mb-4">Formulir Warga</h2>
             <form id="form-register" class="space-y-4">
                 <input type="text" id="reg-nama" placeholder="NAMA LENGKAP" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl outline-none" required>
                 <div class="grid grid-cols-2 gap-2">
@@ -67,7 +57,7 @@
                    <option value="">-- PILIH KATEGORI --</option>
                    <option value="Pengurus RW">PENGURUS RW</option>
                    <option value="Pengurus RT">PENGURUS RT</option>
-                   <option value="Kader">KADER (PKK/JUMANTIK/DLL)</option>
+                   <option value="Kader">KADER</option>
                    <option value="Karang Taruna">KARANG TARUNA</option> 
                    <option value="Seksi Keamanan">SEKSI KEAMANAN</option>
                    <option value="Seksi Kebersihan">SEKSI KEBERSIHAN</option>
@@ -76,26 +66,19 @@
                 <select id="reg-sub-jabatan" class="hidden w-full border-2 border-emerald-50 bg-emerald-50 p-3 rounded-xl font-bold text-sm outline-none"></select>
                 <input type="text" id="reg-detail-manual" placeholder="Detail tambahan..." class="hidden w-full border-2 border-emerald-50 bg-emerald-50 p-3 rounded-xl font-bold text-sm outline-none">
                 
-                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase hover:bg-emerald-600 transition-all">Daftar Akun</button>
+                <button type="submit" class="w-full bg-slate-900 text-white py-4 rounded-xl font-black uppercase">Daftar Akun</button>
                 <button type="button" onclick="showPage('page-login')" class="w-full text-xs text-slate-400 font-bold uppercase">Batal</button>
             </form>
         </div>
     </div>
-
-    <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
+            <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
         <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
             <div class="flex items-center gap-2">
-                <img class="w-8 h-8" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+                <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
                 <h1 class="font-black text-emerald-700 uppercase text-xs">Sinergi RW.01</h1>
             </div>
             <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg text-rose-600">KELUAR</button>
         </header>
-
-        <div class="bg-white border-b flex justify-around text-[10px] font-black uppercase text-slate-400 sticky top-[65px] z-40">
-            <button onclick="switchTab('tab-kegiatan')" id="btn-tab-kegiatan" class="py-4 px-2 tab-active">Kegiatan</button>
-            <button onclick="switchTab('tab-riwayat')" id="btn-tab-riwayat" class="py-4 px-2">Riwayat</button>
-            <button onclick="switchTab('tab-galeri')" id="btn-tab-galeri" class="py-4 px-2">Dokumentasi</button>
-        </div>
 
         <main class="p-4 max-w-md mx-auto space-y-6">
             <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl">
@@ -107,73 +90,12 @@
                 </div>
             </div>
 
-            <div id="tab-kegiatan" class="tab-content space-y-4">
-                <div id="list-kegiatan-warga" class="space-y-4"></div>
-            </div>
+            <div id="list-kegiatan-warga" class="space-y-4"></div>
 
-            <div id="tab-riwayat" class="tab-content hidden space-y-4">
-                <h3 class="font-black text-slate-800 uppercase text-xs px-1">Kehadiran Saya</h3>
-                <div id="list-riwayat-absen" class="space-y-3"></div>
-            </div>
-
-            <div id="tab-galeri" class="tab-content hidden space-y-4">
-                <div id="list-dokumentasi-warga" class="space-y-6"></div>
-            </div>
-        </main>
-    </div>
-
-    <div id="page-admin" class="hidden min-h-screen animate-fade pb-20">
-        <header class="bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex items-center gap-2">
-                <img class="w-6 h-6 invert" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-                <h1 class="font-black uppercase text-[10px]">Admin Sekretariat</h1>
-            </div>
-            <button onclick="logout()" class="text-[10px] font-black border border-slate-700 px-3 py-2 rounded-lg">KELUAR</button>
-        </header>
-
-        <main class="p-4 max-w-5xl mx-auto space-y-6">
-            <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-4">Laporan Absensi (Filter Tanggal)</h3>
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <input type="date" id="filter-tgl-mulai" class="w-full border-2 border-slate-50 bg-slate-50 p-2 rounded-xl text-xs outline-none">
-                    <input type="date" id="filter-tgl-selesai" class="w-full border-2 border-slate-50 bg-slate-50 p-2 rounded-xl text-xs outline-none">
-                </div>
-                <button onclick="downloadLaporanAbsensiAdmin()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase text-[10px] flex items-center justify-center gap-2">
-                    <i data-lucide="download" class="w-4 h-4"></i> Generate PDF Laporan
-                </button>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl border shadow-sm">
-                <h2 class="font-black text-slate-800 uppercase text-xs mb-4">Panel Posting</h2>
-                <form id="form-posting-terpadu" class="space-y-3">
-                    <select id="post-tipe" onchange="aturFormAdmin()" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl font-bold text-xs outline-none">
-                        <option value="pengumuman">📢 PENGUMUMAN</option>
-                        <option value="kegiatan">📅 AGENDA KEGIATAN</option>
-                        <option value="dokumentasi">📸 DOKUMENTASI (FOTO)</option>
-                    </select>
-                    <input type="text" id="post-judul" placeholder="Judul Postingan" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-                    <textarea id="post-detail" placeholder="Detail keterangan..." class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl h-24 text-xs outline-none" required></textarea>
-                    
-                    <div class="p-4 border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50">
-                        <label id="label-file" class="text-[9px] font-black text-slate-400 block mb-2 uppercase">Lampiran Gambar</label>
-                        <input type="file" id="post-files" class="text-xs w-full" accept="image/*">
-                    </div>
-
-                    <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs">Posting Sekarang</button>
-                </form>
-            </div>
-
-            <div class="bg-white p-6 rounded-3xl border shadow-sm overflow-hidden">
-                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-4 text-center">Data Konten</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-[10px]">
-                        <thead class="bg-slate-50 text-slate-400 font-black uppercase">
-                            <tr><th class="p-3">Tipe</th><th class="p-3">Judul</th><th class="p-3 text-right">Aksi</th></tr>
-                        </thead>
-                        <tbody id="list-konten-admin" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
+            <footer class="mt-12 pb-24 text-center">
+                <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
+                <p class="text-[8px] font-medium text-emerald-600/50 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
+            </footer>
         </main>
     </div>
 
@@ -200,321 +122,405 @@
         </div>
     </div>
 
-    <div id="modal-detail-absen-user" class="fixed inset-0 bg-black/60 z-[110] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-2xl rounded-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4">
-                <h3 id="det-judul-user" class="font-black text-slate-800 uppercase text-xs tracking-tight">Daftar Kehadiran</h3>
-                <button onclick="tutupDetailAbsen()" class="text-slate-400"><i data-lucide="x"></i></button>
-            </div>
-            <button id="btn-download-pdf-user" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-[10px] mb-4 flex items-center justify-center gap-2">
-                <i data-lucide="printer" class="w-4 h-4"></i> Download PDF Absensi
-            </button>
-            <div id="table-detail-user" class="overflow-x-auto text-[10px]"></div>
-        </div>
-    </div>
 
-    <div id="modal-lightbox" class="fixed inset-0 bg-black/95 z-[200] hidden flex items-center justify-center p-4" onclick="tutupLightbox()">
-        <button class="absolute top-6 right-6 text-white"><i data-lucide="x" class="w-8 h-8"></i></button>
-        <img id="img-lightbox" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl border-4 border-white/10">
+    <div id="page-admin" class="hidden min-h-screen animate-fade pb-20">
+        <header class="bg-white p-4 border-b flex justify-between items-center sticky top-0 z-50 shadow-sm">
+            <div class="flex items-center gap-2">
+                <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+                <div class="flex flex-col">
+                    <h1 class="font-black text-emerald-700 uppercase text-[10px] leading-none">Sinergi RW.01</h1>
+                    <span class="text-[8px] font-bold text-slate-400 uppercase">Panel Sekretariat</span>
+                </div>
+            </div>
+            <button onclick="logout()" class="text-[10px] font-black bg-rose-50 px-3 py-2 rounded-lg text-rose-600 border border-rose-100">KELUAR</button>
+        </header>
+
+        <main class="p-4 max-w-5xl mx-auto space-y-6">
+            <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-4">Laporan Absensi</h3>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <input type="date" id="filter-tgl-mulai" class="w-full border-2 border-slate-50 bg-slate-50 p-2 rounded-xl text-xs outline-none">
+                    <input type="date" id="filter-tgl-selesai" class="w-full border-2 border-slate-50 bg-slate-50 p-2 rounded-xl text-xs outline-none">
+                </div>
+                <button onclick="downloadLaporanAbsensiAdmin()" class="w-full bg-slate-900 text-white py-3 rounded-xl font-black uppercase text-[10px]">Generate PDF Laporan</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                <h2 class="font-black text-slate-800 uppercase text-xs mb-4">Panel Posting</h2>
+                <form id="form-posting-terpadu" class="space-y-3">
+                    <select id="post-tipe" onchange="aturFormAdmin()" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl font-bold text-xs outline-none">
+                        <option value="pengumuman">📢 PENGUMUMAN</option>
+                        <option value="kegiatan">📅 AGENDA KEGIATAN</option>
+                        <option value="dokumentasi">📸 DOKUMENTASI (FOTO)</option>
+                    </select>
+                    <input type="text" id="post-judul" placeholder="Judul Postingan" class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
+                    <textarea id="post-detail" placeholder="Detail keterangan..." class="w-full border-2 border-slate-50 bg-slate-50 p-3 rounded-xl h-24 text-xs outline-none" required></textarea>
+                    <input type="file" id="post-files" class="text-xs w-full p-2 border rounded-xl" accept="image/*">
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs">Posting Sekarang</button>
+                </form>
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl border shadow-sm">
+                <h3 class="font-black text-slate-800 uppercase text-[10px] mb-4">Data Konten & Hapus</h3>
+                <div id="list-konten-admin" class="space-y-2"></div>
+            </div>
+            <footer class="mt-12 pb-24 text-center">
+        <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">
+        ©2026 createdby:sekretariat_team
+      </p>
+    <p class="text-[8px] font-medium text-emerald-600/50 mt-1 uppercase tracking-widest">
+        rionurmansyah & nacruli
+    </p>
+</footer>
+        </main>
     </div>
 
     <script>
         const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA"; 
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
-        let signaturePad;
 
-        window.onload = () => {
-            const canvas = document.getElementById('canvas-ttd');
-            signaturePad = new SignaturePad(canvas);
-            lucide.createIcons();
+        // --- SISTEM HAPUS KONTEN (PENGUMUMAN & DOKUMENTASI) ---
+        async function loadKontenAdmin() {
+            const container = document.getElementById('list-konten-admin');
+            container.innerHTML = '<p class="text-center text-xs text-slate-400">Loading...</p>';
 
-            const savedUser = localStorage.getItem('session_user');
-            const isAdmin = localStorage.getItem('is_admin');
+            // Ambil dari dua tabel
+            const { data: p } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
+            const { data: d } = await _supabase.from('dokumentasi').select('*').order('created_at', {ascending: false});
 
-            if (isAdmin === 'true') {
-                showPage('page-admin');
+            let combined = [];
+            if(p) combined = [...combined, ...p.map(x => ({...x, source: 'pengumuman'}))];
+            if(d) combined = [...combined, ...d.map(x => ({...x, source: 'dokumentasi', tipe: 'dokumentasi'}))];
+
+            container.innerHTML = combined.map(item => `
+                <div class="flex justify-between items-center p-3 border-b text-[10px]">
+                    <div>
+                        <span class="font-black text-emerald-600 uppercase">[${item.tipe}]</span>
+                        <span class="ml-2 font-bold text-slate-700">${item.judul}</span>
+                    </div>
+                    <button onclick="hapusPost('${item.id}', '${item.source}')" class="text-rose-600 font-black hover:bg-rose-50 px-2 py-1 rounded">HAPUS</button>
+                </div>
+            `).join('') || '<p class="text-center text-xs text-slate-400">Belum ada konten.</p>';
+        }
+
+        async function hapusPost(id, source) {
+            if(!confirm("Yakin ingin menghapus postingan ini?")) return;
+            
+            notify("Menghapus...", "bg-rose-600");
+            const { error } = await _supabase.from(source).delete().eq('id', id);
+            
+            if(!error) {
+                notify("Berhasil Dihapus");
                 loadKontenAdmin();
-            } else if (savedUser) {
-                const data = JSON.parse(savedUser);
-                setUserDataDisplay(data);
-                showPage('page-user');
-                loadPengumumanWarga();
-            }
-        };
-
-        function setUserDataDisplay(data) {
-            document.getElementById('user-display-nama').innerText = data.nama;
-            document.getElementById('user-display-jabatan').innerText = data.jabatan;
-            document.getElementById('user-display-rt').innerText = data.rt;
-            localStorage.setItem('userNama', data.nama);
-            localStorage.setItem('userRT', data.rt);
-            localStorage.setItem('userJabatan', data.jabatan);
-        }
-
-        function showPage(pageId) {
-            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-            document.getElementById(pageId).classList.remove('hidden');
-            lucide.createIcons();
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('[id^="btn-tab-"]').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('btn-tab-' + tabId.split('-')[1]).classList.add('tab-active');
-            if(tabId === 'tab-riwayat') loadRiwayatAbsen();
-            if(tabId === 'tab-galeri') loadDokumentasi();
-        }
-
-        function notify(msg, color = "bg-emerald-600") {
-            const t = document.getElementById('toast');
-            t.textContent = msg; t.className = `fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade ${color}`;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
-
-        function togglePass(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === "password" ? "text" : "password";
-        }
-
-        // --- AUTH ---
-        document.getElementById('form-login').onsubmit = async (e) => {
-            e.preventDefault();
-            const u = document.getElementById('login-user').value.trim();
-            const p = document.getElementById('login-pass').value.trim();
-            if(u === 'sekretaris' && p === 'admin') {
-                localStorage.setItem('is_admin', 'true');
-                showPage('page-admin');
-                loadKontenAdmin();
-                return;
-            }
-            const { data } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
-            if (data) {
-                localStorage.setItem('session_user', JSON.stringify(data));
-                setUserDataDisplay(data);
-                showPage('page-user');
-                loadPengumumanWarga();
             } else {
-                notify("Login Gagal!", "bg-rose-600");
-            }
-        };
-
-        function logout() { localStorage.clear(); location.reload(); }
-
-        // --- REGISTER LOGIC ---
-        function updateSubJabatan() {
-            const kat = document.getElementById('reg-kategori').value;
-            const sub = document.getElementById('reg-sub-jabatan');
-            const manual = document.getElementById('reg-detail-manual');
-
-            sub.innerHTML = '';
-            sub.classList.add('hidden');
-            manual.classList.add('hidden');
-            manual.value = '';
-
-            if (kat === 'Pengurus RW') {
-                sub.classList.remove('hidden');
-                sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua I RW">Wakil Ketua I RW</option><option value="Sekretaris I RW">Sekretaris I RW</option><option value="Bendahara RW">Bendahara RW</option><option value="Wakil Ketua II RW">Wakil Ketua II RW</option><option value="Sekretaris II RW">Sekretaris II RW</option>';
-            } else if (kat === 'Pengurus RT') {
-                sub.classList.remove('hidden');
-                sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
-            } else if (kat === 'Kader') {
-                sub.classList.remove('hidden'); manual.classList.remove('hidden');
-                manual.placeholder = "Contoh: Unit RT 05 / Dasawisma Mawar";
-                sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="Dawis">Kader Dasawisma</option><option value="Paud">Kader Paud</option><option value="Posyandu">Kader Posyandu</option>';
-            } else if (kat === 'Karang Taruna') {
-                sub.classList.remove('hidden');
-                sub.innerHTML = '<option value="Ketua Karang Taruna">Ketua Karang Taruna</option><option value="Sekretaris">Sekretaris Karang Taruna</option><option value="Bendahara">Bendahara Karang Taruna</option><option value="Anggota">Anggota Karang Taruna</option>';
-            } else if (kat === 'Warga' || kat === 'Seksi Keamanan' || kat === 'Seksi Kebersihan') {
-                manual.classList.remove('hidden');
-                manual.placeholder = kat === 'Warga' ? "Contoh: Tokoh Masyarakat / Warga" : "Contoh: Komandan / Anggota";
+                notify("Gagal Hapus: " + error.message, "bg-rose-600");
             }
         }
 
-        document.getElementById('form-register').onsubmit = async (e) => {
-            e.preventDefault();
-            const subVal = document.getElementById('reg-sub-jabatan').value;
-            const manualVal = document.getElementById('reg-detail-manual').value.trim();
-            let jabatanFinal = subVal;
-            if (manualVal) {
-                jabatanFinal = subVal ? `${subVal} (${manualVal})` : manualVal;
-            }
-
-            const payload = {
-                username: document.getElementById('reg-user').value,
-                password: document.getElementById('reg-pass').value,
-                nama: document.getElementById('reg-nama').value,
-                rt: document.getElementById('reg-rt').value,
-                jabatan: jabatanFinal,
-                kategori: document.getElementById('reg-kategori').value,
-                created_at: new Date()
-            };
-
-            notify("Mendaftar...", "bg-blue-600");
-            const { error } = await _supabase.from('users').insert([payload]);
-            if(!error) { notify("Berhasil! Silakan Login."); showPage('page-login'); e.target.reset(); }
-            else notify("Gagal Daftar!", "bg-rose-600");
-        };
-
-        // --- ADMIN: POSTING ---
-        function aturFormAdmin() {
-            const tipe = document.getElementById('post-tipe').value;
-            document.getElementById('post-files').multiple = (tipe === 'dokumentasi');
-            document.getElementById('label-file').innerText = tipe === 'dokumentasi' ? "UPLOAD FOTO KEGIATAN (MAX 4)" : "UPLOAD LAMPIRAN";
-        }
-
+        // --- SISTEM POSTING DENGAN KOMPRESI ---
         document.getElementById('form-posting-terpadu').onsubmit = async (e) => {
             e.preventDefault();
             const tipe = document.getElementById('post-tipe').value;
             const judul = document.getElementById('post-judul').value;
             const detail = document.getElementById('post-detail').value;
             const files = document.getElementById('post-files').files;
-            notify("Memproses...", "bg-blue-600");
+
+            notify("Sedang Memproses...", "bg-blue-600");
+
             try {
                 let urls = [];
-                if (tipe === 'dokumentasi' && files.length > 0) {
+                if (files.length > 0) {
+                    // Kompresi Gambar
+                    const options = { maxSizeMB: 0.7, maxWidthOrHeight: 1280, useWebWorker: true };
                     for (let file of files) {
-                        const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 5)}.${file.name.split('.').pop()}`;
-                        await _supabase.storage.from('media-sinergi').upload(`dokumentasi/${fileName}`, file);
+                        const compressed = await imageCompression(file, options);
+                        const fileName = `${Date.now()}-${file.name}`;
+                        await _supabase.storage.from('media-sinergi').upload(`dokumentasi/${fileName}`, compressed);
                         const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`dokumentasi/${fileName}`);
                         urls.push(pUrl.publicUrl);
                     }
                 }
-                const res = (tipe === 'dokumentasi') 
-                    ? await _supabase.from('dokumentasi').insert([{ judul, detail, foto_urls: urls, created_at: new Date() }])
-                    : await _supabase.from('pengumuman').insert([{ judul, detail, tipe, created_at: new Date() }]);
-                if (res.error) throw res.error;
-                notify("Berhasil Diposting!");
-                e.target.reset(); loadKontenAdmin();
-            } catch (err) { notify("Error Upload!", "bg-rose-600"); }
+
+                if (tipe === 'dokumentasi') {
+                    await _supabase.from('dokumentasi').insert([{ judul, detail, foto_urls: urls, created_at: new Date() }]);
+                } else {
+                    await _supabase.from('pengumuman').insert([{ judul, detail, tipe, created_at: new Date() }]);
+                }
+
+                notify("Postingan Berhasil!");
+                e.target.reset();
+                loadKontenAdmin();
+            } catch (err) {
+                notify("Error: " + err.message, "bg-rose-600");
+            }
         };
 
-        async function loadKontenAdmin() {
-            const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
-            document.getElementById('list-konten-admin').innerHTML = data.map(p => `<tr><td class="p-3 uppercase font-bold text-slate-400">${p.tipe}</td><td class="p-3 font-bold">${p.judul}</td><td class="p-3 text-right"><button onclick="hapusPost('${p.id}')" class="text-rose-500 font-black">HAPUS</button></td></tr>`).join('');
+        // --- LOGIC REGISTER (JABATAN MANUAL) ---
+        function updateSubJabatan() {
+            const kat = document.getElementById('reg-kategori').value;
+            const sub = document.getElementById('reg-sub-jabatan');
+            const manual = document.getElementById('reg-detail-manual');
+            sub.innerHTML = ''; sub.classList.add('hidden'); manual.classList.add('hidden'); manual.value = '';
+
+            if (kat === 'Pengurus RW') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Sekretaris RW">Sekretaris RW</option><option value="Bendahara RW">Bendahara RW</option>';
+            } else if (kat === 'Pengurus RT') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option>';
+            } else if (kat === 'Kader') {
+                sub.classList.remove('hidden'); manual.classList.remove('hidden');
+                manual.placeholder = "Unit/Lokasi (Misal: RT 05)";
+                sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="Dawis">Kader Dasawisma</option>';
+            } else if (kat === 'Karang Taruna') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua Karang Taruna">Ketua Karang Taruna</option><option value="Anggota">Anggota</option>';
+            } else if (kat === 'Warga' || kat.includes('Seksi')) {
+                manual.classList.remove('hidden');
+                manual.placeholder = "Deskripsi Jabatan";
+            }
         }
+        // --- FUNGSI DAFTAR WARGA BARU ---
+document.getElementById('form-register').onsubmit = async (e) => {
+    e.preventDefault();
+    const nama = document.getElementById('reg-nama').value;
+    const username = document.getElementById('reg-user').value.trim();
+    const password = document.getElementById('reg-pass').value.trim();
+    const rt = document.getElementById('reg-rt').value;
+    const kategori = document.getElementById('reg-kategori').value;
+    const subJabatan = document.getElementById('reg-sub-jabatan').value;
+    const manualJabatan = document.getElementById('reg-detail-manual').value;
 
-        async function hapusPost(id) { if(confirm("Hapus?")) { await _supabase.from('pengumuman').delete().eq('id', id); loadKontenAdmin(); } }
+    // Gabungkan jabatan agar rapi di database
+    let jabatanFinal = kategori;
+    if (subJabatan) jabatanFinal = subJabatan;
+    if (manualJabatan) jabatanFinal = manualJabatan;
 
-        // --- USER: TAMPILAN ---
-        async function loadPengumumanWarga() {
-            const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
-            document.getElementById('list-kegiatan-warga').innerHTML = data.map(p => `
-                <div class="bg-white p-5 rounded-3xl border shadow-sm animate-fade">
-                    <span class="text-[9px] font-black uppercase px-2 py-1 rounded bg-blue-100 text-blue-600">${p.tipe}</span>
-                    <h4 class="font-black text-slate-800 text-sm my-2 uppercase">${p.judul}</h4>
-                    <p class="text-slate-500 text-[10px] leading-relaxed mb-4">${p.detail}</p>
-                    ${p.tipe === 'kegiatan' ? `<button onclick="bukaAbsen('${p.id}', '${p.judul}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px]">HADIR SEKARANG</button>` : ''}
-                </div>
-            `).join('');
+    notify("Mendaftarkan...", "bg-blue-600");
+
+    const { error } = await _supabase.from('users').insert([
+        { nama, username, password, rt, jabatan: jabatanFinal }
+    ]);
+
+    if (!error) {
+        notify("Pendaftaran Berhasil! Silakan Login.");
+        showPage('page-login');
+        e.target.reset();
+    } else {
+        notify("Gagal: " + error.message, "bg-rose-600");
+    }
+};
+
+
+        // Jalankan fungsi load saat admin masuk
+        function showPage(pageId) {
+            document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            if(pageId === 'page-admin') loadKontenAdmin();
         }
+// --- FUNGSI LOGIN ---
+document.getElementById('form-login').onsubmit = async (e) => {
+    e.preventDefault();
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    
+    // Login Admin Khusus
+    if(u === 'sekretaris' && p === 'admin') {
+        localStorage.setItem('is_admin', 'true');
+        showPage('page-admin');
+        return;
+    }
+    
+    // Login Warga via Supabase
+    const { data, error } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
+    
+    if (data) {
+        localStorage.setItem('session_user', JSON.stringify(data));
+        setUserDataDisplay(data);
+        showPage('page-user');
+        loadPengumumanWarga();
+        notify("Selamat Datang, " + data.nama);
+    } else {
+        notify("Username atau Password Salah!", "bg-rose-600");
+    }
+};
 
-        async function loadDokumentasi() {
-            const { data } = await _supabase.from('dokumentasi').select('*').order('created_at', {ascending: false});
-            const container = document.getElementById('list-dokumentasi-warga');
-            if (!data || data.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 text-xs py-10 uppercase font-black">Belum ada dokumentasi.</p>'; return; }
-            container.innerHTML = data.map(d => `
-                <div class="bg-white p-4 rounded-3xl border shadow-sm animate-fade mb-4">
-                    <div class="grid grid-cols-2 gap-2 mb-3">${d.foto_urls ? d.foto_urls.map(url => `<img src="${url}" onclick="bukaLightbox('${url}')" class="h-32 w-full object-cover rounded-xl cursor-pointer hover:scale-[1.02] transition">`).join('') : ''}</div>
-                    <h4 class="font-black text-slate-800 text-xs uppercase">${d.judul}</h4>
-                    <p class="text-slate-500 text-[10px] mt-1">${d.detail}</p>
-                </div>
-            `).join('');
-        }
+// --- FUNGSI LOGOUT ---
+function logout() {
+    if(confirm("Apakah Anda ingin keluar dari aplikasi?")) {
+        localStorage.clear();
+        location.reload();
+    }
+}
 
-        function bukaLightbox(url) { document.getElementById('img-lightbox').src = url; document.getElementById('modal-lightbox').classList.remove('hidden'); document.getElementById('modal-lightbox').classList.add('flex'); }
-        function tutupLightbox() { document.getElementById('modal-lightbox').classList.add('hidden'); }
+// --- GENERATOR PDF MASTER (UNIK & PROFESIONAL) ---
+async function generatePDFMaster(data, judulLaporan) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // Header Kop Surat
+    const logoUrl = "https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+    
+    try {
+        // Tambahkan Logo
+        doc.addImage(logoUrl, 'PNG', 15, 10, 18, 18);
+        doc.setFont(undefined, 'bold').setFontSize(14).text("PENGURUS RUKUN WARGA 01", 40, 16);
+        doc.setFontSize(9).setFont(undefined, 'normal').text("Kel. Kebon Manggis, Kec. Matraman, Jakarta Timur", 40, 21);
+        doc.line(15, 32, 195, 32); // Garis kop surat
 
-        // --- ABSENSI & PDF ---
-        function bukaAbsen(id, judul) {
-            document.getElementById('abs-kegiatan-id').value = id;
-            document.getElementById('abs-nama').value = localStorage.getItem('userNama');
-            document.getElementById('abs-rt').value = localStorage.getItem('userRT');
-            document.getElementById('modal-absen').classList.remove('hidden');
-        }
-        function tutupAbsen() { document.getElementById('modal-absen').classList.add('hidden'); }
+        doc.setFont(undefined, 'bold').setFontSize(11).text(judulLaporan.toUpperCase(), 105, 42, {align:'center'});
+        
+        // Siapkan Data Tabel
+        const rows = data.map((d, i) => [
+            i + 1, 
+            d.nama_warga.toUpperCase(), 
+            d.rt, 
+            d.jabatan || 'Warga', 
+            d.no_hp || '-', 
+            '' // Kolom TTD kosong untuk diisi gambar
+        ]);
 
-        document.getElementById('form-absen-warga').onsubmit = async (e) => {
-            e.preventDefault();
-            if (signaturePad.isEmpty()) return notify("Tanda tangan wajib!", "bg-rose-600");
-            notify("Mengirim...", "bg-blue-600");
-            const { error } = await _supabase.from('absensi').insert([{
-                kegiatan_id: document.getElementById('abs-kegiatan-id').value,
-                nama_warga: document.getElementById('abs-nama').value,
-                rt: document.getElementById('abs-rt').value,
-                no_hp: document.getElementById('abs-hp').value,
-                tanda_tangan_url: signaturePad.toDataURL(),
-                jabatan: localStorage.getItem('userJabatan'),
-                waktu_absen: new Date()
-            }]);
-            if (!error) { notify("Berhasil Hadir!"); tutupAbsen(); }
-        };
+        const ttds = data.map(d => d.tanda_tangan_url);
 
-        async function loadRiwayatAbsen() {
-            const nama = localStorage.getItem('userNama');
-            const { data } = await _supabase.from('absensi').select('*').eq('nama_warga', nama).order('waktu_absen', {ascending: false});
-            document.getElementById('list-riwayat-absen').innerHTML = data.map(a => `
-                <div onclick="bukaDetailAbsenUser('${a.kegiatan_id}')" class="bg-white p-3 rounded-2xl border flex justify-between items-center cursor-pointer hover:bg-slate-50 transition">
-                    <span class="text-[9px] font-black text-slate-700 uppercase">Kegiatan: ${new Date(a.waktu_absen).toLocaleDateString('id-ID')}</span>
-                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300"></i>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        async function bukaDetailAbsenUser(id) {
-            const { data } = await _supabase.from('absensi').select('*').eq('kegiatan_id', id);
-            if(!data.length) return;
-            document.getElementById('table-detail-user').innerHTML = `<table class="w-full border-collapse"><thead class="bg-slate-50 text-[8px]"><tr><th class="p-2 border">NAMA</th><th class="p-2 border">RT</th><th class="p-2 border">TTD</th></tr></thead><tbody>${data.map(d=>`<tr><td class="p-2 border font-bold uppercase">${d.nama_warga}</td><td class="p-2 border text-center">${d.rt}</td><td class="p-2 border text-center"><img src="${d.tanda_tangan_url}" class="h-6 mx-auto"></td></tr>`).join('')}</tbody></table>`;
-            document.getElementById('btn-download-pdf-user').onclick = () => generatePDFMaster(data, "LAPORAN KEHADIRAN WARGA");
-            document.getElementById('modal-detail-absen-user').classList.remove('hidden');
-            document.getElementById('modal-detail-absen-user').classList.add('flex');
-        }
-
-        function tutupDetailAbsen() { document.getElementById('modal-detail-absen-user').classList.add('hidden'); }
-
-        async function generatePDFMaster(data, judulLaporan) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const logo = "https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-            
-            doc.addImage(logo, 'PNG', 15, 10, 18, 18);
-            doc.setFont(undefined, 'bold').setFontSize(14).text("PENGURUS RUKUN WARGA 01", 40, 16);
-            doc.setFontSize(9).setFont(undefined, 'normal').text("Kel. Kebon Manggis, Kec. Matraman, Jakarta Timur", 40, 21);
-            doc.line(15, 32, 195, 32);
-
-            doc.setFont(undefined, 'bold').setFontSize(11).text(judulLaporan, 105, 42, {align:'center'});
-            
-            const rows = data.map((d, i) => [i+1, d.nama_warga.toUpperCase(), d.rt, d.jabatan || 'Warga', d.no_hp || '-', ' ']);
-            const ttds = data.map(d => d.tanda_tangan_url);
-
-            doc.autoTable({
-                startY: 50,
-                head: [['NO', 'NAMA LENGKAP', 'RT', 'JABATAN', 'NO TELP', 'TTD']],
-                body: rows,
-                theme: 'grid',
-                headStyles: {fillColor:[15, 23, 42], fontSize: 8},
-                styles: {fontSize: 7},
-                didDrawCell: (cellData) => {
-                    if (cellData.column.index === 5 && cellData.section === 'body') {
-                        const img = ttds[cellData.row.index];
-                        if(img) doc.addImage(img, 'PNG', cellData.cell.x + 2, cellData.cell.y + 1, 15, 6);
+        doc.autoTable({
+            startY: 50,
+            head: [['NO', 'NAMA LENGKAP', 'RT', 'JABATAN', 'NO TELP', 'TTD']],
+            body: rows,
+            theme: 'grid',
+            headStyles: { fillColor: [5, 150, 105], fontSize: 8, halign: 'center' },
+            styles: { fontSize: 7, verticalAlignment: 'middle' },
+            columnStyles: { 5: { cellWidth: 25, halign: 'center' } },
+            didDrawCell: (cellData) => {
+                // Gambar Tanda Tangan ke dalam sel tabel
+                if (cellData.column.index === 5 && cellData.section === 'body') {
+                    const img = ttds[cellData.row.index];
+                    if(img) {
+                        doc.addImage(img, 'PNG', cellData.cell.x + 2, cellData.cell.y + 1, 20, 8);
                     }
                 }
-            });
-            doc.save("Laporan_Sinergi_RW01.pdf");
-        }
+            }
+        });
 
-        async function downloadLaporanAbsensiAdmin() {
-            const t1 = document.getElementById('filter-tgl-mulai').value;
-            const t2 = document.getElementById('filter-tgl-selesai').value;
-            if(!t1 || !t2) return notify("Pilih rentang tanggal!", "bg-rose-600");
-            const { data } = await _supabase.from('absensi').select('*').gte('waktu_absen', t1+'T00:00:00').lte('waktu_absen', t2+'T23:59:59');
-            if(!data?.length) return notify("Tidak ada data", "bg-rose-600");
-            generatePDFMaster(data, `REKAP ABSENSI PERIODE ${t1} - ${t2}`);
-        }
+        doc.save(`${judulLaporan}.pdf`);
+        notify("PDF Berhasil Diunduh");
+    } catch (e) {
+        console.error(e);
+        notify("Gagal membuat PDF", "bg-rose-600");
+    }
+}
+
+// --- DOWNLOAD LAPORAN ADMIN (FILTER TANGGAL) ---
+async function downloadLaporanAbsensiAdmin() {
+    const t1 = document.getElementById('filter-tgl-mulai').value;
+    const t2 = document.getElementById('filter-tgl-selesai').value;
+    
+    if(!t1 || !t2) return notify("Pilih rentang tanggal dahulu!", "bg-rose-600");
+    
+    notify("Mengambil Data...", "bg-blue-600");
+    const { data, error } = await _supabase
+        .from('absensi')
+        .select('*')
+        .gte('waktu_absen', t1 + 'T00:00:00')
+        .lte('waktu_absen', t2 + 'T23:59:59')
+        .order('waktu_absen', {ascending: true});
+
+    if(data && data.length > 0) {
+        generatePDFMaster(data, `LAPORAN ABSENSI ${t1} s/d ${t2}`);
+    } else {
+        notify("Tidak ada data pada tanggal tersebut", "bg-rose-600");
+    }
+}
+        // --- FUNGSI TAMPILAN DATA USER ---
+function setUserDataDisplay(data) {
+    document.getElementById('user-display-nama').innerText = data.nama;
+    document.getElementById('user-display-jabatan').innerText = data.jabatan;
+    document.getElementById('user-display-rt').innerText = data.rt;
+    localStorage.setItem('userNama', data.nama);
+    localStorage.setItem('userRT', data.rt);
+    localStorage.setItem('userJabatan', data.jabatan);
+}
+
+// --- LOAD PENGUMUMAN UNTUK WARGA ---
+async function loadPengumumanWarga() {
+    const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
+    document.getElementById('list-kegiatan-warga').innerHTML = data.map(p => `
+        <div class="bg-white p-5 rounded-3xl border shadow-sm animate-fade">
+            <span class="text-[9px] font-black uppercase px-2 py-1 rounded bg-blue-100 text-blue-600">${p.tipe}</span>
+            <h4 class="font-black text-slate-800 text-sm my-2 uppercase">${p.judul}</h4>
+            <p class="text-slate-500 text-[10px] leading-relaxed mb-4">${p.detail}</p>
+            ${p.tipe === 'kegiatan' ? `<button onclick="bukaAbsen('${p.id}', '${p.judul}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px]">HADIR SEKARANG</button>` : ''}
+        </div>
+    `).join('') || '<p class="text-center text-xs text-slate-400">Belum ada pengumuman.</p>';
+}
+
+// --- LOGIKA ABSENSI ---
+function bukaAbsen(id, judul) {
+    document.getElementById('abs-kegiatan-id').value = id;
+    document.getElementById('abs-nama').value = localStorage.getItem('userNama');
+    document.getElementById('abs-rt').value = localStorage.getItem('userRT');
+    document.getElementById('modal-absen').classList.remove('hidden');
+    // Inisialisasi ulang Signature Pad saat modal buka
+    const canvas = document.getElementById('canvas-ttd');
+    signaturePad = new SignaturePad(canvas);
+}
+
+function tutupAbsen() { document.getElementById('modal-absen').classList.add('hidden'); }
+
+document.getElementById('form-absen-warga').onsubmit = async (e) => {
+    e.preventDefault();
+    if (signaturePad.isEmpty()) return notify("Tanda tangan wajib!", "bg-rose-600");
+    
+    notify("Mengirim Kehadiran...", "bg-blue-600");
+    const { error } = await _supabase.from('absensi').insert([{
+        kegiatan_id: document.getElementById('abs-kegiatan-id').value,
+        nama_warga: document.getElementById('abs-nama').value,
+        rt: document.getElementById('abs-rt').value,
+        no_hp: document.getElementById('abs-hp').value,
+        tanda_tangan_url: signaturePad.toDataURL(),
+        jabatan: localStorage.getItem('userJabatan'),
+        waktu_absen: new Date()
+    }]);
+
+    if (!error) {
+        notify("Berhasil Mengisi Daftar Hadir!");
+        tutupAbsen();
+    } else {
+        notify("Gagal Absen: " + error.message, "bg-rose-600");
+    }
+};
+
+// --- INISIALISASI AWAL ---
+let signaturePad;
+window.onload = () => {
+    lucide.createIcons();
+    const savedUser = localStorage.getItem('session_user');
+    const isAdmin = localStorage.getItem('is_admin');
+
+    if (isAdmin === 'true') {
+        showPage('page-admin');
+    } else if (savedUser) {
+        const data = JSON.parse(savedUser);
+        setUserDataDisplay(data);
+        showPage('page-user');
+        loadPengumumanWarga();
+    }
+};
+
+function notify(msg, color = "bg-emerald-600") {
+    const t = document.getElementById('toast');
+    t.textContent = msg; 
+    t.className = `fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade ${color}`;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3000);
+}
+function aturFormAdmin() {
+    const tipe = document.getElementById('post-tipe').value;
+    const fileInput = document.getElementById('post-files');
+    // Hanya tampilkan input file jika tipenya Dokumentasi (Foto)
+    fileInput.style.display = (tipe === 'dokumentasi') ? 'block' : 'none';
+}
+
     </script>
 </body>
 </html>
