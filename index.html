@@ -71,33 +71,38 @@
             </form>
         </div>
     </div>
-            <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
-        <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-                <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-                <h1 class="font-black text-emerald-700 uppercase text-xs">Sinergi RW.01</h1>
+        <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
+    <header class="bg-white p-4 border-b sticky top-0 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <img class="w-8 h-8 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+            <h1 class="font-black text-emerald-700 uppercase text-xs">Sinergi RW.01</h1>
+        </div>
+        <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg text-rose-600">KELUAR</button>
+    </header>
+
+    <main class="p-4 max-w-md mx-auto space-y-6">
+        <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl">
+            <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Warga Terdaftar,</p>
+            <h2 id="user-display-nama" class="text-2xl font-black tracking-tight">...</h2>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <span id="user-display-jabatan" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">...</span>
+                <span id="user-display-rt" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">RT --</span>
             </div>
-            <button onclick="logout()" class="text-[10px] font-black bg-slate-100 px-3 py-2 rounded-lg text-rose-600">KELUAR</button>
-        </header>
+        </div>
 
-        <main class="p-4 max-w-md mx-auto space-y-6">
-            <div class="bg-emerald-600 p-6 rounded-3xl text-white shadow-xl">
-                <p class="text-[10px] font-bold opacity-70 uppercase tracking-widest">Warga Terdaftar,</p>
-                <h2 id="user-display-nama" class="text-2xl font-black tracking-tight">...</h2>
-                <div class="flex flex-wrap gap-2 mt-2">
-                    <span id="user-display-jabatan" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">...</span>
-                    <span id="user-display-rt" class="bg-white/20 px-3 py-1 rounded-full text-[9px] font-bold uppercase">RT --</span>
-                </div>
-            </div>
+        <div class="flex bg-slate-200/50 p-1 rounded-2xl gap-1">
+            <button onclick="switchTabWarga('pengumuman')" id="tab-p" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-white text-emerald-700 shadow-sm transition-all">Pengumuman</button>
+            <button onclick="switchTabWarga('dokumentasi')" id="tab-d" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Dokumentasi</button>
+            <button onclick="switchTabWarga('riwayat')" id="tab-r" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Riwayat</button>
+        </div>
 
-            <div id="list-kegiatan-warga" class="space-y-4"></div>
+        <div id="list-kegiatan-warga" class="space-y-4"></div>
 
-            <footer class="mt-12 pb-24 text-center">
-                <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
-                <p class="text-[8px] font-medium text-emerald-600/50 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
-            </footer>
-        </main>
-    </div>
+        <footer class="mt-12 pb-24 text-center">
+            <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
+        </footer>
+    </main>
+ </div>    
 
     <div id="modal-absen" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-fade">
@@ -439,6 +444,76 @@ function setUserDataDisplay(data) {
     localStorage.setItem('userNama', data.nama);
     localStorage.setItem('userRT', data.rt);
     localStorage.setItem('userJabatan', data.jabatan);
+}
+// --- LOGIKA PERPINDAHAN TAB WARGA ---
+async function switchTabWarga(tab) {
+    const btnP = document.getElementById('tab-p');
+    const btnD = document.getElementById('tab-d');
+    const btnR = document.getElementById('tab-r');
+    const container = document.getElementById('list-kegiatan-warga');
+
+    // Reset Styling Tombol
+    [btnP, btnD, btnR].forEach(b => {
+        b.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
+        b.classList.add('text-slate-500');
+    });
+
+    // Aktifkan Tombol & Load Data
+    if (tab === 'pengumuman') {
+        btnP.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        loadPengumumanWarga();
+    } else if (tab === 'dokumentasi') {
+        btnD.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        loadDokumentasiWarga();
+    } else if (tab === 'riwayat') {
+        btnR.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
+        loadRiwayatWarga();
+    }
+}
+
+// --- LOAD DOKUMENTASI (FOTO) ---
+async function loadDokumentasiWarga() {
+    const container = document.getElementById('list-kegiatan-warga');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-400 animate-pulse">Memuat foto...</p>';
+    
+    const { data } = await _supabase.from('dokumentasi').select('*').order('created_at', {ascending: false});
+    
+    if (data && data.length > 0) {
+        container.innerHTML = data.map(d => `
+            <div class="bg-white rounded-3xl overflow-hidden border shadow-sm animate-fade">
+                ${d.foto_urls && d.foto_urls.length > 0 ? `<img src="${d.foto_urls[0]}" class="w-full h-48 object-cover">` : ''}
+                <div class="p-4">
+                    <h4 class="font-black text-slate-800 text-xs uppercase">${d.judul}</h4>
+                    <p class="text-[10px] text-slate-500 mt-1">${d.detail}</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-10">Belum ada dokumentasi foto.</p>';
+    }
+}
+
+// --- LOAD RIWAYAT ABSEN USER ---
+async function loadRiwayatWarga() {
+    const container = document.getElementById('list-kegiatan-warga');
+    const userNama = localStorage.getItem('userNama');
+    container.innerHTML = '<p class="text-center text-[10px] text-slate-400">Mencari riwayat kehadiran...</p>';
+
+    const { data } = await _supabase.from('absensi').select('*').eq('nama_warga', userNama).order('waktu_absen', {ascending: false});
+
+    if (data && data.length > 0) {
+        container.innerHTML = data.map(a => `
+            <div class="bg-white p-4 rounded-2xl border flex items-center justify-between animate-fade">
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-800 uppercase">HADIR: ${new Date(a.waktu_absen).toLocaleDateString('id-ID')}</h4>
+                    <p class="text-[9px] text-emerald-600 font-bold uppercase mt-1">Status: Terverifikasi</p>
+                </div>
+                <img src="${a.tanda_tangan_url}" class="h-8 border rounded p-1 bg-slate-50">
+            </div>
+        `).join('');
+    } else {
+        container.innerHTML = '<p class="text-center text-[10px] text-slate-400 py-10">Anda belum pernah melakukan absensi.</p>';
+    }
 }
 
 // --- LOAD PENGUMUMAN UNTUK WARGA ---
