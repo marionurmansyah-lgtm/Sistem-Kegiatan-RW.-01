@@ -2,14 +2,15 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.1">
     <title>Sinergi RW.01 - Kebon Manggis</title>
-
-   <link rel="manifest" href="manifest.json">
+    
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-     
+
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -35,7 +36,7 @@
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
             <img class="w-16 h-16 mx-auto mb-4" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tighter">Sinergi RW.01</h1>
-            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Matraman</p>
+            <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Kec. Matraman</p>
             <form id="form-login" class="space-y-4 text-left">
                 <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition" required>
                 <div class="relative">
@@ -43,13 +44,15 @@
                     <button type="button" onclick="togglePass('login-pass', 'eye-icon')" class="absolute right-4 top-4 text-slate-400">
                         <i id="eye-icon" data-lucide="eye" class="w-5 h-5"></i>
                     </button>
+ <footer class="mt-12 pb-4 text-center">
+    <p class="text-[10px] font-gray tracking-widest text-slate-400">
+        ©2026 createdby:sekretariat_team
+</p>
+    <p class="text-[8px] font-medium text-slate-300 mt-1">
+        rionurmansyah&nacruli
+    
+</footer>
 
-                     <footer class="mt-12 pb-4 text-center">
-                    <p class="text-[11px] font-gray tracking-widest text-slate-400">
-                        ©2026 createdby:sekretariat_team</p>
-                    <p class="text-[9px] font-medium text-slate-300 mt-1">
-                        rionurmansyah&nacruli</footer>
-                    
                 </div>
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black shadow-lg transition-all uppercase tracking-widest">Masuk Aplikasi</button>
             </form>
@@ -79,6 +82,7 @@
                     <option value="Kader">KADER (PKK/JUMANTIK/DLL)</option>
                     <option value="Seksi Keamanan">SEKSI KEAMANAN</option>
                     <option value="Seksi Kebersihan">SEKSI KEBERSIHAN</option>
+                    <option value="Karang Taruna">KARANG TARUNA</option>
                     <option value="Warga">WARGA BIASA</option>
                 </select>
                 <select id="reg-sub-jabatan" class="hidden w-full border-2 border-emerald-50 bg-emerald-50 p-3 rounded-xl font-bold text-sm outline-none"></select>
@@ -356,16 +360,20 @@
           sub.classList.add('hidden');
           manual.classList.add('hidden');
 
-    if(kat === 'Kader') {
-        sub.classList.remove('hidden');
-        const options = ['PKK', 'Jumantik', 'Posyandu', 'Dawis', 'Karang Taruna'];
-        sub.innerHTML = options.map(o => `<option value="${o}">${o}</option>`).join('');
-    } else if (kat === 'Warga') {
-        manual.classList.remove('hidden');
-        manual.placeholder = "Contoh: Warga Tetap / Kost";
-    }
-}
-
+    if(kat === 'Pengurus RW') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua I RW">Wakil Ketua I RW</option><option value="Sekretaris I RW">Sekretaris I RW</option><option value="Bendahara RW">Bendahara RW</option><option value="Wakil Ketua II RW">Wakil Ketua II RW</option><option value="Sekretaris II RW">Sekretaris II RW</option>';
+            } else if(kat === 'Pengurus RT') {
+                sub.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
+            } else if(kat === 'Kader') {
+                sub.classList.remove('hidden'); manual.classList.remove('hidden');
+                sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="Dawis">Kader Dasawisma</option><option value="Paud">Kader Paud</option><option value="Posyandu">Kader Posyandu</option>';
+            } else if(kat === 'Seksi Keamanan' || kat === 'Seksi Kebersihan') {
+                manual.classList.remove('hidden');
+                manual.placeholder = "Contoh: Komandan / Anggota / Bank Sampah";
+            }
+        }
         // --- ADMIN: POSTING TERPADU ---
         function aturFormAdmin() {
             const tipe = document.getElementById('post-tipe').value;
