@@ -61,22 +61,27 @@
 </head>
 <body class="bg-slate-50 text-slate-900 no-scrollbar">
 
-    <div id="toast" class="fixed top-4 right-4 z-[999] hidden px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade"></div>
-
     <div id="page-login" class="min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md text-center border border-slate-100">
             <img class="w-16 h-16 mx-auto mb-4" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="text-2xl font-black text-emerald-700 uppercase tracking-tighter">Sinergi RW.01</h1>
             <p class="text-[10px] text-slate-400 font-bold uppercase mb-8">Kel. Kebon Manggis, Kec. Matraman</p>
             <form id="form-login" class="space-y-4 text-left">
-                <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
-                <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
-                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest">Masuk Aplikasi</button>
-            </form>
-            <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
-        </div>
+    <div class="relative">
+        <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none" required>
+        <button type="button" onclick="togglePassword('login-pass', 'eye-icon-login')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+            <i id="eye-icon-login" data-lucide="eye" class="w-5 h-5"></i>
+       <<button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black shadow-lg uppercase tracking-widest">Masuk Aplikasi</button>
+ </form>
+    <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-bold hover:underline">Daftar di sini</button></p>
+ </div>
+       </div>
+           
+    <div class="flex items-center gap-2 px-2">
+        <input type="checkbox" id="remember-me" class="w-4 h-4 accent-emerald-600">
+        <label for="remember-me" class="text-xs font-bold text-slate-500 uppercase tracking-tighter">Ingat Username Saya</label>
     </div>
-
+ 
     <div id="page-register" class="hidden min-h-screen flex items-center justify-center p-4 animate-fade">
         <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100">
             <h2 class="text-xl font-black text-slate-800 uppercase mb-4">Formulir Warga</h2>
@@ -178,7 +183,6 @@
             </form>
         </div>
     </div>
-
 
     <div id="page-admin" class="hidden min-h-screen animate-fade pb-20">
         <header class="bg-white p-4 border-b flex justify-between items-center sticky top-0 z-50 shadow-sm">
