@@ -108,52 +108,53 @@
             </form>
         </div>
     </div>
+        
         <div id="page-user" class="hidden min-h-screen animate-fade pb-20">
     <header class="bg-white/80 backdrop-blur-md p-4 border-b sticky top-0 z-[60] flex justify-between items-center px-6">
-    <div class="flex items-center gap-3">
-        <img class="w-10 h-10 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-        <div>
-            <h1 class="font-black text-emerald-700 uppercase text-sm tracking-tighter">Sinergi RW.01</h1>
-            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Kebon Manggis</p>
-        </div>
-    </div>
-    
-    <button onclick="logout()" class="ml-4 text-[10px] font-black bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all">KELUAR</button>
-</header>
-    <main class="px-4 md:px-8 py-6 w-full max-w-2xl mx-auto">
-    <div class="relative bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl overflow-hidden min-h-[180px] flex flex-col justify-between">
-    <div class="space-y-6"> 
-    <div class="relative bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl overflow-hidden min-h-[160px] flex flex-col justify-between">
-        <div class="flex justify-between items-start w-full">
-            <p class="text-[10px] font-bold opacity-70 uppercase tracking-[0.2em]">Warga Terdaftar</p>
-            <div class="text-right border-l border-white/20 pl-4">
-                <div id="user-realtime-date" class="text-[8px] font-bold opacity-80 uppercase mb-1"></div>
-                <div id="user-realtime-clock" class="text-xl font-black tracking-tighter leading-none"></div>
+        <div class="flex items-center gap-3">
+            <img class="w-20 h-20 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+            <div>
+                <h1 class="font-black text-emerald-800 uppercase text-sm tracking-tighter">Sinergi RW.01</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kebon Manggis</p>
             </div>
         </div>
-        <div class="mt-4">
-            <h2 id="user-display-nama" class="text-4xl font-black tracking-tight mb-2">Inal</h2>
-            <div class="flex gap-2">
-                <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase">Warga</span>
-                <span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase">RT 12</span>
+        <button onclick="logout()" class="ml-4 text-[10px] font-black bg-rose-50 text-rose-600 px-4 py-2 rounded-xl border border-rose-100">KELUAR</button>
+    </header>
+
+    <main class="px-4 md:px-8 py-6 w-full max-w-2xl mx-auto space-y-6">
+        <div class="relative bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-[2.5rem] text-white shadow-xl overflow-hidden min-h-[160px] flex flex-col justify-between">
+            <div class="flex justify-between items-start w-full relative z-10">
+                <div>
+                    <p class="text-[10px] font-bold opacity-70 uppercase tracking-[0.2em]">Warga Terdaftar</p>
+                </div>
+                <div class="text-right border-l border-white/20 pl-4">
+                    <div id="user-realtime-date" class="text-[8px] font-bold opacity-80 uppercase mb-1"></div>
+                    <div id="user-realtime-clock" class="text-xl font-black tracking-tighter leading-none"></div>
+                </div>
             </div>
+            <div class="mt-4 relative z-10">
+                <h2 id="user-display-nama" class="text-4xl font-black tracking-tight mb-2">...</h2>
+                <div class="flex gap-2">
+                    <span id="user-display-jabatan" class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">...</span>
+                    <span id="user-display-rt" class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">...</span>
+                </div>
+            </div>
+            <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
         </div>
-    </div>
 
-    <div class="flex bg-slate-100 p-1.5 rounded-2xl gap-1.5">
-        <button onclick="switchTabWarga('pengumuman')" id="tab-p" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-white text-emerald-700 shadow-sm transition-all">Pengumuman</button>
-        <button onclick="switchTabWarga('dokumentasi')" id="tab-d" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Dokumentasi</button>
-        <button onclick="switchTabWarga('riwayat')" id="tab-r" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Riwayat</button>
-    </div>
-
+        <div class="flex bg-slate-200/50 p-1.5 rounded-2xl gap-1.5">
+            <button onclick="switchTabWarga('pengumuman')" id="tab-p" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl bg-white text-emerald-700 shadow-sm transition-all">Pengumuman</button>
+            <button onclick="switchTabWarga('dokumentasi')" id="tab-d" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Dokumentasi</button>
+            <button onclick="switchTabWarga('riwayat')" id="tab-r" class="flex-1 py-3 text-[10px] font-black uppercase rounded-xl text-slate-500 transition-all">Riwayat</button>
+        </div>
         <div id="list-kegiatan-warga" class="space-y-4 min-h-[200px]">
-   </div> 
- </div>
+     </div>
         <footer class="mt-12 pb-24 text-center">
-            <p class="text-[10px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
+              <p class="text-[12px] font-bold tracking-[0.2em] text-slate-400 uppercase">©2026 createdby:sekretariat_team</p>
+              <p class="text-[10px] font-medium text-emerald-600/50 mt-1 uppercase tracking-widest">rionurmansyah_nacruli</p> 
         </footer>
     </main>
- </div>    
+</div>  
 
     <div id="modal-absen" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl animate-fade">
