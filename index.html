@@ -203,9 +203,9 @@
                 <input type="tel" id="abs-hp" placeholder="Nomor WhatsApp" class="w-full border-2 border-slate-100 p-3 rounded-xl text-xs outline-none" required>
                 
                 <div class="space-y-2">
-                <label class="text-[9px] font-black text-slate-400 uppercase block">Ambil Foto Selfie</label>
+                <label class="text-[9px] font-black text-slate-400 uppercase block">Ambil Photo Selfie</label>
                 <input type="file" id="abs-selfie" accept="image/*" capture="user" 
-                 aria-label="Ambil foto selfie" class="w-full text-[10px] border-2 border-slate-100 p-2 rounded-xl outline-none bg-slate-50">
+                 aria-label="Ambil Photo to selfie" class="w-full text-[10px] border-2 border-slate-100 p-2 rounded-xl outline-none bg-slate-50">
               </div>
 
                 <div class="space-y-2 text-center">
@@ -742,7 +742,7 @@
 
         if (uploadError) throw uploadError;
 
-        // 2. Ambil Public URL Foto
+        // 2. Ambil Public URL Photo
         const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`absensi/${fileName}`);
         selfieUrl = pUrl.publicUrl;
 
@@ -753,7 +753,7 @@
             rt: document.getElementById('abs-rt').value,
             no_hp: document.getElementById('abs-hp').value,
             tanda_tangan_url: signaturePad.toDataURL(),
-            foto_selfie_url: selfieUrl, // Kolom baru di database
+            Photo_selfie_url: selfieUrl, // Kolom baru di database
             jabatan: localStorage.getItem('userJabatan'),
             waktu_absen: new Date()
         }]);
