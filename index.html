@@ -183,7 +183,64 @@
 
         let signaturePad;
         
+// FUNGSI LOGIN UTAMA
+document.getElementById('form-login').onsubmit = async (e) => {
+    e.preventDefault();
+    
+    // Mengambil input dari form dan menghapus spasi yang tidak sengaja terketik
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value.trim();
+    
+    console.log("Mencoba login dengan:", u); // Untuk cek di inspect element
 
+    // Query ke tabel 'users' di Supabase
+    const { data, error } = await _supabase
+        .from('users')
+        .select('*')
+        .eq('username', u)
+        .eq('password', p)
+        .maybeSingle(); // Mengambil satu data yang cocok
+
+    if (error) {
+        console.error("Error database:", error);
+        notify("Terjadi kesalahan koneksi!", "bg-rose-600");
+        return;
+    }
+
+    if (data) {
+        // Simpan data user ke memori browser agar tidak perlu login ulang saat refresh
+        localStorage.setItem('user', JSON.stringify(data));
+        
+        notify("Login Berhasil! Selamat Datang " + data.nama);
+        
+        // LOGIKA AKSES ADMIN: 
+        // Jika jabatan mengandung kata "RW", arahkan ke halaman admin
+        if (data.jabatan.includes("RW")) {
+            setTimeout(() => {
+                if(confirm("Anda login sebagai Pengurus. Masuk ke Dashboard Admin?")) {
+                    window.location.href = 'admin.html';
+                } else {
+                    initUser(data); // Tetap di halaman warga
+                }
+            }, 500);
+        } else {
+            // Jika warga biasa, jalankan fungsi dashboard warga
+            initUser(data);
+        }
+    } else {
+        // Jika data tidak ditemukan
+        notify("Username atau Password Salah!", "bg-rose-600");
+    }
+};
+
+// Fungsi pendukung untuk menampilkan dashboard warga setelah login
+function initUser(data) {
+    document.getElementById('user-display-nama').innerText = data.nama;
+    document.getElementById('user-display-jabatan').innerText = `${data.jabatan} | ${data.rt}`;
+    showPage('page-user'); // Pindah ke halaman user
+    switchTabWarga('pengumuman'); // Tampilkan tab pengumuman pertama kali
+}
+        
         // -- Fungsi Jam --
         function updateClock() {
             const now = new Date();
@@ -367,7 +424,7 @@
             const user = JSON.parse(localStorage.getItem('user'));
             const jenis = document.getElementById('srt-jenis').value;
             const kep = document.getElementById('srt-keperluan').value;
-            const adminWA = "62895325026744"; // Ganti nomor admin
+            const adminWA = "628812558415"; // Ganti nomor admin
 
             if(!kep) return notify("Isi keperluan!", "bg-rose-600");
 
