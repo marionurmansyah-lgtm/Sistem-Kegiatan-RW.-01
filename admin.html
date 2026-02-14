@@ -29,8 +29,10 @@
 
     <aside class="w-64 bg-white border-r hidden md:flex flex-col sticky top-0 h-screen">
         <div class="p-6 border-b text-center">
-            <img class="w-16 h-16 mx-auto mb-2" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+            <img class="w-20 h-20 mx-auto mb-2" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
             <h1 class="font-black text-emerald-800 text-sm">ADMIN RW.01</h1>
+            <p class="text-slate-500 text-xs">Kel.Kebon Manggis Kec.Matraman</p>
+        </div>
         </div>
         <nav class="flex-1 p-4 space-y-2">
             <button onclick="switchTab('pengumuman', this)" class="sidebar-item active-tab w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
@@ -60,7 +62,7 @@
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         <div id="content-header" class="mb-8">
             <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
-            <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital System</p>
+            <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Informasi System</p>
         </div>
 
         <div id="sec-pengumuman" class="tab-content space-y-6">
@@ -73,8 +75,14 @@
                         <option value="Kegiatan">Kegiatan (Aktifkan Absensi)</option>
                     </select>
                     <textarea id="p-detail" placeholder="Isi detail..." class="border p-3 rounded-xl text-sm h-32 outline-none"></textarea>
-                    <input type="file" id="p-file-pdf" accept="application/pdf" class="w-full text-[10px] border p-2 rounded-xl">
-                    <button onclick="postPengumuman()" class="bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Posting</button>
+
+<div class="space-y-1">
+    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Lampiran Foto/Gambar (PWA)</label>
+    <input type="file" id="p-file-foto" accept="image/*" class="w-full text-[10px] border p-2 rounded-xl bg-slate-50">
+</div>
+<input type="file" id="p-file-pdf" accept="application/pdf" class="w-full text-[10px] border p-2 rounded-xl">
+<button onclick="postPengumuman()" class="bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Posting</button>
+
                 </div>
             </div>
             <div class="bg-white rounded-3xl border shadow-sm overflow-x-auto">
@@ -198,27 +206,64 @@
         }
 
         async function postPengumuman() {
-            const vJudul = document.getElementById('p-judul').value;
-            const vTipe = document.getElementById('p-tipe').value;
-            const vDetail = document.getElementById('p-detail').value;
-            const filePdf = document.getElementById('p-file-pdf').files[0];
-            if(!vJudul || !vDetail) return alert("Lengkapi data!");
+    const vJudul = document.getElementById('p-judul').value;
+    const vTipe = document.getElementById('p-tipe').value;
+    const vDetail = document.getElementById('p-detail').value;
+    
+    // Tangkap kedua file
+    const filePdf = document.getElementById('p-file-pdf').files[0];
+    const fileFoto = document.getElementById('p-file-foto').files[0]; // Input baru
 
-            try {
-                let pdfUrl = null;
-                if (filePdf) {
-                    const fileName = `undangan_${Date.now()}.pdf`;
-                    await _supabase.storage.from('media-sinergi').upload(`undangan/${fileName}`, filePdf);
-                    const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`undangan/${fileName}`);
-                    pdfUrl = pUrl.publicUrl;
-                }
-                const { error } = await _supabase.from('pengumuman').insert([{ judul: vJudul, tipe: vTipe, detail: vDetail, file_url: pdfUrl }]);
-                if (error) throw error;
-                alert("Berhasil!");
-                loadLogPengumuman();
-            } catch (err) { alert(err.message); }
+    if(!vJudul || !vDetail) return alert("Lengkapi data!");
+
+    try {
+        let pdfUrl = null;
+        let fotoUrl = "-"; // Default
+
+        // PROSES 1: Upload PDF ke Supabase jika ada
+        if (filePdf) {
+            const fileName = `undangan_${Date.now()}.pdf`;
+            await _supabase.storage.from('media-sinergi').upload(`undangan/${fileName}`, filePdf);
+            const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`undangan/${fileName}`);
+            pdfUrl = pUrl.publicUrl;
         }
 
+        // PROSES 2: Upload FOTO ke Supabase jika ada
+        if (fileFoto) {
+            const fileName = `img_${Date.now()}.jpg`;
+            await _supabase.storage.from('media-sinergi').upload(`pengumuman/${fileName}`, fileFoto);
+            const { data: fUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`pengumuman/${fileName}`);
+            fotoUrl = fUrl.publicUrl;
+        }
+
+        // PROSES 3: Kirim SEMUA ke SheetDB (Pastikan kolom file_url ada di Sheet)
+        const payload = {
+            judul: vJudul,
+            tipe: vTipe,
+            detail: vDetail,
+            pdf_url: pdfUrl,   // Jika kamu pakai kolom berbeda
+            file_url: fotoUrl, // Ini yang tadi menyebabkan error 'column not found'
+            created_at: new Date().toISOString()
+        };
+
+        // Ganti ke SheetDB agar sinkron dengan data warga
+        const res = await fetch(`${SHEETDB_URL}?sheet=pengumuman`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ data: [payload] })
+        });
+
+        if (res.ok) {
+            alert("Berhasil di-posting!");
+            loadLogPengumuman();
+            // Reset form
+            document.getElementById('p-judul').value = "";
+            document.getElementById('p-detail').value = "";
+            document.getElementById('p-file-pdf').value = "";
+            document.getElementById('p-file-foto').value = "";
+        }
+    } catch (err) { alert("Error: " + err.message); }
+}
         async function loadLogPengumuman() {
             const { data } = await _supabase.from('pengumuman').select('*').order('created_at', { ascending: false });
             document.getElementById('log-pengumuman-body').innerHTML = data.map(p => `
