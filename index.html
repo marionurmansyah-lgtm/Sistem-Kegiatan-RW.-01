@@ -7,35 +7,46 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Sinergi 01">
     <link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
         .animate-fade { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; width: 100%; height: 150px; }
+        canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; width: 100%; height: 150px; touch-action: none; }
         .branding-line { height: 5px; width: 100%; background: linear-gradient(to right, #e11d48 25%, #f8fafc 25%, #f8fafc 50%, #fbbf24 50%, #fbbf24 75%, #059669 75%); position: fixed; top: 0; left: 0; z-index: 1000; }
-        footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #e2e8f0; z-index: 50; }
-        
-        .running-text-container { background: #FFFF00; border-bottom: 1px solid #e2e8f0; overflow: hidden; white-space: nowrap; display: flex; align-items: center; height: 30px; }
+        .running-text-container { background: #FFFF00; overflow: hidden; white-space: nowrap; display: flex; align-items: center; height: 30px; }
         .running-text-content { display: inline-block; padding-left: 100%; animation: marquee 20s linear infinite; font-size: 10px; font-weight: 700; color: #0f172a; text-transform: uppercase; }
         @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+        .nav-active { color: #059669 !important; font-weight: 900; }
+        .nav-active i { transform: translateY(-3px); transition: 0.2s; }
+        #user-content-area img { object-position: center; }
+        .cursor-zoom-in { cursor: zoom-in; }
+        .cursor-zoom-out { cursor: zoom-out; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 no-scrollbar pb-24">
+
+<body class="bg-slate-50 text-slate-900 pb-24">
+    <div id="image-viewer" class="fixed inset-0 bg-black/95 z-[300] hidden flex flex-col items-center justify-center p-4" onclick="closeImageViewer()">
+        <button class="absolute top-6 right-6 text-white bg-white/20 p-2 rounded-full">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <div class="relative overflow-hidden rounded-2xl max-w-full max-h-[80vh]">
+            <img id="full-image" class="max-w-full max-h-[80vh] transition-transform duration-300 cursor-zoom-in" onclick="event.stopPropagation(); toggleZoom(this)">
+        </div>
+        <p id="image-caption" class="text-white mt-6 font-bold uppercase text-[10px] tracking-widest text-center px-4"></p>
+        <p class="text-slate-500 text-[8px] mt-2 uppercase">Ketuk gambar untuk Zoom In/Out</p>
+    </div>
+
     <div class="branding-line"></div>
-    <div id="toast" class="fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold hidden transition-all"></div>
+    <div id="toast" class="fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold hidden"></div>
 
     <div id="page-login" class="page flex items-center justify-center min-h-screen p-4 animate-fade">
         <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100">
@@ -46,7 +57,9 @@
                 <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
                 <div class="relative">
                     <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
-                    <button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><i data-lucide="eye" class="w-5 h-5"></i></button>
+                    <button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <i data-lucide="eye" class="w-5 h-5"></i>
+                    </button>
                 </div>   
                 <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">Masuk</button>
             </form>
@@ -58,102 +71,96 @@
         <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-slate-100">
             <h2 class="text-lg font-black text-center uppercase mb-6">Pendaftaran Warga</h2>
             <form id="form-register" class="space-y-3">
+                <input type="text" id="reg-nama" placeholder="Nama Lengkap" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="reg-nama" placeholder="Nama Lengkap" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-                    <select id="reg-rt" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs font-bold" required>
+                    <select id="reg-rt" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs font-bold" required>
                         <option value="">Pilih RT</option>
                         <script>for(let i=1;i<=16;i++) document.write(`<option value="RT ${i.toString().padStart(2,'0')}">RT ${i.toString().padStart(2,'0')}</option>`)</script>
                     </select>
+                    <input type="tel" id="reg-hp" placeholder="Nomor WA (628...)" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
                 </div>
-                <input type="tel" id="reg-hp" placeholder="Nomor WhatsApp" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="text" id="reg-user" placeholder="Username" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>                        
-                    <input type="password" id="reg-pass" placeholder="Password" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-                </div>
+                
                 <select id="reg-kategori" onchange="updateSubJabatan()" class="w-full p-3 border-2 border-slate-100 bg-slate-50 rounded-xl text-xs font-bold">
-                    <option value="Warga">Warga</option>
+                    <option value="Warga">Warga Biasa</option>
                     <option value="Pengurus RW">Pengurus RW</option>
                     <option value="Pengurus RT">Pengurus RT</option>
-                    <option value="Kader">Kader</option>
+                    <option value="Kader">Kader (PKK/Jumantik/dll)</option>
                     <option value="Seksi Pendidikan">Seksi Pendidikan</option>
-                    <option value="Keamanan">Keamanan</option>
-                    <option value="Kebersihan">Kebersihan</option>                                              
-                    <option value="Karang Taruna">Karang Taruna</option>
                 </select>
+
                 <div id="reg-sub-jabatan-container" class="hidden">
-                    <select id="reg-sub-jabatan" class="w-full p-3 border-2 border-slate-100 bg-slate-50 rounded-xl text-xs"></select>
+                    <select id="reg-sub-jabatan" class="w-full p-3 border-2 border-emerald-100 bg-emerald-50 rounded-xl text-xs font-bold text-emerald-700"></select>
                 </div>
-                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs mt-4">Daftar Sekarang</button>
-                <button type="button" onclick="showPage('page-login')" class="w-full text-slate-400 text-[10px] font-bold uppercase py-2 text-center">Batal & Kembali</button>
+
+                <div id="reg-detail-manual-container" class="hidden">
+                    <input type="text" id="reg-detail-manual" placeholder="Keterangan Detail" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="reg-user" placeholder="Username" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>                        
+                    <input type="password" id="reg-pass" placeholder="Password" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs mt-4">Daftar</button>
+                <button type="button" onclick="showPage('page-login')" class="w-full text-slate-400 text-[10px] font-bold uppercase py-2 text-center">Batal</button>
             </form>
         </div>
     </div>
-    
+
     <div id="page-user" class="page hidden animate-fade">
-       <header class="bg-white/90 backdrop-blur-md px-6 py-4 border-b sticky top-0 z-[60] flex justify-between items-center">
-    <div class="flex items-center gap-3">
-        <img class="w-14 h-14 object-contain" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-        <div>
-            <h1 class="font-black text-emerald-800 text-[14px] uppercase leading-none">SINERGI01</h1>
-            <p class="text-slate-500 text-[8px] font-bold uppercase mt-1 leading-tight">
-                Portal Sistem Kegiatan RW01<br>
-                Kel.Kebon Manggis Kec.Matraman
-            </p>
-        </div>
+        <header class="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50">
+            <div class="flex items-center gap-2">
+                <img class="w-8 h-8" src="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+                <span class="font-black text-emerald-700 text-xl">SINERGI 01</span>
+            </div>
+            <button onclick="logout()" class="text-rose-600 font-black text-[10px] uppercase bg-rose-50 px-3 py-2 rounded-lg">Keluar</button>
+        </header>
+        <div class="running-text-container"><div class="running-text-content">Selamat Datang di Portal Sinergi RW.01 Kebon Manggis • Mari bersama membangun lingkungan •</div></div>
+        <main class="p-4 space-y-4">
+    <div class="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-lg">
+        <p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Warga RW.01</p>
+        <h2 id="kartu-nama" class="text-lg font-black uppercase">...</h2>
+        <p id="kartu-jabatan" class="text-[9px] opacity-90">...</p>
     </div>
-    <button onclick="logout()" class="flex items-center gap-1 bg-rose-50 px-3 py-2 rounded-lg active:scale-95 transition-all">
-        <span class="text-[9px] font-black text-rose-600 uppercase">Keluar</span>
-        <i data-lucide="log-out" class="w-3 h-3 text-rose-600"></i>
-    </button>
-</header>
 
-        <div class="running-text-container">
-            <div class="running-text-content">Selamat Datang di Portal Sinergi RW.01 Kebon Manggis • Jalin Silaturahmi, Bangun Lingkungan • salam sinergi!</div>
-        </div>
+    <div id="user-content-area" class="space-y-4"></div>
 
-        <main class="p-4 space-y-6">
-            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-[2rem] text-white shadow-lg relative overflow-hidden">
-                <div class="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl"></div>
-                <div class="flex justify-between items-start relative z-10">
-                    <div class="space-y-1">
-                        <p class="text-[8px] font-black opacity-80 uppercase tracking-[0.2em]">Profil Warga</p>
-                        <h2 id="kartu-nama" class="text-lg font-black uppercase leading-tight">...</h2>
-                        <p id="kartu-jabatan" class="text-[9px] font-medium opacity-90 italic">...</p>
-                    </div>
-                    <div class="text-right border-l border-white/20 pl-4">
-                        <div id="user-realtime-clock" class="text-sm font-black tracking-tighter"></div>
-                        <div id="user-realtime-date" class="text-[7px] font-bold opacity-80 uppercase"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="user-content-area" class="pb-24 space-y-4"></div>
-            
-            <div class="text-center opacity-40 pb-20">
-                <p class="text-[10px] font-bold uppercase tracking-widest">©2026 Sekretariat Team-rionurmansyah_nachruli</p>
-            </div>
+    <div class="mt-12 pb-12 flex flex-col items-center justify-center text-center animate-fade opacity-50 hover:opacity-100 transition-opacity">
+        <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
+        <p class="text-[12px] font-black tracking-[0.2em] text-slate-500 uppercase">
+            ©2026 createdby:sekretariat_team
+        </p>
+        <p class="text-[10px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">
+            rionurmansyah & nacruli
+        </p>
+    </div>
         </main>
-
-        <footer>
-            <div class="flex justify-around items-center p-3">
-                <button onclick="switchTabWarga('pengumuman')" class="nav-btn flex flex-col items-center text-emerald-600"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Beranda</span></button>
-                <button onclick="switchTabWarga('agenda')" class="nav-btn flex flex-col items-center text-slate-400"><i data-lucide="calendar-days" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Agenda</span></button>
-                <button onclick="switchTabWarga('dokumentasi')" class="nav-btn flex flex-col items-center text-slate-400"><i data-lucide="image" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Galeri</span></button>
-                <button onclick="switchTabWarga('riwayat')" class="nav-btn flex flex-col items-center text-slate-400"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Riwayat</span></button>
-            </div>
+        <footer class="fixed bottom-0 left-0 right-0 bg-white border-t p-3 flex justify-around z-[100]">
+            <button onclick="switchTabWarga('pengumuman')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengumuman"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Beranda</span></button>
+            <button onclick="switchTabWarga('agenda')" class="nav-item flex flex-col items-center text-slate-400" id="nav-agenda"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Agenda</span></button>
+            <button onclick="switchTabWarga('dokumentasi')" class="nav-item flex flex-col items-center text-slate-400" id="nav-dokumentasi"><i data-lucide="camera" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Galeri</span></button> 
+            <button onclick="switchTabWarga('pengajuan')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengajuan"><i data-lucide="file-text" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Surat</span></button>
+            <button onclick="switchTabWarga('riwayat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-riwayat"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Riwayat</span></button>
         </footer>
     </div>
 
     <div id="modal-absen" class="fixed inset-0 bg-black/80 z-[200] hidden p-4 flex items-center justify-center">
-        <div class="bg-white w-full max-w-md p-6 rounded-[2rem] space-y-4">
+        <div class="bg-white w-full max-w-md p-6 rounded-[2.5rem] space-y-4 animate-fade overflow-y-auto max-h-[90vh]">
             <h3 class="font-black text-center uppercase text-sm">Form Kehadiran</h3>
             <form id="form-submit-absen" class="space-y-4">
                 <input type="hidden" id="abs-kegiatan-id">
-                <input type="file" id="abs-selfie" accept="image/*" capture="user" class="hidden" required>
-                <button type="button" onclick="document.getElementById('abs-selfie').click()" class="w-full border-2 border-dashed p-4 rounded-xl text-[10px] font-bold text-slate-400 uppercase">Ambil Foto Selfie</button>
-                <canvas id="canvas-ttd"></canvas>
-                <button type="button" onclick="signaturePad.clear()" class="text-[8px] font-bold text-rose-500 uppercase">Hapus TTD</button>
-                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-xl font-black uppercase shadow-lg">Kirim</button>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">1. Ambil Selfie</label>
+                    <button type="button" onclick="document.getElementById('abs-selfie').click()" class="w-full border-2 border-dashed p-4 rounded-xl text-[10px] font-bold text-slate-400 uppercase bg-slate-50">
+                        <i data-lucide="camera" class="w-5 h-5 mx-auto mb-1"></i> <span id="selfie-status">Klik untuk Kamera</span>
+                    </button>
+                    <input type="file" id="abs-selfie" accept="image/*" capture="user" class="hidden" onchange="document.getElementById('selfie-status').innerText='Foto Siap!'">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase">2. Tanda Tangan</label>
+                    <canvas id="canvas-ttd"></canvas>
+                    <button type="button" onclick="signaturePad.clear()" class="text-[8px] font-bold text-rose-500 uppercase">Hapus & Ulang TTD</button>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg">Kirim Absensi</button>
                 <button type="button" onclick="document.getElementById('modal-absen').classList.add('hidden')" class="w-full text-slate-400 text-[10px] font-bold uppercase">Batal</button>
             </form>
         </div>
@@ -172,128 +179,276 @@
             lucide.createIcons();
         }
 
+        function togglePass(id) {
+            const el = document.getElementById(id);
+            el.type = el.type === "password" ? "text" : "password";
+            lucide.createIcons();
+        }
+
         function notify(msg, color = "bg-emerald-600") {
             const t = document.getElementById('toast');
             t.textContent = msg; t.className = `fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl text-white font-bold animate-fade ${color}`;
             t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
+        function updateSubJabatan() {
+            const kat = document.getElementById('reg-kategori').value;
+            const subCont = document.getElementById('reg-sub-jabatan-container');
+            const sub = document.getElementById('reg-sub-jabatan');
+            const detCont = document.getElementById('reg-detail-manual-container');
+            
+            subCont.classList.add('hidden'); detCont.classList.add('hidden');
+            sub.innerHTML = '';
+
+            if (kat === 'Pengurus RW') {
+                subCont.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua RW">Wakil Ketua RW</option><option value="Sekretaris RW">Sekretaris RW</option><option value="Bendahara RW">Bendahara RW</option>';
+            } else if (kat === 'Pengurus RT') {
+                subCont.classList.remove('hidden');
+                sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
+            } else if (kat === 'Kader') {
+                subCont.classList.remove('hidden'); detCont.classList.remove('hidden');
+                sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="DAWIS">Kader DAWIS</option><option value="Posyandu">Kader Posyandu</option>';
+            } else if (kat === 'Seksi Pendidikan') {
+                subCont.classList.remove('hidden'); detCont.classList.remove('hidden');
+                sub.innerHTML = '<option value="PAUD">Guru PAUD</option><option value="Guru Ngaji">Guru Ngaji</option>';
+            }
+        }
+
         async function switchTabWarga(tab) {
             const list = document.getElementById('user-content-area');
-            if (!list) return;
-            const user = JSON.parse(localStorage.getItem('user')) || {};
+            const user = JSON.parse(localStorage.getItem('user'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+            document.getElementById(`nav-${tab}`).classList.add('nav-active');
+            list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-slate-300 animate-pulse uppercase">Memuat...</p>';
             
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('text-emerald-600');
-                btn.classList.add('text-slate-400');
-            });
-
-            list.innerHTML = '<p class="text-center py-20 text-[10px] font-bold text-slate-300 tracking-widest">MEMUAT...</p>';
-
             try {
                 if(tab === 'pengumuman') {
                     const { data } = await _supabase.from('pengumuman').select('*').order('created_at', {ascending: false});
-                    list.innerHTML = (data && data.length > 0) ? data.map(i => `
-                        <div class="bg-white p-5 rounded-3xl border shadow-sm mb-4 animate-fade">
-                            <span class="text-[8px] font-black uppercase px-2 py-1 rounded bg-blue-50 text-blue-600">${i.tipe}</span>
-                            <h4 class="font-black text-sm my-2 uppercase">${i.judul}</h4>
-                            <p class="text-slate-500 text-[10px] mb-4">${i.detail}</p>
-                            ${i.tipe === 'Kegiatan' ? `<button onclick="bukaAbsen('${i.id}')" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase">Klik Absen</button>` : ''}
-                        </div>`).join('') : '<p class="text-center py-10 text-xs">Kosong</p>';
-                }
-                else if(tab === 'agenda') {
-                    const res = await fetch(`${SHEETDB_URL}?sheet=agenda`);
-                    const data = await res.json();
-                    list.innerHTML = data.map(item => `
-                        <div class="flex gap-4 bg-white p-4 rounded-2xl border items-center">
-                            <div class="bg-emerald-50 text-emerald-700 min-w-[45px] h-[45px] flex flex-col justify-center items-center rounded-xl font-black">
-                                <span class="text-sm">${item.tanggal ? item.tanggal.split('-')[2] : '?'}</span>
-                            </div>
-                            <div>
-                                <h4 class="text-[10px] font-black uppercase leading-tight">${item.kegiatan}</h4>
-                                <p class="text-[8px] text-slate-400 mt-1 uppercase font-bold">${item.jam} • ${item.lokasi}</p>
+                    list.innerHTML = data.map(i => `
+                        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden animate-fade mb-6">
+                            ${i.file_url && i.file_url !== '-' ? `<img src="${i.file_url}" onclick="viewImage('${i.file_url}', '${i.judul}')" class="w-full h-52 object-cover cursor-zoom-in">` : `<div class="w-full h-20 bg-slate-50 flex items-center justify-center"><i data-lucide="megaphone" class="text-slate-200"></i></div>`}
+                            <div class="p-6">
+                                <div class="flex justify-between items-center mb-3 text-[8px] font-black uppercase">
+                                    <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">${i.tipe}</span>
+                                    <span class="text-slate-400">${new Date(i.created_at).toLocaleDateString('id-ID')}</span>
+                                </div>
+                                <h4 class="font-black text-lg uppercase leading-tight mb-2">${i.judul}</h4>
+                                <p class="text-slate-500 text-xs leading-relaxed mb-6">${i.detail}</p>
+                                ${i.tipe === 'Kegiatan' ? `<button onclick="bukaAbsen('${i.judul}')" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-emerald-100 active:scale-95 transition-all">Hadir & Absen</button>` : ''}
                             </div>
                         </div>`).join('');
-                }
-                else if(tab === 'riwayat') {
-                    const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
-                    const all = await res.json();
-                    const mine = all.filter(a => a.nama_warga === user.nama);
-                    list.innerHTML = `
-                        <div class="bg-white p-5 rounded-3xl text-center border mb-4">
-                            <div id="qrcode" class="flex justify-center mb-2"></div>
-                            <p class="text-[8px] font-black text-emerald-600 uppercase italic">Scan Link Portal</p>
-                        </div>
-                        <div class="space-y-2">
-                            ${mine.reverse().map(r => `
-                                <div class="bg-white p-3 rounded-xl border flex justify-between items-center">
-                                    <p class="font-black text-[9px] uppercase text-slate-700 leading-none">Hadir: ${r.waktu_absen}</p>
-                                    <span class="text-[7px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded">OK</span>
-                                </div>`).join('')}
+                } else if(tab === 'dokumentasi') {
+                    const { data } = await _supabase.from('dokumentasi').select('*').order('created_at', {ascending: false});
+                    list.innerHTML = `<div class="grid grid-cols-2 gap-4">
+                        ${data.map(d => `
+                            <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm animate-fade" onclick="viewImage('${d.foto_urls[0]}', '${d.judul}')">
+                                <img src="${d.foto_urls[0]}" class="w-full h-32 object-cover">
+                                <div class="p-3">
+                                    <p class="text-[9px] font-black uppercase truncate">${d.judul}</p>
+                                </div>
+                            </div>`).join('')}
+                    </div>`;
+                } else if(tab === 'agenda') {
+                    const res = await fetch(`${SHEETDB_URL}?sheet=agenda`);
+                    const data = await res.json();
+                    list.innerHTML = data.reverse().map(i => `
+                        <div class="flex gap-4 bg-white p-4 rounded-2xl border items-center">
+                            <div class="bg-emerald-50 text-emerald-700 min-w-[45px] h-[45px] flex flex-col justify-center items-center rounded-xl font-black">
+                                <span class="text-xs">${i.tanggal.split('-')[2]}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-[10px] font-black uppercase">${i.kegiatan}</h4>
+                                <p class="text-[8px] text-slate-400 font-bold uppercase">${i.jam} • ${i.lokasi}</p>
+                            </div>
+                        </div>`).join('');
+                } else if(tab === 'pengajuan') {
+                    list.innerHTML = `<div class="bg-white p-6 rounded-[2rem] border shadow-sm animate-fade">
+                            <h4 class="font-black text-[10px] uppercase mb-4 text-emerald-700">Pengajuan Surat Pengantar</h4>
+                            <form id="form-surat" class="space-y-4">
+                                <select id="jenis-surat" class="w-full p-4 border-2 border-slate-50 bg-slate-50 rounded-2xl text-[10px] font-bold outline-none focus:border-emerald-500">
+                                    <option value="">Pilih Jenis Surat</option>
+                                    <option value="Surat Numpang Nikah">Surat Numpang Nikah</option>
+                                    <option value="Keterangan Kematian">Keterangan Kematian</option>
+                                    <option value="Keterangan Domisili">Keterangan Domisili</option>
+                                    <option value="Pengantar KK/KTP">Pengantar KK/KTP</option>
+                                </select>
+                                <textarea id="ket-surat" placeholder="Keterangan Tambahan..." class="w-full p-4 border-2 border-slate-50 bg-slate-50 rounded-2xl text-[10px] outline-none h-24"></textarea>
+                                <button type="button" onclick="kirimPengajuanSurat()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-[10px]">Ajukan ke Admin</button>
+                            </form>
                         </div>`;
-                    setTimeout(() => {
-                        const qr = document.getElementById("qrcode");
-                        if (qr) new QRCode(qr, { text: window.location.href, width: 100, height: 100 });
-                    }, 300);
+                } else if(tab === 'riwayat') {
+                    const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
+                    const allData = await res.json();
+                    const myAbsen = allData.filter(a => a.nama_warga === user.nama);
+                    list.innerHTML = `
+                        <div class="bg-white p-6 rounded-[2rem] border shadow-sm mb-4 text-center">
+                            <div id="qrcode" class="flex justify-center mb-2"></div>
+                            <p class="text-[8px] font-black text-emerald-600 uppercase">ID: ${user.username}</p>
+                        </div>
+                        <h5 class="text-[9px] font-black uppercase text-slate-400 mb-2 px-2">Riwayat Hadir</h5>
+                        ${myAbsen.map(r => `
+                            <div class="bg-white p-3 rounded-xl border flex flex-col gap-2 mb-2">
+                                <div class="flex justify-between items-center">
+                                    <p class="font-black text-[9px] uppercase">${r.kegiatan_id}</p>
+                                    <span class="text-[7px] text-slate-400">${r.waktu_absen}</span>
+                                </div>
+                                <div class="flex gap-2">
+                                    <img src="${r.photo_selfie_url}" onclick="viewImage('${r.photo_selfie_url}', 'Selfie: ${r.kegiatan_id}')" class="w-10 h-10 object-cover rounded-lg border cursor-pointer">
+                                    <img src="${r.tanda_tangan_url}" onclick="viewImage('${r.tanda_tangan_url}', 'TTD: ${r.kegiatan_id}')" class="w-10 h-10 object-contain bg-slate-50 rounded-lg border cursor-pointer">
+                                </div>
+                            </div>`).join('')}`;
+                    new QRCode(document.getElementById("qrcode"), { text: user.username, width: 100, height: 100 });
                 }
-            } catch (err) { console.error(err); }
+            } catch (e) { 
+                list.innerHTML = '<div class="text-center py-10"><p class="text-xs font-bold text-rose-500">Gagal memuat data</p></div>'; 
+            }
             lucide.createIcons();
         }
 
-        // --- AUTH ---
+        // --- AUTH & REGISTER LOGIC ---
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
             const u = document.getElementById('login-user').value;
             const p = document.getElementById('login-pass').value;
-            notify("Pengecekan...", "bg-blue-600");
-            const res = await fetch(`${SHEETDB_URL}?sheet=users`);
-            const users = await res.json();
-            const found = users.find(user => user.username === u && user.password === p);
-            if(found) {
-                localStorage.setItem('user', JSON.stringify(found));
-                location.reload();
-            } else { notify("Username/Password Salah!", "bg-rose-600"); }
+            if (u === 'sekretaris' && p === 'adminrw01') {
+                localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
+                window.location.href = 'admin.html'; return;
+            }
+            notify("Mengecek Akun...", "bg-blue-600");
+            try {
+                const res = await fetch(`${SHEETDB_URL}?sheet=users`);
+                const data = await res.json();
+                const user = data.find(x => x.username === u && x.password === p);
+                if(user) {
+                    localStorage.setItem('user', JSON.stringify(user));
+                    user.jabatan === 'Admin' ? window.location.href='admin.html' : location.reload();
+                } else { notify("Login Gagal!", "bg-rose-600"); }
+            } catch (err) { notify("Koneksi Error", "bg-rose-600"); }
         };
 
-        function bukaAbsen(id) {
-            document.getElementById('abs-kegiatan-id').value = id;
+        document.getElementById('form-register').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                nama: document.getElementById('reg-nama').value,
+                rt: document.getElementById('reg-rt').value,
+                hp: document.getElementById('reg-hp').value,
+                username: document.getElementById('reg-user').value,
+                password: document.getElementById('reg-pass').value,
+                jabatan: document.getElementById('reg-kategori').value + (document.getElementById('reg-sub-jabatan').value ? " - " + document.getElementById('reg-sub-jabatan').value : "")
+            };
+            notify("Mendaftarkan...", "bg-blue-600");
+            try {
+                await fetch(`${SHEETDB_URL}?sheet=users`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({data: [payload]})
+                });
+                notify("Berhasil! Silakan Login.");
+                showPage('page-login');
+            } catch (err) { notify("Gagal Daftar!", "bg-rose-600"); }
+        };
+
+        // --- IMAGE VIEWER LOGIC ---
+        function viewImage(url, caption) {
+            const viewer = document.getElementById('image-viewer');
+            const img = document.getElementById('full-image');
+            const cap = document.getElementById('image-caption');
+            img.src = url;
+            img.style.transform = "scale(1)";
+            img.classList.remove('cursor-zoom-out');
+            img.classList.add('cursor-zoom-in');
+            cap.innerText = caption;
+            viewer.classList.remove('hidden');
+            viewer.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closeImageViewer() {
+            document.getElementById('image-viewer').classList.add('hidden');
+            document.getElementById('image-viewer').classList.remove('flex');
+        }
+
+        function toggleZoom(el) {
+            if (el.style.transform === "scale(2)") {
+                el.style.transform = "scale(1)";
+                el.classList.replace('cursor-zoom-out', 'cursor-zoom-in');
+            } else {
+                el.style.transform = "scale(2)";
+                el.classList.replace('cursor-zoom-in', 'cursor-zoom-out');
+            }
+        }
+
+        function bukaAbsen(judul) {
+            document.getElementById('abs-kegiatan-id').value = judul;
             document.getElementById('modal-absen').classList.remove('hidden');
             const canvas = document.getElementById('canvas-ttd');
             canvas.width = canvas.offsetWidth;
             signaturePad = new SignaturePad(canvas);
         }
 
+        document.getElementById('form-submit-absen').onsubmit = async (e) => {
+            e.preventDefault();
+            const user = JSON.parse(localStorage.getItem('user'));
+            const file = document.getElementById('abs-selfie').files[0];
+            if(!file || signaturePad.isEmpty()) return alert("Foto & TTD Wajib!");
+            notify("Mengirim...", "bg-blue-600");
+            try {
+                const fileName = `absen_${Date.now()}.jpg`;
+                await _supabase.storage.from('media-sinergi').upload(`absen/${fileName}`, file);
+                const fotoUrl = `${SB_URL}/storage/v1/object/public/media-sinergi/absen/${fileName}`;
+                const payload = {
+                    nama_warga: user.nama, rt: user.rt, jabatan: user.jabatan,
+                    waktu_absen: new Date().toLocaleString('id-ID'),
+                    kegiatan_id: document.getElementById('abs-kegiatan-id').value,
+                    photo_selfie_url: fotoUrl, tanda_tangan_url: signaturePad.toDataURL()
+                };
+                await fetch(`${SHEETDB_URL}?sheet=absen`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({data: [payload]})
+                });
+                notify("Berhasil!");
+                document.getElementById('modal-absen').classList.add('hidden');
+                switchTabWarga('riwayat');
+            } catch (err) { notify("Gagal!", "bg-rose-600"); }
+        };
+
+        async function kirimPengajuanSurat() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const jenis = document.getElementById('jenis-surat').value;
+            if(!jenis) return alert("Pilih jenis surat!");
+            notify("Mengirim...", "bg-blue-600");
+            try {
+                const payload = {
+                    nama: user.nama, rt: user.rt, hp: user.hp, jenis_surat: jenis,
+                    keterangan: document.getElementById('ket-surat').value || "-",
+                    status: "Menunggu", waktu_pengajuan: new Date().toLocaleString('id-ID')
+                };
+                await fetch(`${SHEETDB_URL}?sheet=pengajuan`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({data: [payload]})
+                });
+                notify("Tersimpan!");
+                switchTabWarga('pengumuman');
+            } catch (err) { notify("Gagal!", "bg-rose-600"); }
+        }
+
         function logout() { localStorage.clear(); location.reload(); }
-        function togglePass(id) { const el = document.getElementById(id); el.type = el.type === "password" ? "text" : "password"; }
 
-        setInterval(() => {
-            const now = new Date();
-            if(document.getElementById('user-realtime-date')) document.getElementById('user-realtime-date').innerText = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'short' }).toUpperCase();
-            if(document.getElementById('user-realtime-clock')) document.getElementById('user-realtime-clock').innerText = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' }) + " WIB";
-        }, 1000);
-
-       window.onload = () => {
-    const saved = localStorage.getItem('user');
-    if (saved) {
-        const user = JSON.parse(saved);
+        window.onload = () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if(user) {
+                if(user.jabatan === 'Admin') { window.location.href = 'admin.html'; }
+                else {
+                    showPage('page-user');
+                    document.getElementById('kartu-nama').innerText = user.nama;
+                    document.getElementById('kartu-jabatan').innerText = `${user.jabatan} | ${user.rt}`;
+                    switchTabWarga('pengumuman');
+                }
+            }
+            lucide.createIcons();
+        };
         
-        // 1. Tampilkan Halaman Utama
-        showPage('page-user');
-
-        // 2. Isi Data ke Kartu Profil (Warna Hijau)
-        const n = document.getElementById('kartu-nama');
-        const j = document.getElementById('kartu-jabatan');
-        if(n) n.innerText = user.nama;
-        if(j) j.innerText = `${user.jabatan} | ${user.rt}`;
-        
-        // 3. Muat Konten Tab Pertama (Jeda sedikit agar aman)
-        setTimeout(() => {
-            switchTabWarga('pengumuman');
-        }, 300);
-    }
-    lucide.createIcons();
-};
-
     </script>
 </body>
 </html>
