@@ -1,10 +1,8 @@
-const CACHE_NAME = 'sinergi-rw01-v1';
-const assets = ['./', './index.html', './manifest.json'];
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(assets)));
+// sw.js - Service Worker Sederhana
+self.addEventListener('install', (event) => {
+  console.log('Service Worker installed');
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener('fetch', (event) => {
+  // Biarkan request lewat secara normal
 });
