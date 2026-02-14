@@ -17,68 +17,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
-        .sidebar-item { 
-            transition: all 0.3s ease; 
-            cursor: pointer; 
-            background: transparent; 
-            color: #64748b;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .sidebar-item:hover {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            transform: translateX(4px);
-        }
-        
-        .sidebar-item.active-tab {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-            font-weight: 700;
-        }
-        
-        .sidebar-item.active-tab::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: #10b981;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .tab-content {
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .btn-primary {
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .btn-primary:active {
-            transform: translateY(0);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+        .sidebar-item { transition: all 0.3s ease; cursor: pointer; background: transparent; color: #64748b; position: relative; }
+        .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .sidebar-item.active-tab { background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 700; }
+        .sidebar-item.active-tab::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #10b981; }
+        .tab-content { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="min-h-screen flex">
@@ -90,29 +34,27 @@
         </div>
         <nav class="flex-1 p-4 space-y-2">
             <button onclick="switchTab('pengumuman', this)" class="sidebar-item active-tab w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
-                <i data-lucide="megaphone" class="w-4 h-4"></i> Kelola Pengumuman
+                <i data-lucide="megaphone" class="w-4 h-4"></i> Pengumuman
             </button>
             <button onclick="switchTab('dokumentasi', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
-                <i data-lucide="camera" class="w-4 h-4"></i> Post Dokumentasi
+                <i data-lucide="camera" class="w-4 h-4"></i> Dokumentasi
             </button>
             <button onclick="switchTab('laporan', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
                 <i data-lucide="printer" class="w-4 h-4"></i> Laporan Absensi
             </button>
-            <button onclick="switchTab('users', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase transition-all">
-            <i data-lucide="users" class="w-4 h-4"></i> Kelola User
+            <button onclick="switchTab('users', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+                <i data-lucide="users" class="w-4 h-4"></i> Kelola User
             </button>
             <button onclick="switchTab('agenda', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
-    <i data-lucide="calendar" class="w-4 h-4"></i> Kelola Agenda
-</button>
-<button onclick="switchTab('setting', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
-    <i data-lucide="settings" class="w-4 h-4"></i> Pengaturan App
-</button>
+                <i data-lucide="calendar" class="w-4 h-4"></i> Kelola Agenda
+            </button>
+            <button onclick="switchTab('setting', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+                <i data-lucide="settings" class="w-4 h-4"></i> Pengaturan
+            </button>
         </nav>
-       <div class="p-4 border-t">
-    <button onclick="logoutAdmin()" class="w-full bg-rose-50 text-rose-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-rose-100 transition-all">
-        Keluar Admin
-    </button>
-</div>
+        <div class="p-4 border-t">
+            <button onclick="logoutAdmin()" class="w-full bg-rose-50 text-rose-600 p-3 rounded-xl font-bold text-[10px] uppercase">Keluar Admin</button>
+        </div>
     </aside>
 
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
@@ -120,183 +62,120 @@
             <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
             <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital System</p>
         </div>
-<div id="sec-pengumuman" class="tab-content space-y-6">
-    <div class="bg-white p-6 rounded-3xl shadow-sm border">
-        <h3 class="font-black text-sm uppercase mb-4">Buat Pengumuman Baru</h3>
-        <div class="grid gap-4">
-            <input type="text" id="p-judul" placeholder="Judul Pengumuman" 
-                class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500">
-            
-            <select id="p-tipe" class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-amber-500 bg-white">
-                <option value="Informasi">Informasi Biasa</option>
-                <option value="Kegiatan">Kegiatan (Aktifkan Absensi)</option>
-            </select>
 
-            <textarea id="p-detail" placeholder="Isi detail pengumuman..." 
-                class="border p-3 rounded-xl text-sm h-32 focus:ring-2 focus:ring-amber-500 outline-none"></textarea>
-            
-            <div class="mt-2">
-                <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Lampiran Undangan (PDF)</label>
-                <input type="file" id="p-file-pdf" accept="application/pdf" 
-                    class="w-full text-[10px] mt-1 border p-2 rounded-xl bg-slate-50">
+        <div id="sec-pengumuman" class="tab-content space-y-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                <h3 class="font-black text-sm uppercase mb-4">Buat Pengumuman Baru</h3>
+                <div class="grid gap-4">
+                    <input type="text" id="p-judul" placeholder="Judul Pengumuman" class="border p-3 rounded-xl text-sm outline-none">
+                    <select id="p-tipe" class="border p-3 rounded-xl text-sm bg-white">
+                        <option value="Informasi">Informasi Biasa</option>
+                        <option value="Kegiatan">Kegiatan (Aktifkan Absensi)</option>
+                    </select>
+                    <textarea id="p-detail" placeholder="Isi detail..." class="border p-3 rounded-xl text-sm h-32 outline-none"></textarea>
+                    <input type="file" id="p-file-pdf" accept="application/pdf" class="w-full text-[10px] border p-2 rounded-xl">
+                    <button onclick="postPengumuman()" class="bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Posting</button>
+                </div>
             </div>
-
-            <button onclick="postPengumuman()" 
-                class="bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-emerald-700 transition-all">
-                Posting Pengumuman
-            </button>
+            <div class="bg-white rounded-3xl border shadow-sm overflow-x-auto">
+                <table class="w-full text-left text-[10px]">
+                    <thead class="bg-slate-50 border-b">
+                        <tr><th class="p-4">Tanggal</th><th class="p-4">Judul</th><th class="p-4">File</th><th class="p-4">Aksi</th></tr>
+                    </thead>
+                    <tbody id="log-pengumuman-body"></tbody>
+                </table>
+            </div>
         </div>
-    </div>
-
-    <div class="bg-white rounded-3xl border shadow-sm overflow-hidden">
-        <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
-            <h4 class="font-black text-[10px] uppercase text-slate-500">Riwayat Pengumuman</h4>
-            <button onclick="loadLogPengumuman()" class="text-emerald-600 hover:rotate-180 transition-all focus:outline-none">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-            </button>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-[10px]">
-                <thead class="bg-slate-50 border-b">
-                    <tr>
-                        <th class="p-4">Tanggal</th>
-                        <th class="p-4">Judul & Tipe</th>
-                        <th class="p-4">File</th>
-                        <th class="p-4 text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="log-pengumuman-body">
-                    </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 
         <div id="sec-dokumentasi" class="tab-content hidden space-y-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border card-hover">
-                <h3 class="font-black text-sm uppercase mb-4">Upload ke Tab Dokumentasi Warga</h3>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Upload Dokumentasi</h3>
                 <div class="space-y-4">
-                    <input type="text" id="d-judul" placeholder="Nama Kegiatan (Misal: Kerja Bakti)" class="w-full border p-3 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 transition-all">
+                    <input type="text" id="d-judul" placeholder="Nama Kegiatan" class="w-full border p-3 rounded-xl text-sm">
                     <input type="file" id="d-foto" class="w-full text-xs" accept="image/*">
-                    <p class="text-[10px] text-slate-400">*Foto akan muncul di galeri dokumentasi aplikasi warga.</p>
-                    <button onclick="postDokumentasi()" class="btn-primary bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Upload Foto Kegiatan</button>
+                    <button onclick="postDokumentasi()" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Upload</button>
                 </div>
             </div>
         </div>
 
         <div id="sec-laporan" class="tab-content hidden space-y-4">
-            <div class="bg-white p-6 rounded-3xl border shadow-sm flex justify-between items-center card-hover">
-                <div>
-                    <h4 class="font-black uppercase text-xs">Master Laporan Kehadiran</h4>
-                    <p class="text-[10px] text-slate-400">Data diambil langsung dari SheetDB (Google Sheets).</p>
-                </div>
-                <button onclick="downloadPDFMaster()" class="btn-primary bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2">
-                    <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PDF (F4)
+            <div class="bg-white p-6 rounded-3xl border shadow-sm flex justify-between items-center">
+                <h4 class="font-black uppercase text-xs">Master Absensi</h4>
+                <button onclick="downloadPDFMaster()" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2">
+                    <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PDF
                 </button>
             </div>
-            <div id="preview-absen" class="bg-white rounded-3xl border shadow-sm overflow-x-auto card-hover">
+            <div class="bg-white rounded-3xl border shadow-sm overflow-x-auto">
                 <table class="w-full text-left text-[10px]">
                     <thead class="bg-slate-50 uppercase">
-                        <tr>
-                            <th class="p-4">Nama Warga</th>
-                            <th class="p-4">RT</th>
-                            <th class="p-4">Jabatan</th>
-                            <th class="p-4">Waktu</th>
-                            <th class="p-4">Foto</th>
-                        </tr>
+                        <tr><th class="p-4">Warga</th><th class="p-4">RT</th><th class="p-4">Waktu</th><th class="p-4">Bukti</th></tr>
                     </thead>
                     <tbody id="table-absen-body"></tbody>
                 </table>
             </div>
         </div>
+
         <div id="sec-users" class="tab-content hidden space-y-4">
-    <div class="bg-white p-6 rounded-3xl border shadow-sm flex justify-between items-center card-hover">
-        
+            <div class="bg-white p-6 rounded-3xl border shadow-sm flex justify-between items-center">
+                <h4 class="font-black uppercase text-xs">Daftar Warga</h4>
+                <input type="text" onkeyup="filterUser(this.value)" placeholder="Cari..." class="border p-2 rounded-xl text-[10px] w-40">
+            </div>
+            <div class="bg-white rounded-3xl border shadow-sm overflow-x-auto">
+                <table class="w-full text-left text-[10px]">
+                    <thead class="bg-slate-50 font-black">
+                        <tr><th class="p-4">Nama</th><th class="p-4">User</th><th class="p-4">RT/Jabatan</th><th class="p-4">Aksi</th></tr>
+                    </thead>
+                    <tbody id="table-user-body"></tbody>
+                </table>
+            </div>
+        </div>
+
         <div id="sec-agenda" class="tab-content hidden space-y-6">
-    <div class="bg-white p-6 rounded-3xl shadow-sm border">
-        <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Tambah Agenda RW</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input type="date" id="ag-tanggal" class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
-            <input type="text" id="ag-kegiatan" placeholder="Nama Kegiatan (Contoh: Posyandu)" class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
-            <input type="text" id="ag-jam" placeholder="Jam (Contoh: 08:00 - Selesai)" class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
-            <input type="text" id="ag-lokasi" placeholder="Lokasi (Contoh: Balai RW)" class="border p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500">
-            <button onclick="postAgenda()" class="md:col-span-2 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-emerald-700 transition-all">
-                Simpan Agenda Baru
-            </button>
-        </div>
-    </div>
-    <div class="bg-white rounded-3xl border shadow-sm overflow-hidden">
-        <div class="p-4 border-b bg-slate-50 font-black text-[10px] uppercase">Daftar Agenda Terjadwal</div>
-        <div id="list-agenda-admin" class="divide-y"></div>
-    </div>
-</div>
-
-<div id="sec-setting" class="tab-content hidden space-y-6">
-    <div class="bg-white p-6 rounded-3xl shadow-sm border">
-        <h3 class="font-black text-sm uppercase mb-4 text-amber-600">Update Running Text (Warga)</h3>
-        <p class="text-[10px] text-slate-400 mb-4 italic">Teks ini akan berjalan di dashboard depan aplikasi warga.</p>
-        <div class="space-y-4">
-            <textarea id="set-running-text" placeholder="Tulis pengumuman berjalan di sini..." class="w-full border p-4 rounded-xl text-xs h-24 outline-none focus:ring-2 focus:ring-amber-500"></textarea>
-            <button onclick="updateRunningText()" class="bg-amber-500 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan Teks Berjalan</button>
-        </div>
-    </div>
-</div>     
-        <div>
-            <h4 class="font-black uppercase text-xs">Daftar Warga Terdaftar</h4>
-            <p class="text-[10px] text-slate-400">Total warga yang memiliki akun aplikasi.</p>
-        </div>
-         <input type="text" onkeyup="filterUser(this.value)" placeholder="Cari Nama Warga..." class="border p-2 rounded-xl text-[10px] outline-none w-40 focus:ring-2 focus:ring-emerald-500 transition-all">
-    </div>
-    <div class="bg-white rounded-3xl border shadow-sm overflow-x-auto card-hover">
-        <table class="w-full text-left text-[10px]">
-            <thead class="bg-slate-50 uppercase font-black">
-                <tr>
-                    <th class="p-4">Nama</th>
-                    <th class="p-4">Username</th>
-                    <th class="p-4">RT / Jabatan</th>
-                    <th class="p-4">WhatsApp</th>
-                    <th class="p-4">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="table-user-body"></tbody>
-        </table>
-    </div>
-</div>
-        
-
-<div id="modal-edit" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl">
-        <h3 class="font-black text-emerald-800 uppercase mb-6">Edit Data Warga</h3>
-        <div class="space-y-4">
-            <input type="hidden" id="edit-old-user">
-            <div>
-                <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Nama Lengkap</label>
-                <input type="text" id="edit-nama" class="w-full border p-3 rounded-xl text-xs outline-none focus:ring-2 ring-emerald-500">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">RT</label>
-                    <input type="text" id="edit-rt" class="w-full border p-3 rounded-xl text-xs outline-none focus:ring-2 ring-emerald-500">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Jabatan</label>
-                    <input type="text" id="edit-jabatan" class="w-full border p-3 rounded-xl text-xs outline-none focus:ring-2 ring-emerald-500">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Tambah Agenda</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="date" id="ag-tanggal" class="border p-3 rounded-xl text-sm">
+                    <input type="text" id="ag-kegiatan" placeholder="Kegiatan" class="border p-3 rounded-xl text-sm">
+                    <input type="text" id="ag-jam" placeholder="Jam" class="border p-3 rounded-xl text-sm">
+                    <input type="text" id="ag-lokasi" placeholder="Lokasi" class="border p-3 rounded-xl text-sm">
+                    <button onclick="postAgenda()" class="md:col-span-2 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan</button>
                 </div>
             </div>
-            <div>
-                <label class="text-[10px] font-black uppercase text-slate-400 ml-2">Nomor HP</label>
-                <input type="text" id="edit-hp" class="w-full border p-3 rounded-xl text-xs outline-none focus:ring-2 ring-emerald-500">
-            </div>
-            <div class="flex gap-2 pt-4">
-                <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-xs uppercase hover:bg-slate-200 transition-all">Batal</button>
-                <button onclick="updateUser()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg hover:bg-emerald-700 transition-all">Simpan Perubahan</button>
+            <div id="list-agenda-admin" class="bg-white rounded-3xl border divide-y overflow-hidden"></div>
+        </div>
+
+        <div id="sec-setting" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border">
+                <h3 class="font-black text-sm uppercase mb-4 text-amber-600">Update Running Text</h3>
+                <textarea id="set-running-text" placeholder="Teks Berjalan..." class="w-full border p-4 rounded-xl text-xs h-24 outline-none"></textarea>
+                <button onclick="updateRunningText()" class="bg-amber-500 text-white px-8 py-3 rounded-xl font-bold text-xs uppercase shadow-lg mt-4">Update</button>
             </div>
         </div>
-    </div>
-</div>
-
     </main>
+
+    <div id="modal-edit" class="fixed inset-0 bg-black/50 z-[100] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8">
+            <h3 class="font-black text-emerald-800 uppercase mb-6">Edit Warga</h3>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-old-user">
+                <input type="text" id="edit-nama" placeholder="Nama" class="w-full border p-3 rounded-xl text-xs">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="edit-rt" placeholder="RT" class="w-full border p-3 rounded-xl text-xs">
+                    <input type="text" id="edit-jabatan" placeholder="Jabatan" class="w-full border p-3 rounded-xl text-xs">
+                </div>
+                <input type="text" id="edit-hp" placeholder="WhatsApp" class="w-full border p-3 rounded-xl text-xs">
+                <div class="flex gap-2 pt-4">
+                    <button onclick="closeModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-xs uppercase">Batal</button>
+                    <button onclick="updateUser()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-lg">Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="image-viewer" class="fixed inset-0 bg-black/90 z-[200] hidden flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
+        <img id="full-image" class="max-w-full max-h-[80vh] rounded-2xl">
+        <p id="image-caption" class="text-white mt-4 font-black uppercase text-sm"></p>
+    </div>
 
     <script>
         const SHEETDB_URL = "https://sheetdb.io/api/v1/zrnc1n8cotdok";
@@ -304,95 +183,84 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjdnlkb2JwdGt1dmZ0aGxpZ2l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAzMDE0MTcsImV4cCI6MjA4NTg3NzQxN30.B-SrN_fKGapu31wGw5etAR_fT4gm4fcD69eGBXRokkA";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // Fungsi switchTab yang telah diperbaiki dan diperindah
         function switchTab(tab, btn) {
-            // Sembunyikan semua konten tab
-            document.querySelectorAll('[id^="sec-"]').forEach(s => {
-                s.classList.add('hidden');
-            });
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            if(btn) btn.classList.add('active-tab');
+            document.getElementById('tab-title').innerText = `Kelola ${tab}`;
             
-            // Hapus kelas aktif dari semua tombol sidebar
-            document.querySelectorAll('.sidebar-item').forEach(b => {
-                b.classList.remove('active-tab');
-            });
-            
-            // Tampilkan tab yang dipilih
-            const tabElement = document.getElementById(`sec-${tab}`);
-            tabElement.classList.remove('hidden');
-            
-            // Tambahkan kelas aktif ke tombol yang diklik
-            if(btn) {
-                btn.classList.add('active-tab');
-            }
-            
-            // Update judul tab
-            const tabTitle = document.getElementById('tab-title');
-            const tabTitles = {
-                'pengumuman': 'Kelola Pengumuman',
-                'dokumentasi': 'Post Dokumentasi',
-                'laporan': 'Laporan Absensi',
-                'users': 'Kelola User'
-            };
-            tabTitle.innerText = tabTitles[tab] || `Kelola ${tab}`;
-            
-          // Load data berdasarkan tab yang dipilih
-                if(tab === 'laporan') {
-                loadAbsensiData();
-            } else if(tab === 'users') {
-                loadUsers();
-            } else if(tab === 'pengumuman') { // Digabung pakai else if agar rapi
-                loadLogPengumuman();
-            } else if(tab === 'agenda') {
-                loadAgendaAdmin();
-            }
-            
-            // Re-render icons
+            if(tab === 'laporan') loadAbsensiData();
+            if(tab === 'users') loadUsers();
+            if(tab === 'pengumuman') loadLogPengumuman();
+            if(tab === 'agenda') loadAgendaAdmin();
             lucide.createIcons();
         }
 
-        // LOAD DATA USER
+        async function postPengumuman() {
+            const vJudul = document.getElementById('p-judul').value;
+            const vTipe = document.getElementById('p-tipe').value;
+            const vDetail = document.getElementById('p-detail').value;
+            const filePdf = document.getElementById('p-file-pdf').files[0];
+            if(!vJudul || !vDetail) return alert("Lengkapi data!");
+
+            try {
+                let pdfUrl = null;
+                if (filePdf) {
+                    const fileName = `undangan_${Date.now()}.pdf`;
+                    await _supabase.storage.from('media-sinergi').upload(`undangan/${fileName}`, filePdf);
+                    const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`undangan/${fileName}`);
+                    pdfUrl = pUrl.publicUrl;
+                }
+                const { error } = await _supabase.from('pengumuman').insert([{ judul: vJudul, tipe: vTipe, detail: vDetail, file_url: pdfUrl }]);
+                if (error) throw error;
+                alert("Berhasil!");
+                loadLogPengumuman();
+            } catch (err) { alert(err.message); }
+        }
+
+        async function loadLogPengumuman() {
+            const { data } = await _supabase.from('pengumuman').select('*').order('created_at', { ascending: false });
+            document.getElementById('log-pengumuman-body').innerHTML = data.map(p => `
+                <tr class="border-b">
+                    <td class="p-4">${new Date(p.created_at).toLocaleDateString('id-ID')}</td>
+                    <td class="p-4"><div class="font-bold">${p.judul}</div><div class="text-[8px]">${p.tipe}</div></td>
+                    <td class="p-4">${p.file_url ? `<a href="${p.file_url}" target="_blank" class="text-blue-600">PDF</a>` : '-'}</td>
+                    <td class="p-4"><button onclick="hapusPengumuman('${p.id}')" class="text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        async function hapusPengumuman(id) {
+            if(!confirm("Hapus?")) return;
+            await _supabase.from('pengumuman').delete().eq('id', id);
+            loadLogPengumuman();
+        }
+
         async function loadUsers() {
             const res = await fetch(`${SHEETDB_URL}?sheet=users`);
             const data = await res.json();
-            const tbody = document.getElementById('table-user-body');
-            
-            tbody.innerHTML = data.map(u => `
-                <tr class="border-t hover:bg-slate-50 transition-colors">
-                    <td class="p-4 font-bold uppercase">${u.nama}</td>
-                    <td class="p-4 text-emerald-600 font-bold">@${u.username}</td>
-                    <td class="p-4 uppercase text-slate-500 text-[9px]">${u.rt} / ${u.jabatan}</td>
-                    <td class="p-4 text-slate-600">${u.nomor_hp || '-'}</td>
+            document.getElementById('table-user-body').innerHTML = data.map(u => `
+                <tr class="border-t">
+                    <td class="p-4 font-bold">${u.nama}</td>
+                    <td class="p-4 text-emerald-600">@${u.username}</td>
+                    <td class="p-4 text-[9px]">${u.rt} / ${u.jabatan}</td>
                     <td class="p-4 flex gap-2">
-                        <button onclick="openEditUser('${u.username}', '${u.nama}', '${u.rt}', '${u.jabatan}', '${u.nomor_hp}')" 
-                                class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-all">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                        </button>
-                        <button onclick="deleteUser('${u.username}')" 
-                                class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-all">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
+                        <button onclick="openEditUser('${u.username}', '${u.nama}', '${u.rt}', '${u.jabatan}', '${u.nomor_hp}')" class="text-blue-600"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="deleteUser('${u.username}')" class="text-rose-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
                 </tr>
             `).join('');
             lucide.createIcons();
         }
 
-        // DELETE USER
-        async function deleteUser(targetUsername) {
-            if(!confirm(`Hapus akun @${targetUsername}?`)) return;
-            
-            // Menggunakan username sebagai identitas unik di URL
-            const res = await fetch(`${SHEETDB_URL}/username/${targetUsername}?sheet=users`, {
-                method: 'DELETE'
-            });
-
-            if(res.ok) {
-                alert("Terhapus!");
-                loadUsers();
-            }
+        async function deleteUser(user) {
+            if(!confirm("Hapus warga?")) return;
+            await fetch(`${SHEETDB_URL}/username/${user}?sheet=users`, { method: 'DELETE' });
+            loadUsers();
         }
 
-        // EDIT USER LOGIC
         function openEditUser(user, nama, rt, jab, hp) {
             document.getElementById('edit-old-user').value = user;
             document.getElementById('edit-nama').value = nama;
@@ -402,429 +270,87 @@
             document.getElementById('modal-edit').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('modal-edit').classList.add('hidden');
-            // Bersihkan form agar saat buka warga lain tidak muncul data lama
-            document.getElementById('edit-old-user').value = "";
-            document.getElementById('edit-nama').value = "";
-            document.getElementById('edit-rt').value = "";
-            document.getElementById('edit-jabatan').value = "";
-            document.getElementById('edit-hp').value = "";
-        }
+        function closeModal() { document.getElementById('modal-edit').classList.add('hidden'); }
 
         async function updateUser() {
-            const oldUsername = document.getElementById('edit-old-user').value;
-            const data = {
-                nama: document.getElementById('edit-nama').value,
-                rt: document.getElementById('edit-rt').value,
-                jabatan: document.getElementById('edit-jabatan').value,
-                nomor_hp: document.getElementById('edit-hp').value
-            };
-
-            const res = await fetch(`${SHEETDB_URL}/username/${oldUsername}?sheet=users`, {
-                method: 'PATCH',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ data: data })
-            });
-
-            if(res.ok) {
-                alert("Data Berhasil Diperbarui!");
-                closeModal();
-                loadUsers();
-            }
-        }
-        
-        // Tambahkan di dalam fungsi loadAbsensiData() atau window.onload
-async function updateStats() {
-    const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
-    const data = await res.json();
-    const hariIni = new Date().toISOString().split('T')[0];
-    const absenHariIni = data.filter(a => a.waktu_absen.includes(hariIni)).length;
-    
-    // Jika Bapak punya elemen dengan id 'stats-absen', jumlahnya akan muncul
-    if(document.getElementById('stats-absen')) {
-        document.getElementById('stats-absen').innerText = absenHariIni + " Warga Hadir Hari Ini";
-    }
-}
-
-
-        /async function postPengumuman() {
-    const vJudul = document.getElementById('p-judul').value;
-    const vTipe = document.getElementById('p-tipe').value;
-    const vDetail = document.getElementById('p-detail').value;
-    const filePdf = document.getElementById('p-file-pdf').files[0];
-
-    if(!vJudul || !vDetail) return alert("Lengkapi judul dan detail!");
-
-    const btn = document.querySelector("button[onclick='postPengumuman()']");
-    btn.innerText = "SEDANG MEMPOSTING...";
-    btn.disabled = true;
-
-    try {
-        let pdfUrl = null;
-
-        // 1. Jika ada file PDF, upload dulu ke Supabase Storage
-        if (filePdf) {
-            const fileName = `undangan_${Date.now()}.pdf`;
-            const { data: uploadData, error: uploadError } = await _supabase.storage
-                .from('media-sinergi') // Pastikan nama bucket ini sama dengan yang di Dokumentasi
-                .upload(`undangan/${fileName}`, filePdf);
-
-            if (uploadError) throw uploadError;
-
-            const { data: pUrl } = _supabase.storage
-                .from('media-sinergi')
-                .getPublicUrl(`undangan/${fileName}`);
-            
-            pdfUrl = pUrl.publicUrl;
+            const old = document.getElementById('edit-old-user').value;
+            const data = { nama: document.getElementById('edit-nama').value, rt: document.getElementById('edit-rt').value, jabatan: document.getElementById('edit-jabatan').value, nomor_hp: document.getElementById('edit-hp').value };
+            const res = await fetch(`${SHEETDB_URL}/username/${old}?sheet=users`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ data: data }) });
+            if(res.ok) { alert("Selesai!"); closeModal(); loadUsers(); }
         }
 
-        // 2. Simpan ke Database (Tambahkan kolom 'file_url' di tabel pengumuman Supabase Bapak)
-        const { error } = await _supabase
-            .from('pengumuman')
-            .insert([{ 
-                judul: vJudul, 
-                tipe: vTipe, 
-                detail: vDetail,
-                file_url: pdfUrl // Pastikan kolom ini sudah Bapak buat di Supabase
-            }]);
-
-        if (error) throw error;
-
-        alert("Berhasil! Pengumuman & Undangan telah terbit.");
-        location.reload(); // Refresh untuk membersihkan form
-
-    } catch (err) {
-        alert("Gagal: " + err.message);
-    } finally {
-        btn.innerText = "Posting Pengumuman";
-        btn.disabled = false;
-    }
-}
-
-// FUNGSI UNTUK MENGAMBIL DATA PENGUMUMAN DARI SUPABASE
-async function loadLogPengumuman() {
-    const tbody = document.getElementById('log-pengumuman-body');
-    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center">Memuat riwayat...</td></tr>';
-
-    try {
-        const { data, error } = await _supabase
-            .from('pengumuman')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) throw error;
-
-        tbody.innerHTML = data.map(p => {
-            const tgl = new Date(p.created_at).toLocaleDateString('id-ID');
-            return `
-                <tr class="border-b hover:bg-slate-50 transition-colors">
-                    <td class="p-4 text-slate-500">${tgl}</td>
-                    <td class="p-4">
-                        <div class="font-black text-slate-700 uppercase">${p.judul}</div>
-                        <div class="text-[8px] text-emerald-600 font-bold">${p.tipe}</div>
-                    </td>
-                    <td class="p-4">
-                        ${p.file_url ? `
-                            <a href="${p.file_url}" target="_blank" class="flex items-center gap-1 text-blue-600 font-bold hover:underline">
-                                <i data-lucide="file-text" class="w-3 h-3"></i> PDF
-                            </a>
-                        ` : '<span class="text-slate-300">-</span>'}
-                    </td>
-                    <td class="p-4 text-center">
-                        <button onclick="hapusPengumuman('${p.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-all">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
-        
-        lucide.createIcons();
-    } catch (err) {
-        tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">Gagal memuat data.</td></tr>';
-    }
-}
-
-// FUNGSI HAPUS PENGUMUMAN
-async function hapusPengumuman(id) {
-    if (!confirm("Hapus pengumuman ini? Warga tidak akan bisa melihatnya lagi.")) return;
-
-    try {
-        const { error } = await _supabase.from('pengumuman').delete().eq('id', id);
-        if (error) throw error;
-        
-        alert("Pengumuman berhasil dihapus!");
-        loadLogPengumuman(); // Refresh tabel
-    } catch (err) {
-        alert("Gagal menghapus: " + err.message);
-    }
-}
-
-// Panggil fungsi ini saat tab pengumuman dibuka
-// Update fungsi switchTab Bapak:
-// if(tab === 'pengumuman') loadLogPengumuman();
-
-
-        // FUNGSI UNTUK UPLOAD DOKUMENTASI
         async function postDokumentasi() {
             const title = document.getElementById('d-judul').value;
             const file = document.getElementById('d-foto').files[0];
-            if(!file || !title) return alert("Isi judul dan pilih foto!");
-
-            const btn = document.querySelector("button[onclick='postDokumentasi()']");
-            const originalText = btn.innerText;
-            btn.innerText = "MENGUPLOAD...";
-            btn.disabled = true;
-
-            try {
-                const fileName = `doc_${Date.now()}.jpg`;
-                const { data: uploadData, error: uploadError } = await _supabase.storage
-                    .from('media-sinergi')
-                    .upload(`kegiatan/${fileName}`, file);
-
-                if (uploadError) throw uploadError;
-
-                const { data: pUrl } = _supabase.storage
-                    .from('media-sinergi')
-                    .getPublicUrl(`kegiatan/${fileName}`);
-
-                // Ini adalah susunan kolom yang akhirnya berhasil menembus database kamu
-                const { error: dbError } = await _supabase
-                    .from('dokumentasi')
-                    .insert([{ 
-                        judul: title, 
-                        detail: title, 
-                        foto_urls: [pUrl.publicUrl] 
-                    }]);
-
-                if (dbError) throw dbError;
-
-                alert("Berhasil! Foto kegiatan sudah terbit di aplikasi warga.");
-                
-                // Reset form
-                document.getElementById('d-judul').value = "";
-                document.getElementById('d-foto').value = "";
-                
-            } catch (err) {
-                console.error(err);
-                alert("Gagal upload: " + err.message);
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
+            if(!file || !title) return alert("Isi data!");
+            const fileName = `doc_${Date.now()}.jpg`;
+            await _supabase.storage.from('media-sinergi').upload(`kegiatan/${fileName}`, file);
+            const { data: pUrl } = _supabase.storage.from('media-sinergi').getPublicUrl(`kegiatan/${fileName}`);
+            await _supabase.from('dokumentasi').insert([{ judul: title, detail: title, foto_urls: [pUrl.publicUrl] }]);
+            alert("Terbit!");
         }
-
-// --- FUNGSI AGENDA ---
-async function postAgenda() {
-    const data = {
-        tanggal: document.getElementById('ag-tanggal').value,
-        kegiatan: document.getElementById('ag-kegiatan').value,
-        jam: document.getElementById('ag-jam').value,
-        lokasi: document.getElementById('ag-lokasi').value
-    };
-
-    if(!data.tanggal || !data.kegiatan) return alert("Tanggal & Kegiatan wajib diisi!");
-
-    const res = await fetch(`${SHEETDB_URL}?sheet=agenda`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ data: [data] })
-    });
-
-    if(res.ok) {
-        alert("Agenda Berhasil Disimpan!");
-        loadAgendaAdmin();
-    }
-}
-
-async function loadAgendaAdmin() {
-    const res = await fetch(`${SHEETDB_URL}?sheet=agenda`);
-    const data = await res.json();
-    const container = document.getElementById('list-agenda-admin');
-    
-    container.innerHTML = data.reverse().map(a => `
-        <div class="p-4 flex justify-between items-center hover:bg-slate-50">
-            <div>
-                <p class="text-[10px] font-black text-slate-800">${a.kegiatan.toUpperCase()}</p>
-                <p class="text-[9px] text-slate-400">${a.tanggal} | ${a.jam}</p>
-            </div>
-            <button onclick="deleteData('agenda', 'tanggal', '${a.tanggal}')" class="text-rose-500 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-        </div>
-    `).join('');
-    lucide.createIcons();
-}
-
-// --- FUNGSI RUNNING TEXT ---
-// Catatan: Anda perlu membuat tab bernama 'settings' di Google Sheets dengan kolom 'key' dan 'value'
-async function updateRunningText() {
-    const text = document.getElementById('set-running-text').value;
-    const res = await fetch(`${SHEETDB_URL}/key/running_text?sheet=settings`, {
-        method: 'PATCH',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ data: { value: text } })
-    });
-    if(res.ok) alert("Teks Berjalan Berhasil Diupdate!");
-}
-
-// Tambahkan pemanggilan loadAgendaAdmin di dalam switchTab(tab) Bapak:
-// if(tab === 'agenda') loadAgendaAdmin();
-
-
 
         async function loadAbsensiData() {
             const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
             const data = await res.json();
-            const tbody = document.getElementById('table-absen-body');
-            
-            // Kita gunakan data.reverse() agar absen terbaru ada di atas
-            tbody.innerHTML = data.reverse().map(d => `
-                <tr class="border-t hover:bg-slate-50 transition-colors">
-                    <td class="p-4 font-bold uppercase text-slate-700">${d.nama_warga}</td>
-                    <td class="p-4 text-center font-bold">${d.rt}</td>
-                    <td class="p-4 uppercase text-slate-500 text-[9px]">${d.jabatan}</td>
-                    <td class="p-4 text-slate-400 text-[9px]">${d.waktu_absen}</td>
-                    <td class="p-4">
-                        <div class="flex gap-2">
-                            <img src="${d.photo_selfie_url}" 
-                                 onclick="viewImage('${d.photo_selfie_url}', '${d.nama_warga}')"
-                                 class="w-10 h-10 rounded-lg object-cover cursor-zoom-in border-2 border-emerald-100 hover:border-emerald-500 transition-all">
-                            
-                            <img src="${d.tanda_tangan_url}" 
-                                 onclick="viewImage('${d.tanda_tangan_url}', 'TTD - ${d.nama_warga}')"
-                                 class="w-10 h-10 rounded-lg object-contain bg-slate-50 cursor-zoom-in border hover:border-emerald-500 transition-all">
-                        </div>
-                    </td>
+            document.getElementById('table-absen-body').innerHTML = data.reverse().map(d => `
+                <tr class="border-t">
+                    <td class="p-4 font-bold">${d.nama_warga}</td>
+                    <td class="p-4">${d.rt}</td>
+                    <td class="p-4 text-[9px] text-slate-400">${d.waktu_absen}</td>
+                    <td class="p-4"><img src="${d.photo_selfie_url}" onclick="viewImage('${d.photo_selfie_url}', '${d.nama_warga}')" class="w-8 h-8 rounded border cursor-pointer"></td>
                 </tr>
             `).join('');
         }
 
-        // DOWNLOAD PDF FORMAT F4 (FOLIO)
-        async function downloadPDFMaster() {
-            const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
+        async function postAgenda() {
+            const data = { tanggal: document.getElementById('ag-tanggal').value, kegiatan: document.getElementById('ag-kegiatan').value, jam: document.getElementById('ag-jam').value, lokasi: document.getElementById('ag-lokasi').value };
+            await fetch(`${SHEETDB_URL}?sheet=agenda`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ data: [data] }) });
+            alert("Agenda Disimpan!"); loadAgendaAdmin();
+        }
+
+        async function loadAgendaAdmin() {
+            const res = await fetch(`${SHEETDB_URL}?sheet=agenda`);
             const data = await res.json();
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', [215.9, 330.2]); // Ukuran F4
-
-            // KOP SURAT
-            doc.setFontSize(16).setFont(undefined, 'bold').text("PENGURUS RUKUN WARGA 01", 107.9, 15, {align:'center'});
-            doc.setFontSize(10).setFont(undefined, 'normal').text("Kelurahan Kebon Manggis, Kec. Matraman, Jakarta Timur", 107.9, 21, {align:'center'});
-            doc.line(15, 25, 200, 25);
-            doc.line(15, 26, 200, 26);
-
-            doc.setFontSize(12).setFont(undefined, 'bold').text("LAPORAN DAFTAR HADIR KEGIATAN", 107.9, 35, {align:'center'});
-
-            // Menyiapkan Data Tabel (Kolom TTD dan SELFIE dikosongkan untuk gambar)
-            const tableRows = data.map((d, i) => [
-                i + 1, 
-                d.nama_warga, 
-                d.rt, 
-                d.jabatan, 
-                d.waktu_absen, 
-                '', // Kolom TTD (index 5)
-                ''  // Kolom SELFIE (index 6)
-            ]);
-
-            doc.autoTable({
-                startY: 45,
-                head: [['NO', 'NAMA WARGA', 'RT', 'JABATAN', 'WAKTU', 'TTD', 'SELFIE']],
-                body: tableRows,
-                theme: 'grid',
-                styles: { fontSize: 8, cellPadding: 4, valign: 'middle' },
-                headStyles: { fillColor: [5, 150, 105] },
-                columnStyles: { 
-                    5: { cellWidth: 25 }, // Lebar kolom TTD
-                    6: { cellWidth: 25 }  // Lebar kolom Selfie
-                },
-                // PROSES MEMASUKKAN GAMBAR KE PDF
-                didDrawCell: function(data) {
-                    const rowIndex = data.row.index;
-                    if (data.section === 'body' && data.row.index < tableRows.length) {
-                        const item = data.table.body[rowIndex].raw;
-                        const rowData = [...data.table.body[rowIndex].cells].map(c => c.text); // Helper
-                        
-                        // Urutan data asli dari API (Data terbalik karena reverse() di tabel UI, 
-                        // pastikan urutan array 'data' sesuai)
-                        const originalData = [...data].reverse()[rowIndex]; 
-
-                        // Gambar Tanda Tangan di Kolom 5
-                        if (data.column.index === 5 && originalData.tanda_tangan_url) {
-                            doc.addImage(originalData.tanda_tangan_url, 'PNG', data.cell.x + 2, data.cell.y + 2, 20, 10);
-                        }
-                        
-                        // Gambar Selfie di Kolom 6
-                        if (data.column.index === 6 && originalData.photo_selfie_url) {
-                            doc.addImage(originalData.photo_selfie_url, 'JPEG', data.cell.x + 2, data.cell.y + 2, 20, 15);
-                        }
-                    }
-                }
-            });
-
-            doc.save(`Laporan_Absensi_RW01_${Date.now()}.pdf`);
+            document.getElementById('list-agenda-admin').innerHTML = data.reverse().map(a => `
+                <div class="p-4 flex justify-between items-center">
+                    <div><p class="text-[10px] font-black">${a.kegiatan}</p><p class="text-[8px] text-slate-400">${a.tanggal}</p></div>
+                    <button onclick="hapusAgenda('${a.tanggal}')" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
         }
 
-        // Fungsi untuk memicu modal gambar besar
-        function viewImage(url, caption) {
-            const viewer = document.getElementById('image-viewer');
+        async function hapusAgenda(tgl) {
+            await fetch(`${SHEETDB_URL}/tanggal/${tgl}?sheet=agenda`, { method: 'DELETE' });
+            loadAgendaAdmin();
+        }
+
+        async function updateRunningText() {
+            const text = document.getElementById('set-running-text').value;
+            await fetch(`${SHEETDB_URL}/key/running_text?sheet=settings`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ data: { value: text } }) });
+            alert("Teks Updated!");
+        }
+
+        function viewImage(url, cap) {
             document.getElementById('full-image').src = url;
-            document.getElementById('image-caption').innerText = caption;
-            viewer.classList.remove('hidden');
-            viewer.classList.add('flex');
+            document.getElementById('image-caption').innerText = cap;
+            document.getElementById('image-viewer').classList.remove('hidden');
         }
-        
-        function filterUser(keyword) {
+
+        function filterUser(val) {
             const rows = document.querySelectorAll('#table-user-body tr');
-            rows.forEach(row => {
-                const nama = row.cells[0].innerText.toLowerCase();
-                row.style.display = nama.includes(keyword.toLowerCase()) ? "" : "none";
-            });
+            rows.forEach(r => { r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; });
         }
-        
-        function logoutAdmin() {
-    if(confirm("Apakah Anda yakin ingin keluar dari sistem admin?")) {
-        // Hapus data user dari storage
-        localStorage.removeItem('user');
-        
-        // Arahkan kembali ke halaman login utama (index.html)
-        window.location.href = 'index.html';
-    }
-}
 
-function logoutAdmin() {
-    if(confirm("Apakah Anda yakin ingin keluar dari sistem admin?")) {
-        // Hapus data user dari storage
-        localStorage.removeItem('user');
-        
-        // Arahkan kembali ke halaman login utama (index.html)
-        window.location.href = 'index.html';
-    }
-}
+        function logoutAdmin() { if(confirm("Keluar?")) { localStorage.clear(); window.location.href = 'index.html'; } }
 
-
-        window.onload = () => { 
-            lucide.createIcons(); 
+        window.onload = () => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user || user.jabatan !== 'Admin') { window.location.href = 'index.html'; }
+            lucide.createIcons();
+            if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
         };
-    
-    // Proteksi agar warga tidak bisa tembak URL admin.html langsung
-          const cekUser = JSON.parse(localStorage.getItem('user'));
-                if (!cekUser || cekUser.jabatan !== 'Admin') {
-                      alert("Akses Ditolak! Anda bukan Admin.");
-                      window.location.href = 'index.html';
-        }
-    
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('sw.js')
-                    .then(() => console.log("Admin PWA Ready"));
-    }    
-
     </script>
-    
-    <div id="image-viewer" class="fixed inset-0 bg-black/90 z-[200] hidden flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
-        <button class="absolute top-6 right-6 text-white text-4xl">&times;</button>
-        <img id="full-image" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white/10">
-        <p id="image-caption" class="text-white mt-4 font-black uppercase tracking-widest text-sm"></p>
-    </div>
-    
 </body>
 </html>
