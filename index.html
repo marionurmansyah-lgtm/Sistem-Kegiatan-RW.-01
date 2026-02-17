@@ -114,16 +114,27 @@
             <div class="running-text-content" id="running-text-val">Memuat informasi terbaru...</div>
         </div>
 
-        <main class="p-4 space-y-4">
+                <main class="p-4 space-y-4">
             <div class="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
                 <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="user" class="w-24 h-24"></i></div>
-                <p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Identitas Digital Warga</p>
-                <h2 id="kartu-nama" class="text-xl font-black uppercase mt-1">...</h2>
-                <div class="flex items-center gap-2 mt-2">
-                    <span id="kartu-jabatan" class="text-[10px] bg-white/20 px-3 py-1 rounded-full font-bold">...</span>
-                    <span id="kartu-rt" class="text-[10px] bg-amber-400 text-amber-900 px-3 py-1 rounded-full font-black">...</span>
+                
+                <div class="flex justify-between items-start relative z-10">
+                    <div>
+                        <p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Identitas Digital Warga</p>
+                        <h2 id="kartu-nama" class="text-xl font-black uppercase mt-1 leading-tight">...</h2>
+                    </div>
+                    <div class="text-right">
+                        <p id="live-clock" class="text-lg font-black leading-none">00:00:00</p>
+                        <p id="live-date" class="text-[7px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mt-4 relative z-10">
+                    <span id="kartu-jabatan" class="text-[9px] bg-white/20 px-3 py-1.5 rounded-full font-bold border border-white/10">...</span>
+                    <span id="kartu-rt" class="text-[9px] bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-black shadow-sm">...</span>
                 </div>
             </div>
+
 
             <div id="user-content-area" class="space-y-4 min-h-[50vh]"></div>
 
@@ -196,6 +207,45 @@
             t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 3000);
         }
 
+        
+function updateLiveTime() {
+    const now = new Date();
+    const optionsDate = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    
+    // Format Jam: 00:00:00
+    const timeStr = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    // Format Tanggal: Rabu, 18 Februari 2026
+    const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+
+    if(document.getElementById('live-clock')) document.getElementById('live-clock').innerText = timeStr;
+    if(document.getElementById('live-date')) document.getElementById('live-date').innerText = dateStr;
+}
+
+// Jalankan setiap detik
+setInterval(updateLiveTime, 1000);
+
+// Panggil di window.onload
+window.onload = () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if(user) {
+        if(user.jabatan === 'Admin') { window.location.href = 'admin.html'; }
+        else {
+            showPage('page-user');
+            document.getElementById('kartu-nama').innerText = user.nama;
+            document.getElementById('kartu-jabatan').innerText = user.jabatan;
+            document.getElementById('kartu-rt').innerText = user.rt;
+            
+            updateLiveTime(); // Jalankan waktu langsung
+            loadRunningText();
+            switchTabWarga('pengumuman');
+        }
+    }
+    lucide.createIcons();
+};
+
+
+        
+
         // LOGIKA SUB-JABATAN (DIJAGA SESUAI PERMINTAAN)
         function updateSubJabatan() {
             const kat = document.getElementById('reg-kategori').value;
@@ -254,18 +304,33 @@
                                 ${i.tipe === 'Kegiatan' ? `<button onclick="bukaAbsen('${i.judul}')" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-emerald-100 active:scale-95 transition-all">Isi Daftar Hadir Sekarang</button>` : ''}
                             </div>
                         </div>`).join('');
-                } else if(tab === 'dokumentasi') {
-                    const res = await fetch(`${SHEETDB_URL}?sheet=dokumentasi`);
-                    const data = await res.json();
-                    list.innerHTML = `<div class="grid grid-cols-2 gap-4">
-                        ${data.reverse().map(d => `
-                            <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-fade" onclick="viewImage('${d.photo_url}', '${d.judul}')">
-                                <img src="${d.photo_url}" class="w-full h-40 object-cover">
-                                <div class="p-3 text-center">
-                                    <p class="text-[9px] font-black uppercase truncate text-slate-700">${d.judul}</p>
-                                </div>
-                            </div>`).join('')}
-                    </div>`;
+                    
+                  } else if(tab === 'dokumentasi') {
+    const res = await fetch(`${SHEETDB_URL}?sheet=dokumentasi`);
+    const data = await res.json();
+    
+    if (!data || data.length === 0 || data.error) {
+        list.innerHTML = '<div class="text-center py-20"><p class="text-[10px] font-black text-slate-400 uppercase">Belum ada dokumentasi foto.</p></div>';
+    } else {
+        list.innerHTML = `<div class="grid grid-cols-2 gap-4">
+            ${data.reverse().map(d => {
+                // SINKRONISASI: Menggunakan 'foto_url' sesuai kolom di SheetDB Anda
+                const imgLink = d.foto_url || d.photo_url || d.foto; 
+                const judulKegiatan = d.judul || "Dokumentasi RW";
+                
+                return `
+                <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-fade" onclick="viewImage('${imgLink}', '${judulKegiatan}')">
+                    <img src="${imgLink}" class="w-full h-40 object-cover bg-slate-100" onerror="this.src='https://placehold.co/400x400?text=Gambar+Tidak+Ditemukan'">
+                    <div class="p-3">
+                        <p class="text-[9px] font-black uppercase truncate text-slate-700">${judulKegiatan}</p>
+                        <p class="text-[7px] text-slate-400 font-bold uppercase mt-1">${d.tanggal || ''}</p>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>`;
+    }
+
+
                 } else if(tab === 'agenda') {
                     const res = await fetch(`${SHEETDB_URL}?sheet=agenda`);
                     const data = await res.json();
@@ -342,6 +407,12 @@
                 localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
                 window.location.href = 'admin.html'; return;
             }
+
+
+            
+
+
+            
             notify("Memverifikasi Akun...", "bg-blue-600");
             try {
                 const res = await fetch(`${SHEETDB_URL}?sheet=users`);
