@@ -2,15 +2,15 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - Sinergi RW.01</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+<link rel="apple-touch-icon" href="https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png">
 
-<!-- Pre-built CSS (Production) -->
-<link rel="stylesheet" href="css/style.css">
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
 
 <!-- External Libraries -->
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,38 +19,26 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-* { -webkit-tap-highlight-color: transparent; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
-
 .sidebar-item { transition: all 0.3s ease; cursor: pointer; background: transparent; color: #64748b; position: relative; }
 .sidebar-item:hover { background: rgba(16, 185, 129, 0.1); color: #10b981; }
 .sidebar-item.active-tab { background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 800; }
 .sidebar-item.active-tab::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #10b981; }
-
 .tab-content { animation: fadeIn 0.3s ease-in-out; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
 .card-admin { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 .btn-admin { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); }
 .btn-admin:active { transform: scale(0.97); }
-.btn-danger { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-danger { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: white; font-weight: 800; text-transform: uppercase; }
 .btn-danger:active { transform: scale(0.97); }
 .input-admin { border: 2px solid #e2e8f0; background: #f8fafc; border-radius: 1rem; padding: 14px 16px; font-size: 14px; font-weight: 600; outline: none; transition: 0.2s; }
 .input-admin:focus { border-color: #059669; background: white; }
-
-/* Toast */
 #toast { transition: all 0.3s ease; }
-
-/* Image Viewer */
 #image-viewer { backdrop-filter: blur(5px); }
-
-/* Table */
 .table-admin th { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; }
 .table-admin td { font-size: 11px; }
 .table-admin tr:hover { background: #f8fafc; }
-
-/* Modal */
 .modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
 </style>
 </head>
@@ -71,7 +59,7 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
   <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-fade">
     <h3 class="font-black text-emerald-800 uppercase mb-6 text-center">Update Data Warga</h3>
     <div class="space-y-4">
-      <input type="hidden" id="edit-old-username">
+      <input type="hidden" id="edit-old-id">
       <input type="text" id="edit-nama" placeholder="Nama Lengkap" class="input-admin w-full">
       <div class="grid grid-cols-2 gap-4">
         <input type="text" id="edit-rt" placeholder="RT" class="input-admin w-full">
@@ -286,9 +274,9 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
 <script>
 // ============================================
-// CONFIG - FULL SUPABASE
+// CONFIG - FULL SUPABASE (SAMA DENGAN INDEX.HTML)
 // ============================================
-const SB_URL = "https://scvydobptkuvfthligiw.supabase.co";
+const SB_URL = "https://zhbingchfwxwvpojsyzg.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYmluZ2NoZnd4d3Zwb2pzeXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0Mjc2NTYsImV4cCI6MjA4NzAwMzY1Nn0.A_RsKD39SK6WaxbUx3PRsedfoSb5qTl5zM1y874rnnY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
@@ -366,7 +354,7 @@ async function postPengumuman() {
     
     if(uploadError) throw uploadError;
     
-    const {  dFoto } = _supabase.storage
+    const { data: dFoto } = _supabase.storage
       .from('media-sinergi')
       .getPublicUrl(`pengumuman/${fName}`);
     fotoUrl = dFoto.publicUrl;
@@ -515,7 +503,7 @@ async function downloadPDFMaster() {
   // Header
   doc.setFillColor(5, 150, 105);
   doc.rect(0, 0, 210, 35, 'F');
-  doc.addImage("https://scvydobptkuvfthligiw.supabase.co/storage/v1/object/public/Logo/1746898459176.png", 'PNG', 10, 5, 20, 20);
+  doc.addImage("https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png", 'PNG', 10, 5, 20, 20);
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16).setFont(undefined, 'bold').text("DAFTAR HADIR WARGA RW.01", 35, 15);
   doc.setFontSize(10).setFont(undefined, 'normal').text(filter ? `Kegiatan: ${filter}` : "Laporan Absensi Keseluruhan", 35, 22);
@@ -585,7 +573,7 @@ async function deleteUser(id) {
 }
 
 function openEditUser(id, username, nama, rt, jab, hp) {
-  document.getElementById('edit-old-username').value = id;
+  document.getElementById('edit-old-id').value = id;
   document.getElementById('edit-nama').value = nama;
   document.getElementById('edit-rt').value = rt;
   document.getElementById('edit-jabatan').value = jab;
@@ -598,7 +586,7 @@ function closeEditUserModal() {
 }
 
 async function updateUser() {
-  const id = document.getElementById('edit-old-username').value;
+  const id = document.getElementById('edit-old-id').value;
   const data = { 
     nama: document.getElementById('edit-nama').value, 
     rt: document.getElementById('edit-rt').value, 
@@ -643,7 +631,7 @@ async function postDokumentasi() {
     
     if(uploadError) throw uploadError;
     
-    const { data: pUrl } = _supabase.storage
+    const {  pUrl } = _supabase.storage
       .from('media-sinergi')
       .getPublicUrl(`kegiatan/${fileName}`);
     
@@ -651,7 +639,7 @@ async function postDokumentasi() {
       .from(TABLES.DOKUMENTASI)
       .insert({ 
         judul: title, 
-        photo_url: pUrl.publicUrl, 
+        foto_url: pUrl.publicUrl, 
         created_at: new Date().toISOString() 
       });
     
@@ -679,7 +667,7 @@ async function loadDokumentasi() {
 
   document.getElementById('list-dokumentasi').innerHTML = data.map(d => `
     <div class="card-admin overflow-hidden animate-fade">
-      <img src="${d.photo_url}" onclick="viewImage('${d.photo_url}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
+      <img src="${d.foto_url}" onclick="viewImage('${d.foto_url}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
       <div class="p-4">
         <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul}</p>
         <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
@@ -820,7 +808,7 @@ async function updateStatusSurat(id, status) {
 }
 
 // ============================================
-// SETTINGS
+// SETTINGS (RUNNING TEXT)
 // ============================================
 async function loadSettings() {
   const { data, error } = await _supabase
@@ -829,7 +817,7 @@ async function loadSettings() {
     .eq('key', 'running_text')
     .single();
   
-  if(data) {
+  if(data && !error) {
     document.getElementById('set-running-text').value = data.value;
   }
   lucide.createIcons();
@@ -838,10 +826,26 @@ async function loadSettings() {
 async function updateRunningText() {
   const text = document.getElementById('set-running-text').value;
   
-  const { error } = await _supabase
+  // Check if running_text exists, if not insert, else update
+  const {  existing } = await _supabase
     .from(TABLES.SETTINGS)
-    .update({ value: text, updated_at: new Date().toISOString() })
-    .eq('key', 'running_text');
+    .select('*')
+    .eq('key', 'running_text')
+    .single();
+  
+  let error;
+  if(existing) {
+    const { error: updateError } = await _supabase
+      .from(TABLES.SETTINGS)
+      .update({ value: text, updated_at: new Date().toISOString() })
+      .eq('key', 'running_text');
+    error = updateError;
+  } else {
+    const { error: insertError } = await _supabase
+      .from(TABLES.SETTINGS)
+      .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
+    error = insertError;
+  }
   
   if(error) {
     alert("Gagal update: " + error.message);
