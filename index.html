@@ -14,6 +14,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -452,36 +455,101 @@ window.onload = () => {
                                 <button type="button" onclick="kirimPengajuanSurat()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Kirim Permohonan</button>
                             </form>
                         </div>`;
-                } else if(tab === 'riwayat') {
+                
+            } else if(tab === 'riwayat') {
                     const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
-                    const allData = await res.json();
-                    const myAbsen = allData.filter(a => a.nama_warga === user.nama);
+                    const data = await res.json();
+                    const myAbsen = data.filter(a => a.nama_warga === user.nama);
+                    
                     list.innerHTML = `
-                        <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 text-center">
-                            <div id="qrcode" class="flex justify-center mb-3"></div>
-                            <p class="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Citizen ID: ${user.username}</p>
-                            <p class="text-[7px] text-slate-300 uppercase mt-1">Gunakan QR ini untuk verifikasi petugas</p>
+                        <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
+                            <div id="qrcode"></div>
+                            <p class="text-[9px] font-black text-emerald-600 uppercase mt-3 tracking-widest">${user.username}</p>
                         </div>
-                        <h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="check-circle" class="w-3 h-3 text-emerald-500"></i> Riwayat Kehadiran Anda</h5>
-                        <div class="space-y-3">
-                        ${myAbsen.reverse().map(r => `
-                            <div class="bg-white p-4 rounded-3xl border border-slate-50 shadow-sm flex items-center gap-4">
-                                <img src="${r.photo_selfie_url}" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Selfie')" class="w-14 h-14 object-cover rounded-2xl border-2 border-emerald-50 cursor-pointer">
-                                <div class="flex-1">
-                                    <p class="font-black text-[10px] uppercase text-slate-800 leading-tight">${r.kegiatan_id}</p>
-                                    <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${r.waktu_absen}</p>
-                                </div>
-                                <img src="${r.tanda_tangan_url}" onclick="viewImage('${r.tanda_tangan_url}', 'Bukti TTD')" class="w-10 h-10 object-contain bg-slate-50 rounded-lg p-1 cursor-pointer">
-                            </div>`).join('')}
-                        </div>`;
-                    new QRCode(document.getElementById("qrcode"), { text: user.username, width: 120, height: 120, colorDark : "#065f46" });
-                }
-            } catch (e) { 
-                list.innerHTML = '<div class="text-center py-20 text-rose-500 font-bold uppercase text-[10px]">Gagal memuat data. Periksa internet Anda.</div>'; 
-            }
-            lucide.createIcons();
-        }
 
+                        ${(user.jabatan.includes('Ketua') || user.jabatan.includes('Sekretaris') || user.jabatan === 'Admin') ? `
+                        <div class="bg-amber-50 p-4 rounded-3xl border border-amber-100 mb-6">
+                            <p class="text-[9px] font-black text-amber-700 uppercase mb-3">Menu Sekretariat</p>
+                            <button onclick="generateLaporanPDF()" class="w-full bg-amber-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-100">
+                                <i data-lucide="file-down" class="w-4 h-4"></i> Cetak Daftar Hadir Semua Warga
+                            </button>
+                        </div>
+                        ` : ''}
+
+                        <h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> Riwayat Absen Anda</h5>
+                        <div class="space-y-3">
+                            ${myAbsen.reverse().map(r => `
+                                <div class="bg-white p-4 rounded-3xl flex items-center gap-4 border border-slate-50">
+                                    <img src="${r.photo_selfie_url}" class="w-12 h-12 object-cover rounded-xl" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Hadir')">
+                                    <div class="flex-1">
+                                        <p class="font-black text-[10px] uppercase text-slate-800">${r.kegiatan_id}</p>
+                                        <p class="text-[8px] text-slate-400 uppercase mt-1 font-bold">${r.waktu_absen}</p>
+                                    </div>
+                                    <img src="${r.tanda_tangan_url}" class="w-10 h-10 object-contain opacity-50">
+                                </div>
+                            `).join('')}
+                        </div>`;
+                    
+                    QRCode(document.getElementById("qrcode"), { 
+                        text: user.username, 
+                        width: 120, 
+                        height: 120 
+                    });                
+                    
+                lucide.createIcons();
+
+                        async function generateLaporanPDF() {
+            notify("Menyiapkan Dokumen...", "bg-blue-600");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const res = await fetch(`${SHEETDB_URL}?sheet=absen`);
+            const data = await res.json();
+
+            // --- HEADER KOP SURAT ---
+            doc.setFontSize(14); doc.setFont("helvetica", "bold");
+            doc.text("PENGURUS RUKUN WARGA 01", 105, 20, { align: "center" });
+            doc.setFontSize(10); doc.setFont("helvetica", "normal");
+            doc.text("KELURAHAN KEBON MANGGIS - KECAMATAN MATRAMAN", 105, 25, { align: "center" });
+            doc.setFontSize(8); doc.text("Sekretariat: Jl. Kebon Manggis I, Jakarta Timur", 105, 29, { align: "center" });
+            doc.line(20, 32, 190, 32); doc.line(20, 33, 190, 33); // Garis Kop
+
+            // --- JUDUL LAPORAN ---
+            doc.setFontSize(11); doc.setFont("helvetica", "bold");
+            doc.text("DAFTAR HADIR KEGIATAN WARGA", 105, 45, { align: "center" });
+
+            // --- TABEL KONVENSIONAL ---
+            const tableBody = data.map((row, index) => [
+                index + 1,
+                row.nama_warga,
+                row.rt,
+                row.jabatan,
+                row.kegiatan_id,
+                row.waktu_absen.split(',')[0] // Ambil tanggalnya saja
+            ]);
+
+            doc.autoTable({
+                startY: 52,
+                head: [['NO', 'NAMA WARGA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
+                body: tableBody,
+                theme: 'grid',
+                headStyles: { fillColor: [5, 150, 105], halign: 'center' },
+                styles: { fontSize: 8, cellPadding: 3 },
+                columnStyles: { 0: { halign: 'center' }, 2: { halign: 'center' } }
+            });
+
+            // --- TANDA TANGAN SEKRETARIS ---
+            const finalY = doc.lastAutoTable.finalY + 15;
+            doc.setFontSize(9);
+            doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID'), 150, finalY);
+            doc.text("Sekretaris RW.01,", 150, finalY + 5);
+            doc.text("( ____________________ )", 150, finalY + 25);
+
+            doc.save("Laporan_Absensi_RW01.pdf");
+            notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+                        }
+                
+                
         // AUTH LOGIC (DIPERBAIKI)
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
@@ -491,11 +559,6 @@ window.onload = () => {
                 localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
                 window.location.href = 'admin.html'; return;
             }
-
-
-            
-
-
             
             notify("Memverifikasi Akun...", "bg-blue-600");
             try {
