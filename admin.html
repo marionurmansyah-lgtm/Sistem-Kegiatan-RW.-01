@@ -615,14 +615,12 @@ function filterUser(val) {
   });
 }
 // ============================================
-// DOKUMENTASI (FIXED)
-// ============================================
-// ============================================
-// DOKUMENTASI (FIXED)
+// DOKUMENTASI (FULLY FIXED)
 // ============================================
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
   const file = document.getElementById('d-foto').files[0];
+  
   if(!file || !title) return alert("Pilih Foto & Nama Kegiatan!");
   
   try {
@@ -635,17 +633,17 @@ async function postDokumentasi() {
     
     if(uploadError) throw uploadError;
     
-    // 2. Get Public URL (FIXED)
-    const {  urlData } = _supabase.storage
+    // 2. Get Public URL (FIXED - Gunakan 'data' bukan 'urlData')
+    const {  data } = _supabase.storage
       .from('media-sinergi')
       .getPublicUrl(`kegiatan/${fileName}`);
     
     // 3. Insert ke Database
     const { error } = await _supabase
-      .from(TABLES.DOKUMENTASI)
+      .from('dokumentasi')
       .insert({ 
         judul: title, 
-        foto_url: urlData.publicUrl,
+        foto_url: data.publicUrl,  // ✅ FIXED
         created_at: new Date().toISOString() 
       });
     
@@ -655,6 +653,7 @@ async function postDokumentasi() {
     document.getElementById('d-judul').value = "";
     document.getElementById('d-foto').value = "";
     loadDokumentasi();
+    
   } catch (err) {
     alert("Error: " + err.message);
   }
@@ -662,7 +661,7 @@ async function postDokumentasi() {
 
 async function loadDokumentasi() {
   const { data, error } = await _supabase
-    .from(TABLES.DOKUMENTASI)
+    .from('dokumentasi')
     .select('*')
     .order('created_at', { ascending: false });
   
@@ -682,6 +681,21 @@ async function loadDokumentasi() {
     </div>
   `).join('');
   lucide.createIcons();
+}
+
+async function hapusDokumentasi(id) {
+  if(!confirm("Hapus dokumentasi ini?")) return;
+  const { error } = await _supabase
+    .from('dokumentasi')
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("Dokumentasi dihapus!");
+    loadDokumentasi();
+  }
 }
 async function hapusDokumentasi(id) {
   if(!confirm("Hapus dokumentasi ini?")) return;
