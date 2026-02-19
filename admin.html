@@ -618,6 +618,9 @@ function filterUser(val) {
 // ============================================
 // DOKUMENTASI
 // ============================================
+// ============================================
+// DOKUMENTASI (FIXED)
+// ============================================
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
   const file = document.getElementById('d-foto').files[0];
@@ -625,21 +628,25 @@ async function postDokumentasi() {
   
   try {
     const fileName = `gallery_${Date.now()}.jpg`;
+    
+    // 1. Upload ke Supabase Storage
     const { error: uploadError } = await _supabase.storage
       .from('media-sinergi')
       .upload(`kegiatan/${fileName}`, file);
     
     if(uploadError) throw uploadError;
     
-    const {  pUrl } = _supabase.storage
+    // 2. Get Public URL (FIXED)
+    const {  urlData } = _supabase.storage
       .from('media-sinergi')
       .getPublicUrl(`kegiatan/${fileName}`);
     
+    // 3. Insert ke Database
     const { error } = await _supabase
       .from(TABLES.DOKUMENTASI)
       .insert({ 
         judul: title, 
-        foto_url: pUrl.publicUrl, 
+        foto_url: urlData.publicUrl,
         created_at: new Date().toISOString() 
       });
     
