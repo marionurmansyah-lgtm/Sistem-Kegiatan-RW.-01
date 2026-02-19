@@ -418,10 +418,17 @@ async function loadPengumuman() {
   const tbody = document.getElementById('log-pengumuman-body');
   tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
   
-  const { data, error } = await _supabase
-    .from(TABLES.PENGUMUMAN)
-    .select('*')
-    .order('created_at', { ascending: false });
+	const { error } = await _supabase
+  .from(TABLES.PENGUMUMAN)
+  .insert({
+    judul: vJudul,
+    tipe: vTipe,
+    detail: vDetail,
+    file_url: fotoUrl,
+    pdf_url: pdfUrl,
+    created_by: JSON.parse(localStorage.getItem('user'))?.id || null, // ✅ Tambahkan ini
+    created_at: new Date().toISOString()
+  });
   
   if(error) {
     console.error('Error loadPengumuman:', error);
@@ -729,9 +736,14 @@ async function postDokumentasi() {
     const fileName = `gallery_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
     
     // 1. Upload ke Supabase Storage
-    const { error: uploadError } = await _supabase.storage
-      .from(STORAGE_BUCKET)
-      .upload(`kegiatan/${fileName}`, file, { upsert: false });
+    // Sudah benar di kode sebelumnya, tapi pastikan:
+const { error } = await _supabase
+  .from(TABLES.DOKUMENTASI)
+  .insert({ 
+    judul: title, 
+    foto_urls: [publicUrl], // ✅ Kirim sebagai array, cocok dengan text[]
+    created_at: new Date().toISOString() 
+  });
     
     if(uploadError) throw uploadError;
     
@@ -780,7 +792,10 @@ async function loadDokumentasi() {
   }
 
   container.innerHTML = data.map(d => {
-    const displayUrl = d.foto_urls?.[0] || '';
+    // Pastikan mengambil URL pertama dari array text[]
+	const displayUrl = Array.isArray(d.foto_urls) && d.foto_urls.length > 0 
+  ? d.foto_urls[0] 
+  : (typeof d.foto_urls === 'string' ? d.foto_urls : '');
     return `
       <div class="card-admin overflow-hidden animate-fade">
         <img src="${displayUrl}" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'" onclick="viewImage('${displayUrl}', '${d.judul?.replace(/'/g, "\\'") || ''}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
@@ -1007,28 +1022,17 @@ async function updateRunningText() {
   }
   
   try {
-    // Check if running_text exists
-    const {  existing } = await _supabase
+    // Karena primary key settings adalah 'key', kita gunakan upsert
+    const { error } = await _supabase
       .from(TABLES.SETTINGS)
-      .select('id')
-      .eq('key', 'running_text')
-      .maybeSingle();
-    
-    let error;
-    if(existing) {
-      // Update
-      const { error: updateError } = await _supabase
-        .from(TABLES.SETTINGS)
-        .update({ value: text, updated_at: new Date().toISOString() })
-        .eq('key', 'running_text');
-      error = updateError;
-    } else {
-      // Insert
-      const { error: insertError } = await _supabase
-        .from(TABLES.SETTINGS)
-        .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
-      error = insertError;
-    }
+      .upsert(
+        { 
+          key: 'running_text',  // Primary key
+          value: text, 
+          updated_at: new Date().toISOString() 
+        },
+        { onConflict: 'key' }   // Jika key sudah ada, update saja
+      );
     
     if(error) throw error;
     
