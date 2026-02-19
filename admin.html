@@ -620,7 +620,6 @@ function filterUser(val) {
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
   const file = document.getElementById('d-foto').files[0];
-  
   if(!file || !title) return alert("Pilih Foto & Nama Kegiatan!");
   
   try {
@@ -633,17 +632,17 @@ async function postDokumentasi() {
     
     if(uploadError) throw uploadError;
     
-    // 2. Get Public URL (FIXED - Gunakan 'data' bukan 'urlData')
-    const {  data } = _supabase.storage
+    // 2. Ambil Public URL
+    const { data: urlData } = _supabase.storage
       .from('media-sinergi')
       .getPublicUrl(`kegiatan/${fileName}`);
     
-    // 3. Insert ke Database
+    // 3. Insert ke Database (Perhatikan 'foto_urls' dan '[urlData.publicUrl]')
     const { error } = await _supabase
-      .from('dokumentasi')
+      .from(TABLES.DOKUMENTASI)
       .insert({ 
         judul: title, 
-        foto_url: data.publicUrl,  // ✅ FIXED
+        foto_urls: [urlData.publicUrl], // Kirim sebagai array karena tipe datanya text[]
         created_at: new Date().toISOString() 
       });
     
@@ -653,7 +652,6 @@ async function postDokumentasi() {
     document.getElementById('d-judul').value = "";
     document.getElementById('d-foto').value = "";
     loadDokumentasi();
-    
   } catch (err) {
     alert("Error: " + err.message);
   }
@@ -661,7 +659,7 @@ async function postDokumentasi() {
 
 async function loadDokumentasi() {
   const { data, error } = await _supabase
-    .from('dokumentasi')
+    .from(TABLES.DOKUMENTASI)
     .select('*')
     .order('created_at', { ascending: false });
   
@@ -670,18 +668,24 @@ async function loadDokumentasi() {
     return;
   }
 
-  document.getElementById('list-dokumentasi').innerHTML = data.map(d => `
-    <div class="card-admin overflow-hidden animate-fade">
-      <img src="${d.foto_url}" onclick="viewImage('${d.foto_url}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
-      <div class="p-4">
-        <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul}</p>
-        <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
-        <button onclick="hapusDokumentasi('${d.id}')" class="mt-3 w-full text-rose-500 bg-rose-50 py-2 rounded-lg text-[9px] font-bold uppercase hover:bg-rose-100 transition">Hapus</button>
+  document.getElementById('list-dokumentasi').innerHTML = data.map(d => {
+    // Ambil URL pertama dari array foto_urls
+    const displayUrl = d.foto_urls && d.foto_urls.length > 0 ? d.foto_urls[0] : '';
+    
+    return `
+      <div class="card-admin overflow-hidden animate-fade">
+        <img src="${displayUrl}" onclick="viewImage('${displayUrl}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
+        <div class="p-4">
+          <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul}</p>
+          <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
+          <button onclick="hapusDokumentasi('${d.id}')" class="mt-3 w-full text-rose-500 bg-rose-50 py-2 rounded-lg text-[9px] font-bold uppercase hover:bg-rose-100 transition">Hapus</button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   lucide.createIcons();
 }
+
 
 async function hapusDokumentasi(id) {
   if(!confirm("Hapus dokumentasi ini?")) return;
