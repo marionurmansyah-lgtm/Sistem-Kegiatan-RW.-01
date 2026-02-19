@@ -614,9 +614,8 @@ function filterUser(val) {
     r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; 
   });
 }
-
 // ============================================
-// DOKUMENTASI
+// DOKUMENTASI (FIXED)
 // ============================================
 // ============================================
 // DOKUMENTASI (FIXED)
@@ -684,7 +683,6 @@ async function loadDokumentasi() {
   `).join('');
   lucide.createIcons();
 }
-
 async function hapusDokumentasi(id) {
   if(!confirm("Hapus dokumentasi ini?")) return;
   const { error } = await _supabase
