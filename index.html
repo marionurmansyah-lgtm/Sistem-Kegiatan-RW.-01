@@ -215,6 +215,7 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
+const ADMIN_WA = "628812558415"; // Ganti dengan nomor WA Admin (Tanpa +, spasi, atau strip)
 
 // Table names
 const TABLES = {
@@ -732,17 +733,20 @@ document.getElementById('form-submit-absen').onsubmit = async (e) => {
 async function kirimPengajuanSurat() {
   const user = JSON.parse(localStorage.getItem('user'));
   const jenis = document.getElementById('jenis-surat').value;
+  const keterangan = document.getElementById('ket-surat').value || '-';
   
   if(!jenis) return alert("Pilih jenis surat!");
   
   notify("Mengirim Permohonan...", "bg-blue-600");
+  
   try {
+    // 1. Simpan ke Database
     const payload = {
       nama: user.nama, 
       rt: user.rt, 
       hp: user.nomor_hp || "-",
       jenis_surat: jenis, 
-      keterangan: document.getElementById('ket-surat').value || "-",
+      keterangan: keterangan,
       status: "Menunggu", 
       waktu_pengajuan: new Date().toISOString()
     };
@@ -753,8 +757,22 @@ async function kirimPengajuanSurat() {
     
     if(error) throw error;
     
+    // 2. Persiapkan pesan WhatsApp
+    const pesan = `Assalamualaikum Admin RW.01, saya *${user.nama}* (${user.rt}) ingin mengajukan surat berikut:%0A%0A` +
+                  `*Jenis Surat:* ${jenis}%0A` +
+                  `*Keterangan:* ${keterangan}%0A%0A` +
+                  `Mohon informasinya. Terima kasih.`;
+    
+    // 3. Tampilkan konfirmasi
     notify("Pengajuan Terkirim ✓");
+    
+    // 4. Tanyakan apakah ingin langsung chat WA
+    if(confirm("Pengajuan berhasil dicatat.\n\nApakah Anda ingin mengirim notifikasi ke Admin via WhatsApp sekarang?")) {
+      window.open(`https://wa.me/${ADMIN_WA}?text=${pesan}`, '_blank');
+    }
+    
     switchTabWarga('pengumuman');
+    
   } catch (err) { 
     notify("Gagal Mengirim!", "bg-rose-600"); 
   }
