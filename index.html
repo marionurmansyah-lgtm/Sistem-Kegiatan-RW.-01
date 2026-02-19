@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png">
+<link rel="apple-touch-icon" href="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -63,7 +63,7 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 <!-- PAGE: LOGIN -->
 <div id="page-login" class="page flex items-center justify-center p-4 animate-fade">
   <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100">
-    <img class="w-20 h-20 mx-auto mb-4" src="https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png">
+    <img class="w-20 h-20 mx-auto mb-4" src="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
     <h1 class="text-xl font-black text-emerald-700 uppercase leading-none">Sinergi RW.01</h1>
     <p class="text-[9px] font-bold text-slate-400 mt-2 tracking-[0.3em]">KEBON MANGGIS</p>
     
@@ -130,7 +130,7 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 <div id="page-user" class="page hidden animate-fade">
   <header class="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50">
     <div class="flex items-center gap-2">
-      <img class="w-12 h-12" src="https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png">
+      <img class="w-12 h-12" src="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
       <span class="font-black text-emerald-700 text-xl tracking-tighter">SINERGI 01</span>
     </div>
     <button onclick="logout()" class="text-rose-600 font-black text-[10px] uppercase bg-rose-50 px-3 py-2 rounded-lg active:bg-rose-100">Keluar</button>
@@ -146,12 +146,12 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
       <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="user" class="w-24 h-24"></i></div>
       <div class="flex justify-between items-start relative z-10">
         <div>
-          <p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Identitas Digital Warga</p>
+          <p class="text-[10px] font-black opacity-80 uppercase tracking-widest">Identitas Digital Warga</p>
           <h2 id="kartu-nama" class="text-xl font-black uppercase mt-1 leading-tight">...</h2>
         </div>
         <div class="text-right">
           <p id="live-clock" class="text-lg font-black leading-none">00:00:00</p>
-          <p id="live-date" class="text-[7px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
+          <p id="live-date" class="text-[12px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
         </div>
       </div>
       <div class="flex items-center gap-2 mt-4 relative z-10">
@@ -212,8 +212,8 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 // ============================================
 // CONFIG - GANTI DENGAN CREDENTIALS ANDA
 // ============================================
-const SB_URL = "https://zhbingchfwxwvpojsyzg.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYmluZ2NoZnd4d3Zwb2pzeXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0Mjc2NTYsImV4cCI6MjA4NzAwMzY1Nn0.A_RsKD39SK6WaxbUx3PRsedfoSb5qTl5zM1y874rnnY";
+const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 // Table names
@@ -474,7 +474,7 @@ async function switchTabWarga(tab) {
         </form>
       </div>`;
       
-    } else if(tab === 'riwayat') {
+       } else if(tab === 'riwayat') {
       const { data, error } = await _supabase
         .from(TABLES.ABSENSI)
         .select('*')
@@ -508,7 +508,12 @@ async function switchTabWarga(tab) {
         </div>`).join('') : '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada riwayat absensi</p>'}
       </div>`;
       
-      QRCode(document.getElementById("qrcode"), { text: user.username, width: 120, height: 120 });
+      // PERBAIKAN: Tambahkan 'new' di sini
+      new QRCode(document.getElementById("qrcode"), { 
+        text: user.username, 
+        width: 120, 
+        height: 120 
+      });
     }
     
     lucide.createIcons();
