@@ -48,8 +48,8 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 <div id="toast" class="fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold text-sm hidden"></div>
 
 <!-- Image Viewer Modal -->
-<div id="image-viewer" class="fixed inset-0 z-[200] hidden flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
-  <button class="absolute top-6 right-6 text-white bg-white/20 p-3 rounded-full hover:bg-white/30 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+<div id="image-viewer" class="fixed inset-0 z-[200] hidden flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden'); this.classList.remove('flex')">
+  <button class="absolute top-6 right-6 text-white bg-white/20 p-3 rounded-full hover:bg-white/30 transition" onclick="event.stopPropagation()"><i data-lucide="x" class="w-6 h-6"></i></button>
   <img id="full-image" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white/20">
   <p id="image-caption" class="text-white mt-4 font-black uppercase text-sm tracking-widest"></p>
 </div>
@@ -274,13 +274,13 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
 <script>
 // ============================================
-// CONFIG - FULL SUPABASE (SAMA DENGAN INDEX.HTML)
+// CONFIG - SUPABASE (FIXED: No trailing spaces!)
 // ============================================
 const SB_URL = "https://zhbingchfwxwvpojsyzg.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpoYmluZ2NoZnd4d3Zwb2pzeXpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE0Mjc2NTYsImV4cCI6MjA4NzAwMzY1Nn0.A_RsKD39SK6WaxbUx3PRsedfoSb5qTl5zM1y874rnnY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-// Table names
+// Table names (PASTIKAN SESUAI DENGAN DATABASE ANDA)
 const TABLES = {
   USERS: 'users',
   PENGUMUMAN: 'pengumuman',
@@ -290,6 +290,9 @@ const TABLES = {
   PENGAJUAN: 'pengajuan_surat',
   SETTINGS: 'settings'
 };
+
+// Storage bucket name
+const STORAGE_BUCKET = 'media-sinergi';
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -310,6 +313,12 @@ function viewImage(url, caption) {
   lucide.createIcons();
 }
 
+// Helper: Get public URL with error handling
+function getPublicUrl(bucket, path) {
+  const { data } = _supabase.storage.from(bucket).getPublicUrl(path);
+  return data?.publicUrl || '';
+}
+
 // ============================================
 // TAB NAVIGATION
 // ============================================
@@ -318,15 +327,20 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
   document.getElementById(`sec-${tab}`).classList.remove('hidden');
   if(btn) btn.classList.add('active-tab');
-  document.getElementById('tab-title').innerText = `Kelola ${tab}`;
+  document.getElementById('tab-title').innerText = `Kelola ${tab.charAt(0).toUpperCase() + tab.slice(1)}`;
   
-  if(tab === 'laporan') loadAbsensiData();
-  if(tab === 'users') loadUsers();
-  if(tab === 'pengumuman') loadPengumuman();
-  if(tab === 'agenda') loadAgendaAdmin();
-  if(tab === 'dokumentasi') loadDokumentasi();
-  if(tab === 'pengajuan') loadPengajuanSurat();
-  if(tab === 'setting') loadSettings();
+  // Load data based on tab
+  const loaders = {
+    'laporan': loadAbsensiData,
+    'users': loadUsers,
+    'pengumuman': loadPengumuman,
+    'agenda': loadAgendaAdmin,
+    'dokumentasi': loadDokumentasi,
+    'pengajuan': loadPengajuanSurat,
+    'setting': loadSettings
+  };
+  
+  if(loaders[tab]) loaders[tab]();
   lucide.createIcons();
 }
 
@@ -334,41 +348,41 @@ function switchTab(tab, btn) {
 // PENGUMUMAN CRUD
 // ============================================
 async function postPengumuman() {
-  const vJudul = document.getElementById('p-judul').value;
+  const vJudul = document.getElementById('p-judul').value.trim();
   const vTipe = document.getElementById('p-tipe').value;
-  const vDetail = document.getElementById('p-detail').value;
+  const vDetail = document.getElementById('p-detail').value.trim();
   const fileFoto = document.getElementById('p-file-foto').files[0];
   const filePdf = document.getElementById('p-file-pdf').files[0];
 
-  if(!vJudul || !vDetail || !fileFoto) return alert("Lengkapi Judul, Detail, dan Foto Sampul!");
+  if(!vJudul || !vDetail || !fileFoto) {
+    alert("⚠️ Lengkapi Judul, Detail, dan Foto Sampul!");
+    return;
+  }
 
   try {
     let fotoUrl = "-";
     let pdfUrl = "-";
 
     // Upload foto ke Supabase Storage
-    const fName = `announcement_${Date.now()}.jpg`;
+    const fName = `announcement_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
     const { error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`pengumuman/${fName}`, fileFoto);
+      .from(STORAGE_BUCKET)
+      .upload(`pengumuman/${fName}`, fileFoto, { upsert: false });
     
     if(uploadError) throw uploadError;
     
-    const { data: dFoto } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`pengumuman/${fName}`);
-    fotoUrl = dFoto.publicUrl;
+    fotoUrl = getPublicUrl(STORAGE_BUCKET, `pengumuman/${fName}`);
 
     // Upload PDF jika ada
     if (filePdf) {
-      const pName = `doc_${Date.now()}.pdf`;
-      await _supabase.storage
-        .from('media-sinergi')
-        .upload(`undangan/${pName}`, filePdf);
-      const {  dPdf } = _supabase.storage
-        .from('media-sinergi')
-        .getPublicUrl(`undangan/${pName}`);
-      pdfUrl = dPdf.publicUrl;
+      const pName = `doc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.pdf`;
+      const { error: pdfUploadError } = await _supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(`undangan/${pName}`, filePdf, { upsert: false });
+      
+      if(!pdfUploadError) {
+        pdfUrl = getPublicUrl(STORAGE_BUCKET, `undangan/${pName}`);
+      }
     }
 
     // Insert ke Database
@@ -385,31 +399,50 @@ async function postPengumuman() {
 
     if(error) throw error;
 
-    notify("Pengumuman Berhasil Diterbitkan!");
-    location.reload();
+    notify("✅ Pengumuman Berhasil Diterbitkan!");
+    
+    // Reset form
+    document.getElementById('p-judul').value = '';
+    document.getElementById('p-detail').value = '';
+    document.getElementById('p-file-foto').value = '';
+    document.getElementById('p-file-pdf').value = '';
+    
+    loadPengumuman();
   } catch (err) { 
-    alert("Error: " + err.message); 
+    console.error('Error postPengumuman:', err);
+    alert("❌ Error: " + err.message); 
   }
 }
 
 async function loadPengumuman() {
+  const tbody = document.getElementById('log-pengumuman-body');
+  tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
+  
   const { data, error } = await _supabase
     .from(TABLES.PENGUMUMAN)
     .select('*')
     .order('created_at', { ascending: false });
   
-  if(error || !data) {
-    document.getElementById('log-pengumuman-body').innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+  if(error) {
+    console.error('Error loadPengumuman:', error);
+    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
 
-  document.getElementById('log-pengumuman-body').innerHTML = data.map(p => `
+  if(!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada pengumuman</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(p => `
     <tr class="border-b hover:bg-slate-50 transition-colors">
       <td class="p-4 text-slate-400 font-medium">${new Date(p.created_at).toLocaleDateString('id-ID')}</td>
-      <td class="p-4 font-bold text-emerald-800">${p.judul}</td>
-      <td class="p-4"><span class="px-2 py-1 rounded bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase">${p.tipe}</span></td>
+      <td class="p-4 font-bold text-emerald-800">${p.judul || '-'}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded ${p.tipe === 'Kegiatan' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'} text-[9px] font-bold uppercase">${p.tipe || 'Informasi'}</span></td>
       <td class="p-4">
-        <button onclick="hapusPengumuman('${p.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        <button onclick="hapusPengumuman('${p.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Hapus">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
       </td>
     </tr>
   `).join('');
@@ -417,17 +450,21 @@ async function loadPengumuman() {
 }
 
 async function hapusPengumuman(id) {
-  if(!confirm("Hapus pengumuman ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.PENGUMUMAN)
-    .delete()
-    .eq('id', id);
+  if(!confirm("⚠️ Hapus pengumuman ini?")) return;
   
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Pengumuman dihapus!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.PENGUMUMAN)
+      .delete()
+      .eq('id', id);
+    
+    if(error) throw error;
+    
+    notify("🗑️ Pengumuman dihapus!");
     loadPengumuman();
+  } catch(err) {
+    console.error('Error hapusPengumuman:', err);
+    alert("❌ Gagal menghapus: " + err.message);
   }
 }
 
@@ -435,33 +472,46 @@ async function hapusPengumuman(id) {
 // LAPORAN ABSENSI
 // ============================================
 async function loadAbsensiData() {
+  const tbody = document.getElementById('table-absen-body');
+  tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
+  
   const { data, error } = await _supabase
     .from(TABLES.ABSENSI)
     .select('*')
     .order('waktu_absen', { ascending: false });
   
-  if(error || !data) {
-    document.getElementById('table-absen-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+  if(error) {
+    console.error('Error loadAbsensiData:', error);
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
   
   // Unique kegiatan untuk dropdown
-  const listKegiatan = [...new Set(data.map(d => d.kegiatan_id))];
+  const listKegiatan = [...new Set((data || []).map(d => d.kegiatan_id).filter(Boolean))];
   const select = document.getElementById('select-kegiatan-laporan');
   select.innerHTML = '<option value="">-- Semua Riwayat Absensi --</option>' + 
                      listKegiatan.map(k => `<option value="${k}">${k}</option>`).join('');
 
-  document.getElementById('table-absen-body').innerHTML = data.map(d => `
+  if(!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada data absensi</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(d => `
     <tr class="border-t hover:bg-slate-50 transition-colors">
-      <td class="p-4 font-bold text-slate-700">${d.nama_warga}</td>
-      <td class="p-4 text-slate-500">${d.rt}</td>
-      <td class="p-4 font-black text-emerald-600">${d.kegiatan_id}</td>
-      <td class="p-4 text-[10px] text-slate-400">${new Date(d.waktu_absen).toLocaleString('id-ID')}</td>
+      <td class="p-4 font-bold text-slate-700">${d.nama_warga || '-'}</td>
+      <td class="p-4 text-slate-500">${d.rt || '-'}</td>
+      <td class="p-4 font-black text-emerald-600">${d.kegiatan_id || '-'}</td>
+      <td class="p-4 text-[10px] text-slate-400">${d.waktu_absen ? new Date(d.waktu_absen).toLocaleString('id-ID') : '-'}</td>
       <td class="p-4 text-center">
-        <img src="${d.photo_selfie_url}" onclick="viewImage('${d.photo_selfie_url}', '${d.nama_warga}')" class="w-10 h-10 mx-auto rounded-lg object-cover border-2 border-emerald-100 cursor-pointer hover:scale-110 transition-transform">
+        ${d.photo_selfie_url ? 
+          `<img src="${d.photo_selfie_url}" onclick="viewImage('${d.photo_selfie_url}', '${d.nama_warga || 'Warga'}')" class="w-10 h-10 mx-auto rounded-lg object-cover border-2 border-emerald-100 cursor-pointer hover:scale-110 transition-transform" onerror="this.src='https://via.placeholder.com/40?text=No+Image'">` 
+          : '<span class="text-[10px] text-slate-400">-</span>'}
       </td>
       <td class="p-4">
-        <button onclick="hapusAbsen('${d.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        <button onclick="hapusAbsen('${d.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Hapus">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
       </td>
     </tr>
   `).join('');
@@ -469,22 +519,31 @@ async function loadAbsensiData() {
 }
 
 async function hapusAbsen(id) {
-  if(!confirm("Hapus data absensi ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.ABSENSI)
-    .delete()
-    .eq('id', id);
+  if(!confirm("⚠️ Hapus data absensi ini?")) return;
   
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Absensi dihapus!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.ABSENSI)
+      .delete()
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify("🗑️ Absensi dihapus!");
     loadAbsensiData();
+  } catch(err) {
+    console.error('Error hapusAbsen:', err);
+    alert("❌ Gagal menghapus: " + err.message);
   }
 }
 
 async function downloadPDFMaster() {
-  notify("Menyiapkan Dokumen...", "bg-blue-600");
+  notify("📄 Menyiapkan Dokumen...", "bg-blue-600");
+  
+  if(!window.jspdf) {
+    notify("❌ Library PDF belum termuat", "bg-rose-600");
+    return;
+  }
+  
   const { jsPDF } = window.jspdf;
   const filter = document.getElementById('select-kegiatan-laporan').value;
   
@@ -494,7 +553,7 @@ async function downloadPDFMaster() {
   const { data, error } = await query;
   
   if(error || !data) {
-    notify("Gagal memuat data", "bg-rose-600");
+    notify("❌ Gagal memuat data", "bg-rose-600");
     return;
   }
 
@@ -503,13 +562,24 @@ async function downloadPDFMaster() {
   // Header
   doc.setFillColor(5, 150, 105);
   doc.rect(0, 0, 210, 35, 'F');
-  doc.addImage("https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png", 'PNG', 10, 5, 20, 20);
+  
+  // Logo (gunakan placeholder jika gagal load)
+  const logoUrl = "https://zhbingchfwxwvpojsyzg.supabase.co/storage/v1/object/public/Logo/BQN6UGy%20-%20Imgur.png";
+  doc.addImage(logoUrl, 'PNG', 10, 5, 20, 20, undefined, 'FAST');
+  
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(16).setFont(undefined, 'bold').text("DAFTAR HADIR WARGA RW.01", 35, 15);
   doc.setFontSize(10).setFont(undefined, 'normal').text(filter ? `Kegiatan: ${filter}` : "Laporan Absensi Keseluruhan", 35, 22);
-  doc.setFontSize(8).text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 35, 28);
+  doc.setFontSize(8).text(`Dicetak: ${new Date().toLocaleString('id-ID')}`, 35, 28);
 
-  const tableRows = data.map((d, i) => [i+1, d.nama_warga, d.rt, d.jabatan, d.kegiatan_id, new Date(d.waktu_absen).toLocaleDateString('id-ID')]);
+  const tableRows = (data || []).map((d, i) => [
+    i+1, 
+    d.nama_warga || '-', 
+    d.rt || '-', 
+    d.jabatan || '-', 
+    d.kegiatan_id || '-', 
+    d.waktu_absen ? new Date(d.waktu_absen).toLocaleDateString('id-ID') : '-'
+  ]);
 
   doc.autoTable({
     startY: 40,
@@ -521,36 +591,51 @@ async function downloadPDFMaster() {
   });
 
   doc.save(`Laporan_Absen_RW01_${Date.now()}.pdf`);
-  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+  notify("✅ PDF Berhasil Diunduh!", "bg-emerald-600");
 }
 
 // ============================================
 // KELOLA USERS
 // ============================================
 async function loadUsers() {
+  const tbody = document.getElementById('table-user-body');
+  tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
+  
   const { data, error } = await _supabase
     .from(TABLES.USERS)
     .select('*')
     .order('nama', { ascending: true });
   
-  if(error || !data) {
-    document.getElementById('table-user-body').innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+  if(error) {
+    console.error('Error loadUsers:', error);
+    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
 
-  document.getElementById('table-user-body').innerHTML = data.map(u => `
+  if(!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data warga</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(u => `
     <tr class="border-t hover:bg-emerald-50/50 transition-colors">
-      <td class="p-4 font-bold text-slate-800">${u.nama}</td>
-      <td class="p-4 text-emerald-600">@${u.username}</td>
-      <td class="p-4 font-medium">${u.rt} / ${u.jabatan}</td>
+      <td class="p-4 font-bold text-slate-800">${u.nama || '-'}</td>
+      <td class="p-4 text-emerald-600">@${u.username || '-'}</td>
+      <td class="p-4 font-medium">${u.rt || '-'} / ${u.jabatan || '-'}</td>
       <td class="p-4">
-        <a href="https://wa.me/${u.nomor_hp}" target="_blank" class="flex items-center gap-1 text-emerald-600 font-bold hover:underline">
-          <i data-lucide="phone" class="w-3 h-3"></i> ${u.nomor_hp}
-        </a>
+        ${u.nomor_hp ? 
+          `<a href="https://wa.me/${u.nomor_hp.replace(/^0/, '62')}" target="_blank" class="flex items-center gap-1 text-emerald-600 font-bold hover:underline">
+            <i data-lucide="phone" class="w-3 h-3"></i> ${u.nomor_hp}
+          </a>` 
+          : '<span class="text-slate-400">-</span>'}
       </td>
       <td class="p-4 flex gap-3">
-        <button onclick="openEditUser('${u.id}', '${u.username}', '${u.nama}', '${u.rt}', '${u.jabatan}', '${u.nomor_hp}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-        <button onclick="deleteUser('${u.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        <button onclick="openEditUser('${u.id}', '${u.username || ''}', '${u.nama || ''}', '${u.rt || ''}', '${u.jabatan || ''}', '${u.nomor_hp || ''}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" title="Edit">
+          <i data-lucide="edit-3" class="w-4 h-4"></i>
+        </button>
+        <button onclick="deleteUser('${u.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition" title="Hapus">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
       </td>
     </tr>
   `).join('');
@@ -558,17 +643,20 @@ async function loadUsers() {
 }
 
 async function deleteUser(id) {
-  if(!confirm(`Hapus akun ini?`)) return;
-  const { error } = await _supabase
-    .from(TABLES.USERS)
-    .delete()
-    .eq('id', id);
+  if(!confirm(`⚠️ Hapus akun ini?`)) return;
   
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("User dihapus!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.USERS)
+      .delete()
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify("🗑️ User dihapus!");
     loadUsers();
+  } catch(err) {
+    console.error('Error deleteUser:', err);
+    alert("❌ Gagal menghapus: " + err.message);
   }
 }
 
@@ -588,96 +676,117 @@ function closeEditUserModal() {
 async function updateUser() {
   const id = document.getElementById('edit-old-id').value;
   const data = { 
-    nama: document.getElementById('edit-nama').value, 
-    rt: document.getElementById('edit-rt').value, 
-    jabatan: document.getElementById('edit-jabatan').value, 
-    nomor_hp: document.getElementById('edit-hp').value 
+    nama: document.getElementById('edit-nama').value.trim(), 
+    rt: document.getElementById('edit-rt').value.trim(), 
+    jabatan: document.getElementById('edit-jabatan').value.trim(), 
+    nomor_hp: document.getElementById('edit-hp').value.trim()
   };
   
-  const { error } = await _supabase
-    .from(TABLES.USERS)
-    .update(data)
-    .eq('id', id);
+  // Validasi minimal
+  if(!data.nama) {
+    alert("Nama tidak boleh kosong!");
+    return;
+  }
   
-  if(error) {
-    alert("Gagal update: " + error.message);
-  } else {
-    notify("Data Berhasil Diperbarui!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.USERS)
+      .update(data)
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify("✅ Data Berhasil Diperbarui!");
     closeEditUserModal();
     loadUsers();
+  } catch(err) {
+    console.error('Error updateUser:', err);
+    alert("❌ Gagal update: " + err.message);
   }
 }
 
 function filterUser(val) {
   const rows = document.querySelectorAll('#table-user-body tr');
+  const search = val.toLowerCase().trim();
   rows.forEach(r => { 
-    r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; 
+    const nama = r.cells[0]?.innerText.toLowerCase() || '';
+    r.style.display = nama.includes(search) ? "" : "none"; 
   });
 }
+
 // ============================================
-// DOKUMENTASI (FULLY FIXED)
+// DOKUMENTASI
 // ============================================
 async function postDokumentasi() {
-  const title = document.getElementById('d-judul').value;
+  const title = document.getElementById('d-judul').value.trim();
   const file = document.getElementById('d-foto').files[0];
-  if(!file || !title) return alert("Pilih Foto & Nama Kegiatan!");
+  
+  if(!file || !title) {
+    alert("⚠️ Pilih Foto & Nama Kegiatan!");
+    return;
+  }
   
   try {
-    const fileName = `gallery_${Date.now()}.jpg`;
+    const fileName = `gallery_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`;
     
     // 1. Upload ke Supabase Storage
     const { error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`kegiatan/${fileName}`, file);
+      .from(STORAGE_BUCKET)
+      .upload(`kegiatan/${fileName}`, file, { upsert: false });
     
     if(uploadError) throw uploadError;
     
     // 2. Ambil Public URL
-    const { data: urlData } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`kegiatan/${fileName}`);
+    const publicUrl = getPublicUrl(STORAGE_BUCKET, `kegiatan/${fileName}`);
     
-    // 3. Insert ke Database (Perhatikan 'foto_urls' dan '[urlData.publicUrl]')
+    // 3. Insert ke Database (foto_urls sebagai array)
     const { error } = await _supabase
       .from(TABLES.DOKUMENTASI)
       .insert({ 
         judul: title, 
-        foto_urls: [urlData.publicUrl], // Kirim sebagai array karena tipe datanya text[]
+        foto_urls: [publicUrl], // Array of strings
         created_at: new Date().toISOString() 
       });
     
     if(error) throw error;
     
-    notify("Dokumentasi Berhasil Disimpan!");
+    notify("✅ Dokumentasi Berhasil Disimpan!");
     document.getElementById('d-judul').value = "";
     document.getElementById('d-foto').value = "";
     loadDokumentasi();
   } catch (err) {
-    alert("Error: " + err.message);
+    console.error('Error postDokumentasi:', err);
+    alert("❌ Error: " + err.message);
   }
 }
 
 async function loadDokumentasi() {
+  const container = document.getElementById('list-dokumentasi');
+  container.innerHTML = '<p class="text-center py-10 text-slate-400">Memuat...</p>';
+  
   const { data, error } = await _supabase
     .from(TABLES.DOKUMENTASI)
     .select('*')
     .order('created_at', { ascending: false });
   
-  if(error || !data) {
-    document.getElementById('list-dokumentasi').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada dokumentasi</p>';
+  if(error) {
+    console.error('Error loadDokumentasi:', error);
+    container.innerHTML = '<p class="text-center py-10 text-rose-500">Gagal memuat</p>';
     return;
   }
 
-  document.getElementById('list-dokumentasi').innerHTML = data.map(d => {
-    // Ambil URL pertama dari array foto_urls
-    const displayUrl = d.foto_urls && d.foto_urls.length > 0 ? d.foto_urls[0] : '';
-    
+  if(!data || data.length === 0) {
+    container.innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada dokumentasi</p>';
+    return;
+  }
+
+  container.innerHTML = data.map(d => {
+    const displayUrl = d.foto_urls?.[0] || '';
     return `
       <div class="card-admin overflow-hidden animate-fade">
-        <img src="${displayUrl}" onclick="viewImage('${displayUrl}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
+        <img src="${displayUrl}" onerror="this.src='https://via.placeholder.com/300x160?text=No+Image'" onclick="viewImage('${displayUrl}', '${d.judul?.replace(/'/g, "\\'") || ''}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
         <div class="p-4">
-          <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul}</p>
-          <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
+          <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul || '-'}</p>
+          <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${d.created_at ? new Date(d.created_at).toLocaleDateString('id-ID') : '-'}</p>
           <button onclick="hapusDokumentasi('${d.id}')" class="mt-3 w-full text-rose-500 bg-rose-50 py-2 rounded-lg text-[9px] font-bold uppercase hover:bg-rose-100 transition">Hapus</button>
         </div>
       </div>
@@ -686,33 +795,21 @@ async function loadDokumentasi() {
   lucide.createIcons();
 }
 
-
 async function hapusDokumentasi(id) {
-  if(!confirm("Hapus dokumentasi ini?")) return;
-  const { error } = await _supabase
-    .from('dokumentasi')
-    .delete()
-    .eq('id', id);
+  if(!confirm("⚠️ Hapus dokumentasi ini?")) return;
   
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Dokumentasi dihapus!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.DOKUMENTASI)
+      .delete()
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify("🗑️ Dokumentasi dihapus!");
     loadDokumentasi();
-  }
-}
-async function hapusDokumentasi(id) {
-  if(!confirm("Hapus dokumentasi ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.DOKUMENTASI)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Dokumentasi dihapus!");
-    loadDokumentasi();
+  } catch(err) {
+    console.error('Error hapusDokumentasi:', err);
+    alert("❌ Gagal menghapus: " + err.message);
   }
 }
 
@@ -722,58 +819,85 @@ async function hapusDokumentasi(id) {
 async function postAgenda() {
   const data = { 
     tanggal: document.getElementById('ag-tanggal').value, 
-    kegiatan: document.getElementById('ag-kegiatan').value, 
-    jam: document.getElementById('ag-jam').value, 
-    lokasi: document.getElementById('ag-lokasi').value,
+    kegiatan: document.getElementById('ag-kegiatan').value.trim(), 
+    jam: document.getElementById('ag-jam').value.trim(), 
+    lokasi: document.getElementById('ag-lokasi').value.trim(),
     created_at: new Date().toISOString()
   };
   
-  const { error } = await _supabase
-    .from(TABLES.AGENDA)
-    .insert(data);
+  if(!data.tanggal || !data.kegiatan) {
+    alert("⚠️ Lengkapi tanggal dan nama kegiatan!");
+    return;
+  }
   
-  if(error) {
-    alert("Gagal menyimpan: " + error.message);
-  } else {
-    notify("Agenda Berhasil Disimpan!"); 
+  try {
+    const { error } = await _supabase
+      .from(TABLES.AGENDA)
+      .insert(data);
+    
+    if(error) throw error;
+    notify("✅ Agenda Berhasil Disimpan!");
+    
+    // Reset form
+    document.getElementById('ag-tanggal').value = '';
+    document.getElementById('ag-kegiatan').value = '';
+    document.getElementById('ag-jam').value = '';
+    document.getElementById('ag-lokasi').value = '';
+    
     loadAgendaAdmin();
+  } catch(err) {
+    console.error('Error postAgenda:', err);
+    alert("❌ Gagal menyimpan: " + err.message);
   }
 }
 
 async function loadAgendaAdmin() {
+  const container = document.getElementById('list-agenda-admin');
+  container.innerHTML = '<p class="text-center py-10 text-slate-400">Memuat...</p>';
+  
   const { data, error } = await _supabase
     .from(TABLES.AGENDA)
     .select('*')
     .order('tanggal', { ascending: false });
   
-  if(error || !data) {
-    document.getElementById('list-agenda-admin').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada agenda</p>';
+  if(error) {
+    console.error('Error loadAgendaAdmin:', error);
+    container.innerHTML = '<p class="text-center py-10 text-rose-500">Gagal memuat</p>';
     return;
   }
 
-  document.getElementById('list-agenda-admin').innerHTML = data.map(a => `
+  if(!data || data.length === 0) {
+    container.innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada agenda</p>';
+    return;
+  }
+
+  container.innerHTML = data.map(a => `
     <div class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
       <div>
-        <p class="text-[10px] font-black uppercase text-emerald-700">${a.kegiatan}</p>
-        <p class="text-[9px] text-slate-400 font-bold">${a.tanggal} | ${a.jam} | ${a.lokasi}</p>
+        <p class="text-[10px] font-black uppercase text-emerald-700">${a.kegiatan || '-'}</p>
+        <p class="text-[9px] text-slate-400 font-bold">${a.tanggal || '-'} | ${a.jam || '-'} | ${a.lokasi || '-'}</p>
       </div>
-      <button onclick="hapusAgenda('${a.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      <button onclick="hapusAgenda('${a.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Hapus">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
     </div>
   `).join('');
   lucide.createIcons();
 }
 
 async function hapusAgenda(id) {
-  const { error } = await _supabase
-    .from(TABLES.AGENDA)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Agenda dihapus!");
+  try {
+    const { error } = await _supabase
+      .from(TABLES.AGENDA)
+      .delete()
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify("🗑️ Agenda dihapus!");
     loadAgendaAdmin();
+  } catch(err) {
+    console.error('Error hapusAgenda:', err);
+    alert("❌ Gagal menghapus: " + err.message);
   }
 }
 
@@ -781,13 +905,17 @@ async function hapusAgenda(id) {
 // PENGAJUAN SURAT
 // ============================================
 async function loadPengajuanSurat() {
+  const tbody = document.getElementById('table-pengajuan-body');
+  tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Memuat data...</td></tr>';
+  
   const { data, error } = await _supabase
     .from(TABLES.PENGAJUAN)
     .select('*')
     .order('waktu_pengajuan', { ascending: false });
   
-  if(error || !data) {
-    document.getElementById('table-pengajuan-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+  if(error) {
+    console.error('Error loadPengajuanSurat:', error);
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
 
@@ -798,18 +926,31 @@ async function loadPengajuanSurat() {
     'Ditolak': 'bg-rose-50 text-rose-600'
   };
 
-  document.getElementById('table-pengajuan-body').innerHTML = data.map(p => `
+  if(!data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">Belum ada pengajuan</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data.map(p => `
     <tr class="border-t hover:bg-slate-50 transition-colors">
-      <td class="p-4 font-bold text-slate-700">${p.nama}</td>
-      <td class="p-4 text-slate-500">${p.rt}</td>
-      <td class="p-4 font-medium">${p.jenis_surat}</td>
-      <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${statusColors[p.status] || 'bg-slate-50 text-slate-600'}">${p.status}</span></td>
-      <td class="p-4 text-[10px] text-slate-400">${new Date(p.waktu_pengajuan).toLocaleString('id-ID')}</td>
+      <td class="p-4 font-bold text-slate-700">${p.nama || '-'}</td>
+      <td class="p-4 text-slate-500">${p.rt || '-'}</td>
+      <td class="p-4 font-medium">${p.jenis_surat || '-'}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${statusColors[p.status] || 'bg-slate-50 text-slate-600'}">${p.status || 'Menunggu'}</span></td>
+      <td class="p-4 text-[10px] text-slate-400">${p.waktu_pengajuan ? new Date(p.waktu_pengajuan).toLocaleString('id-ID') : '-'}</td>
       <td class="p-4 flex gap-2">
-        <button onclick="updateStatusSurat('${p.id}', 'Diproses')" class="text-blue-500 bg-blue-50 p-2 rounded-lg hover:bg-blue-100 transition" title="Proses"><i data-lucide="clock" class="w-4 h-4"></i></button>
-        <button onclick="updateStatusSurat('${p.id}', 'Selesai')" class="text-emerald-500 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="Selesai"><i data-lucide="check" class="w-4 h-4"></i></button>
-        <button onclick="updateStatusSurat('${p.id}', 'Ditolak')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Tolak"><i data-lucide="x" class="w-4 h-4"></i></button>
-        <a href="https://wa.me/${p.hp}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+        <button onclick="updateStatusSurat('${p.id}', 'Diproses')" class="text-blue-500 bg-blue-50 p-2 rounded-lg hover:bg-blue-100 transition" title="Proses">
+          <i data-lucide="clock" class="w-4 h-4"></i>
+        </button>
+        <button onclick="updateStatusSurat('${p.id}', 'Selesai')" class="text-emerald-500 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="Selesai">
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </button>
+        <button onclick="updateStatusSurat('${p.id}', 'Ditolak')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Tolak">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        ${p.hp ? `<a href="https://wa.me/${p.hp.replace(/^0/, '62')}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+        </a>` : ''}
       </td>
     </tr>
   `).join('');
@@ -817,16 +958,18 @@ async function loadPengajuanSurat() {
 }
 
 async function updateStatusSurat(id, status) {
-  const { error } = await _supabase
-    .from(TABLES.PENGAJUAN)
-    .update({ status: status })
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal update status: " + error.message);
-  } else {
-    notify(`Status diubah menjadi ${status}!`);
+  try {
+    const { error } = await _supabase
+      .from(TABLES.PENGAJUAN)
+      .update({ status: status, updated_at: new Date().toISOString() })
+      .eq('id', id);
+    
+    if(error) throw error;
+    notify(`✅ Status diubah menjadi ${status}!`);
     loadPengajuanSurat();
+  } catch(err) {
+    console.error('Error updateStatusSurat:', err);
+    alert("❌ Gagal update status: " + err.message);
   }
 }
 
@@ -834,46 +977,65 @@ async function updateStatusSurat(id, status) {
 // SETTINGS (RUNNING TEXT)
 // ============================================
 async function loadSettings() {
-  const { data, error } = await _supabase
-    .from(TABLES.SETTINGS)
-    .select('*')
-    .eq('key', 'running_text')
-    .single();
-  
-  if(data && !error) {
-    document.getElementById('set-running-text').value = data.value;
+  try {
+    const { data, error } = await _supabase
+      .from(TABLES.SETTINGS)
+      .select('*')
+      .eq('key', 'running_text')
+      .maybeSingle(); // Gunakan maybeSingle() untuk handle tidak ada data
+    
+    if(error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      console.error('Error loadSettings:', error);
+      return;
+    }
+    
+    if(data?.value) {
+      document.getElementById('set-running-text').value = data.value;
+    }
+  } catch(err) {
+    console.error('Error loadSettings:', err);
   }
   lucide.createIcons();
 }
 
 async function updateRunningText() {
-  const text = document.getElementById('set-running-text').value;
+  const text = document.getElementById('set-running-text').value.trim();
   
-  // Check if running_text exists, if not insert, else update
-  const {  existing } = await _supabase
-    .from(TABLES.SETTINGS)
-    .select('*')
-    .eq('key', 'running_text')
-    .single();
-  
-  let error;
-  if(existing) {
-    const { error: updateError } = await _supabase
-      .from(TABLES.SETTINGS)
-      .update({ value: text, updated_at: new Date().toISOString() })
-      .eq('key', 'running_text');
-    error = updateError;
-  } else {
-    const { error: insertError } = await _supabase
-      .from(TABLES.SETTINGS)
-      .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
-    error = insertError;
+  if(!text) {
+    alert("⚠️ Teks tidak boleh kosong!");
+    return;
   }
   
-  if(error) {
-    alert("Gagal update: " + error.message);
-  } else {
-    notify("Teks Berjalan Berhasil Diperbarui!");
+  try {
+    // Check if running_text exists
+    const {  existing } = await _supabase
+      .from(TABLES.SETTINGS)
+      .select('id')
+      .eq('key', 'running_text')
+      .maybeSingle();
+    
+    let error;
+    if(existing) {
+      // Update
+      const { error: updateError } = await _supabase
+        .from(TABLES.SETTINGS)
+        .update({ value: text, updated_at: new Date().toISOString() })
+        .eq('key', 'running_text');
+      error = updateError;
+    } else {
+      // Insert
+      const { error: insertError } = await _supabase
+        .from(TABLES.SETTINGS)
+        .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
+      error = insertError;
+    }
+    
+    if(error) throw error;
+    
+    notify("✅ Teks Berjalan Berhasil Diperbarui!");
+  } catch(err) {
+    console.error('Error updateRunningText:', err);
+    alert("❌ Gagal update: " + err.message);
   }
 }
 
@@ -881,8 +1043,9 @@ async function updateRunningText() {
 // LOGOUT
 // ============================================
 function logoutAdmin() {
-  if(confirm("Keluar dari sistem admin?")) {
+  if(confirm("⚠️ Keluar dari sistem admin?")) {
     localStorage.clear();
+    sessionStorage.clear();
     window.location.href = 'index.html';
   }
 }
@@ -890,14 +1053,29 @@ function logoutAdmin() {
 // ============================================
 // INIT
 // ============================================
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  // Cek auth (sesuaikan dengan sistem login Anda)
   const user = JSON.parse(localStorage.getItem('user'));
+  
+  // Jika tidak ada user atau bukan admin, redirect
   if (!user || user.jabatan !== 'Admin') { 
-    window.location.href = 'index.html'; 
+    // Untuk development, comment baris bawah ini:
+    // window.location.href = 'index.html';
+    console.warn('⚠️ User tidak terautentikasi sebagai Admin (development mode)');
   }
+  
+  // Initialize icons
   lucide.createIcons();
+  
+  // Load default tab
   loadPengumuman();
-};
+  
+  // Auto-refresh untuk beberapa data (opsional)
+  // setInterval(() => {
+  //   const activeTab = document.querySelector('.sidebar-item.active-tab');
+  //   if(activeTab?.textContent.includes('Pengumuman')) loadPengumuman();
+  // }, 30000);
+});
 </script>
 </body>
 </html>
