@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel - Sinergi RW.01</title>
 
-<!-- PWA Manifest -->
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,7 +12,6 @@
 <link rel="apple-touch-icon" href="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 <meta name="theme-color" content="#059669">
 
-<!-- Libraries (Clean URLs - No Spaces) -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -34,7 +32,6 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
 </head>
 <body class="flex h-screen overflow-hidden">
 
-<!-- LOGIN PAGE -->
 <div id="page-login" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
   <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm text-center shadow-2xl">
     <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -51,10 +48,8 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
   </div>
 </div>
 
-<!-- ADMIN DASHBOARD -->
 <div id="page-dashboard" class="flex w-full h-full hidden">
   
-  <!-- SIDEBAR -->
   <aside class="w-64 bg-white border-r border-slate-200 flex flex-col hidden md:flex">
     <div class="p-6 border-b border-slate-100">
       <div class="flex items-center gap-2 mb-2">
@@ -99,15 +94,12 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
     </div>
   </aside>
 
-  <!-- MAIN CONTENT -->
   <main class="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 relative">
-    <!-- Mobile Header -->
     <div class="md:hidden flex justify-between items-center mb-6">
       <h1 class="font-black text-slate-800 uppercase">Admin Panel</h1>
       <button type="button" onclick="logout()" class="text-rose-600"><i data-lucide="log-out" class="w-6 h-6"></i></button>
     </div>
 
-    <!-- CONTENT: DASHBOARD -->
     <div id="content-dashboard" class="content-section animate-fade space-y-6">
       <h2 class="text-2xl font-black text-slate-800 uppercase">Overview</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -130,11 +122,10 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- CONTENT: WARGA -->
     <div id="content-warga" class="content-section hidden animate-fade">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-black text-slate-800 uppercase">Data Warga</h2>
-        <button type="button" onclick="loadWarga()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase shadow-lg"><i data-lucide="refresh-cw" class="w-4 h-4 inline mr-1"></i> Refresh</button>
+        <button type="button" onclick="loadWarga()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase shadow-lg">Refresh</button>
       </div>
       <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
@@ -154,7 +145,6 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- CONTENT: PENGUMUMAN -->
     <div id="content-pengumuman" class="content-section hidden animate-fade">
       <h2 class="text-2xl font-black text-slate-800 uppercase mb-6">Kelola Pengumuman</h2>
       <div class="grid md:grid-cols-3 gap-6">
@@ -177,7 +167,6 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- CONTENT: AGENDA -->
     <div id="content-agenda" class="content-section hidden animate-fade">
       <h2 class="text-2xl font-black text-slate-800 uppercase mb-6">Kelola Agenda</h2>
       <div class="grid md:grid-cols-3 gap-6">
@@ -195,7 +184,6 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- CONTENT: GALERI -->
     <div id="content-galeri" class="content-section hidden animate-fade">
       <h2 class="text-2xl font-black text-slate-800 uppercase mb-6">Galeri Dokumentasi</h2>
       <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-6">
@@ -214,13 +202,10 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="list-galeri"></div>
     </div>
 
-    <!-- CONTENT: ABSENSI -->
     <div id="content-absensi" class="content-section hidden animate-fade">
       <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-black text-slate-800 uppercase">Data Kehadiran</h2>
-        <button type="button" onclick="exportAbsenPDF()" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase shadow-lg flex items-center gap-2">
-          <i data-lucide="file-down" class="w-4 h-4"></i> Export PDF
-        </button>
+        <button type="button" onclick="exportAbsenPDF()" class="bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold uppercase shadow-lg">Export PDF</button>
       </div>
       <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <div class="overflow-x-auto">
@@ -239,17 +224,14 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- CONTENT: SURAT -->
     <div id="content-surat" class="content-section hidden animate-fade">
       <h2 class="text-2xl font-black text-slate-800 uppercase mb-6">Permohonan Surat</h2>
       <div class="space-y-4" id="list-surat"></div>
     </div>
 
-    <!-- CONTENT: SETTINGS -->
     <div id="content-settings" class="content-section hidden animate-fade">
       <h2 class="text-2xl font-black text-slate-800 uppercase mb-6">Pengaturan Aplikasi</h2>
       <div class="grid md:grid-cols-2 gap-6">
-        <!-- WhatsApp Admin -->
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center">
@@ -261,13 +243,12 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
             </div>
           </div>
           <form onsubmit="saveSetting(event, 'admin_wa')" class="space-y-3">
-            <input type="tel" id="set-admin-wa" placeholder="6285693456415">
+            <input type="tel" id="set-admin-wa" placeholder="6281234567890">
             <p class="text-[9px] text-slate-400">Gunakan format 62 tanpa tanda +</p>
             <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-black uppercase text-xs shadow-lg">Simpan Nomor</button>
           </form>
         </div>
 
-        <!-- Running Text -->
         <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center">
@@ -286,7 +267,6 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
       </div>
     </div>
 
-    <!-- Footer -->
     <div class="mt-12 pb-12 flex flex-col items-center justify-center text-center animate-fade opacity-50 hover:opacity-100 transition-opacity">
       <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
       <p class="text-[12px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 createdby:sekretariat_team</p>
@@ -297,20 +277,14 @@ input:focus, select:focus, textarea:focus { border-color: #059669; }
 </div>
 
 <script>
-// ============================================
-// CONFIG (Clean URLs)
-// ============================================
-const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
-const _supabase = supabase.createClient(SB_URL, SB_KEY);
+var SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
+var SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
+var _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-// ============================================
-// AUTH
-// ============================================
-document.getElementById('form-login').onsubmit = async function(e) {
+document.getElementById('form-login').onsubmit = function(e) {
   e.preventDefault();
-  const u = document.getElementById('admin-user').value;
-  const p = document.getElementById('admin-pass').value;
+  var u = document.getElementById('admin-user').value;
+  var p = document.getElementById('admin-pass').value;
   
   if (u === 'sekretaris' && p === 'adminrw01') {
     document.getElementById('page-login').classList.add('hidden');
@@ -325,19 +299,16 @@ document.getElementById('form-login').onsubmit = async function(e) {
 
 function logout() { location.reload(); }
 
-// ============================================
-// NAVIGATION
-// ============================================
 function switchTab(tab) {
-  const sections = document.querySelectorAll('.content-section');
-  for(let i = 0; i < sections.length; i++) {
+  var sections = document.querySelectorAll('.content-section');
+  for(var i = 0; i < sections.length; i++) {
     sections[i].classList.add('hidden');
   }
   document.getElementById('content-' + tab).classList.remove('hidden');
   
-  const navButtons = document.querySelectorAll('nav button');
-  for(let i = 0; i < navButtons.length; i++) {
-    navButtons[i].classList.remove('sidebar-active');
+  var navButtons = document.querySelectorAll('nav button');
+  for(var j = 0; j < navButtons.length; j++) {
+    navButtons[j].classList.remove('sidebar-active');
   }
   document.getElementById('nav-' + tab).classList.add('sidebar-active');
   
@@ -353,47 +324,46 @@ function switchTab(tab) {
   if(window.lucide) lucide.createIcons();
 }
 
-// ============================================
-// DASHBOARD STATS
-// ============================================
 async function loadDashboard() {
-  const [warga, surat, agenda, absen] = await Promise.all([
+  var results = await Promise.all([
     _supabase.from('users').select('*', { count: 'exact', head: true }),
     _supabase.from('pengajuan_surat').select('*', { count: 'exact', head: true }).eq('status', 'Menunggu'),
     _supabase.from('agenda').select('*', { count: 'exact', head: true }),
     _supabase.from('absensi').select('*', { count: 'exact', head: true }).gte('waktu_absen', new Date().toISOString().split('T')[0])
   ]);
 
-  document.getElementById('stat-warga').innerText = warga.count || 0;
-  document.getElementById('stat-surat').innerText = surat.count || 0;
-  document.getElementById('stat-kegiatan').innerText = agenda.count || 0;
-  document.getElementById('stat-hadir').innerText = absen.count || 0;
+  document.getElementById('stat-warga').innerText = results[0].count || 0;
+  document.getElementById('stat-surat').innerText = results[1].count || 0;
+  document.getElementById('stat-kegiatan').innerText = results[2].count || 0;
+  document.getElementById('stat-hadir').innerText = results[3].count || 0;
   
-  const badge = document.getElementById('badge-surat');
-  if(surat.count > 0) {
-    badge.innerText = surat.count;
+  var badge = document.getElementById('badge-surat');
+  if(results[1].count > 0) {
+    badge.innerText = results[1].count;
     badge.classList.remove('hidden');
   } else {
     badge.classList.add('hidden');
   }
 }
 
-// ============================================
-// WARGA
-// ============================================
 async function loadWarga() {
-  const { data } = await _supabase.from('users').select('*').order('created_at', { ascending: false });
-  const tbody = document.getElementById('table-warga');
+  var result = await _supabase.from('users').select('*').order('created_at', { ascending: false });
+  var data = result.data;
+  var tbody = document.getElementById('table-warga');
+  
   if(data && data.length > 0) {
-    tbody.innerHTML = data.map(function(u) {
-      return '<tr class="hover:bg-slate-50">' +
-        '<td class="p-4 font-bold text-slate-700">' + u.nama + '</td>' +
-        '<td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[9px] font-black uppercase">' + u.rt + '</span></td>' +
-        '<td class="p-4 text-slate-500">' + u.jabatan + '</td>' +
-        '<td class="p-4 text-slate-500">' + u.nomor_hp + '</td>' +
-        '<td class="p-4"><button type="button" onclick="hapusWarga(\'' + u.id + '\')" class="text-rose-500 hover:text-rose-700 font-black text-[9px] uppercase">Hapus</button></td>' +
-        '</tr>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var u = data[i];
+      html += '<tr class="hover:bg-slate-50">';
+      html += '<td class="p-4 font-bold text-slate-700">' + u.nama + '</td>';
+      html += '<td class="p-4"><span class="bg-slate-100 px-2 py-1 rounded text-[9px] font-black uppercase">' + u.rt + '</span></td>';
+      html += '<td class="p-4 text-slate-500">' + u.jabatan + '</td>';
+      html += '<td class="p-4 text-slate-500">' + u.nomor_hp + '</td>';
+      html += '<td class="p-4"><button type="button" onclick="hapusWarga(\'' + u.id + '\')" class="text-rose-500 hover:text-rose-700 font-black text-[9px] uppercase">Hapus</button></td>';
+      html += '</tr>';
+    }
+    tbody.innerHTML = html;
   } else {
     tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data warga</td></tr>';
   }
@@ -406,25 +376,31 @@ async function hapusWarga(id) {
   }
 }
 
-// ============================================
-// PENGUMUMAN
-// ============================================
 async function loadPengumuman() {
-  const { data } = await _supabase.from('pengumuman').select('*').order('created_at', { ascending: false });
-  const list = document.getElementById('list-pengumuman');
+  var result = await _supabase.from('pengumuman').select('*').order('created_at', { ascending: false });
+  var data = result.data;
+  var list = document.getElementById('list-pengumuman');
+  
   if(data && data.length > 0) {
-    list.innerHTML = data.map(function(i) {
-      return '<div class="bg-white p-4 rounded-2xl border border-slate-100 flex gap-4 shadow-sm">' +
-        (i.file_url && i.file_url !== '-' ? '<img src="' + i.file_url + '" class="w-24 h-24 object-cover rounded-xl bg-slate-100">' : '<div class="w-24 h-24 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300"><i data-lucide="image" class="w-8 h-8"></i></div>') +
-        '<div class="flex-1">' +
-        '<div class="flex justify-between items-start">' +
-        '<h4 class="font-black text-sm uppercase text-slate-800">' + i.judul + '</h4>' +
-        '<button type="button" onclick="hapusData(\'pengumuman\', \'' + i.id + '\')" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
-        '</div>' +
-        '<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase">' + i.tipe + '</span>' +
-        '<p class="text-[10px] text-slate-500 mt-2 line-clamp-2">' + i.detail + '</p>' +
-        '</div></div>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var item = data[i];
+      html += '<div class="bg-white p-4 rounded-2xl border border-slate-100 flex gap-4 shadow-sm">';
+      if(item.file_url && item.file_url !== '-') {
+        html += '<img src="' + item.file_url + '" class="w-24 h-24 object-cover rounded-xl bg-slate-100">';
+      } else {
+        html += '<div class="w-24 h-24 bg-slate-100 rounded-xl flex items-center justify-center text-slate-300"><i data-lucide="image" class="w-8 h-8"></i></div>';
+      }
+      html += '<div class="flex-1">';
+      html += '<div class="flex justify-between items-start">';
+      html += '<h4 class="font-black text-sm uppercase text-slate-800">' + item.judul + '</h4>';
+      html += '<button type="button" onclick="hapusData(\'pengumuman\', \'' + item.id + '\')" class="text-rose-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>';
+      html += '</div>';
+      html += '<span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase">' + item.tipe + '</span>';
+      html += '<p class="text-[10px] text-slate-500 mt-2 line-clamp-2">' + item.detail + '</p>';
+      html += '</div></div>';
+    }
+    list.innerHTML = html;
   } else {
     list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada pengumuman</p>';
   }
@@ -433,15 +409,15 @@ async function loadPengumuman() {
 
 async function addPengumuman(e) {
   e.preventDefault();
-  const file = document.getElementById('pgm-file').files[0];
-  let fileUrl = '-';
+  var file = document.getElementById('pgm-file').files[0];
+  var fileUrl = '-';
   
   if(file) {
-    const fileName = 'pgm_' + Date.now() + '.jpg';
-    const { error } = await _supabase.storage.from('media-sinergi').upload('pengumuman/' + fileName, file);
-    if(!error) {
-      const { data } = _supabase.storage.from('media-sinergi').getPublicUrl('pengumuman/' + fileName);
-      fileUrl = data.publicUrl;
+    var fileName = 'pgm_' + Date.now() + '.jpg';
+    var uploadResult = await _supabase.storage.from('media-sinergi').upload('pengumuman/' + fileName, file);
+    if(!uploadResult.error) {
+      var urlResult = _supabase.storage.from('media-sinergi').getPublicUrl('pengumuman/' + fileName);
+      fileUrl = urlResult.data.publicUrl;
     }
   }
   
@@ -457,24 +433,26 @@ async function addPengumuman(e) {
   loadPengumuman();
 }
 
-// ============================================
-// AGENDA
-// ============================================
 async function loadAgenda() {
-  const { data } = await _supabase.from('agenda').select('*').order('tanggal', { ascending: true });
-  const list = document.getElementById('list-agenda');
+  var result = await _supabase.from('agenda').select('*').order('tanggal', { ascending: true });
+  var data = result.data;
+  var list = document.getElementById('list-agenda');
+  
   if(data && data.length > 0) {
-    list.innerHTML = data.map(function(i) {
-      return '<div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">' +
-        '<div>' +
-        '<h4 class="font-black text-sm uppercase text-slate-800">' + i.kegiatan + '</h4>' +
-        '<p class="text-[9px] text-slate-400 font-bold uppercase mt-1">' + i.lokasi + ' • ' + i.jam + '</p>' +
-        '</div>' +
-        '<div class="text-right">' +
-        '<p class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded uppercase">' + new Date(i.tanggal).toLocaleDateString('id-ID') + '</p>' +
-        '<button type="button" onclick="hapusData(\'agenda\', \'' + i.id + '\')" class="text-rose-500 mt-2 font-black text-[9px] uppercase">Hapus</button>' +
-        '</div></div>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var item = data[i];
+      html += '<div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">';
+      html += '<div>';
+      html += '<h4 class="font-black text-sm uppercase text-slate-800">' + item.kegiatan + '</h4>';
+      html += '<p class="text-[9px] text-slate-400 font-bold uppercase mt-1">' + item.lokasi + ' - ' + item.jam + '</p>';
+      html += '</div>';
+      html += '<div class="text-right">';
+      html += '<p class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded uppercase">' + new Date(item.tanggal).toLocaleDateString('id-ID') + '</p>';
+      html += '<button type="button" onclick="hapusData(\'agenda\', \'' + item.id + '\')" class="text-rose-500 mt-2 font-black text-[9px] uppercase">Hapus</button>';
+      html += '</div></div>';
+    }
+    list.innerHTML = html;
   } else {
     list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada agenda</p>';
   }
@@ -493,29 +471,36 @@ async function addAgenda(e) {
   loadAgenda();
 }
 
-// ============================================
-// GALERI
-// ============================================
 async function loadGaleri() {
-  const { data } = await _supabase.from('dokumentasi').select('*').order('created_at', { ascending: false });
-  const { data: likesData } = await _supabase.from('dokumentasi_likes').select('foto_id');
-  const list = document.getElementById('list-galeri');
+  var result = await _supabase.from('dokumentasi').select('*').order('created_at', { ascending: false });
+  var data = result.data;
+  var likesResult = await _supabase.from('dokumentasi_likes').select('foto_id');
+  var likesData = likesResult.data;
+  var list = document.getElementById('list-galeri');
   
   if(data && data.length > 0) {
-    list.innerHTML = data.map(function(i) {
-      const likeCount = likesData ? likesData.filter(function(l) { return l.foto_id === i.id; }).length : 0;
-      return '<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 group relative">' +
-        '<img src="' + (i.file_url || i.photo_url) + '" class="w-full h-40 object-cover">' +
-        '<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1">' +
-        '<i data-lucide="heart" class="w-3 h-3 text-white fill-white"></i>' +
-        '<span class="text-[9px] font-bold text-white">' + likeCount + '</span>' +
-        '</div>' +
-        '<div class="p-3">' +
-        '<p class="text-[9px] font-black uppercase text-slate-700 truncate">' + (i.keterangan || i.judul) + '</p>' +
-        '</div>' +
-        '<button type="button" onclick="hapusData(\'dokumentasi\', \'' + i.id + '\')" class="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button>' +
-        '</div>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var item = data[i];
+      var likeCount = 0;
+      if(likesData) {
+        for(var j = 0; j < likesData.length; j++) {
+          if(likesData[j].foto_id === item.id) likeCount++;
+        }
+      }
+      html += '<div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100 group relative">';
+      html += '<img src="' + (item.file_url || item.photo_url) + '" class="w-full h-40 object-cover">';
+      html += '<div class="absolute bottom-2 left-2 bg-black/50 backdrop-blur-md px-2 py-1 rounded-full flex items-center gap-1">';
+      html += '<i data-lucide="heart" class="w-3 h-3 text-white fill-white"></i>';
+      html += '<span class="text-[9px] font-bold text-white">' + likeCount + '</span>';
+      html += '</div>';
+      html += '<div class="p-3">';
+      html += '<p class="text-[9px] font-black uppercase text-slate-700 truncate">' + (item.keterangan || item.judul) + '</p>';
+      html += '</div>';
+      html += '<button type="button" onclick="hapusData(\'dokumentasi\', \'' + item.id + '\')" class="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"><i data-lucide="trash-2" class="w-3 h-3"></i></button>';
+      html += '</div>';
+    }
+    list.innerHTML = html;
   } else {
     list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase col-span-full">Belum ada galeri</p>';
   }
@@ -524,46 +509,45 @@ async function loadGaleri() {
 
 async function addGaleri(e) {
   e.preventDefault();
-  const file = document.getElementById('gal-file').files[0];
+  var file = document.getElementById('gal-file').files[0];
   if(!file) return;
   
-  const fileName = 'gal_' + Date.now() + '.jpg';
-  const { error } = await _supabase.storage.from('media-sinergi').upload('galeri/' + fileName, file);
+  var fileName = 'gal_' + Date.now() + '.jpg';
+  var uploadResult = await _supabase.storage.from('media-sinergi').upload('galeri/' + fileName, file);
   
-  if(!error) {
-    const { data } = _supabase.storage.from('media-sinergi').getPublicUrl('galeri/' + fileName);
+  if(!uploadResult.error) {
+    var urlResult = _supabase.storage.from('media-sinergi').getPublicUrl('galeri/' + fileName);
     await _supabase.from('dokumentasi').insert({
       judul: document.getElementById('gal-judul').value,
-      file_url: data.publicUrl,
-      photo_url: data.publicUrl,
+      file_url: urlResult.data.publicUrl,
+      photo_url: urlResult.data.publicUrl,
       keterangan: document.getElementById('gal-judul').value
     });
     alert('Foto Diupload!');
     e.target.reset();
     loadGaleri();
   } else {
-    alert('Gagal Upload: ' + error.message);
+    alert('Gagal Upload: ' + uploadResult.error.message);
   }
 }
 
-// ============================================
-// ABSENSI
-// ============================================
 async function loadAbsen() {
-  const { data } = await _supabase.from('absensi').select('*').order('waktu_absen', { ascending: false });
-  const tbody = document.getElementById('table-absen');
+  var result = await _supabase.from('absensi').select('*').order('waktu_absen', { ascending: false });
+  var data = result.data;
+  var tbody = document.getElementById('table-absen');
+  
   if(data && data.length > 0) {
-    tbody.innerHTML = data.map(function(i) {
-      return '<tr class="hover:bg-slate-50">' +
-        '<td class="p-4">' +
-        '<p class="font-bold text-slate-700">' + i.nama_warga + '</p>' +
-        '<p class="text-[9px] text-slate-400 uppercase">' + i.jabatan + '</p>' +
-        '</td>' +
-        '<td class="p-4 font-black text-xs uppercase text-emerald-600">' + i.kegiatan_id + '</td>' +
-        '<td class="p-4 text-slate-500 text-[10px]">' + new Date(i.waktu_absen).toLocaleString('id-ID') + '</td>' +
-        '<td class="p-4"><a href="' + i.photo_selfie_url + '" target="_blank" class="text-blue-500 font-bold text-[9px] uppercase underline">Lihat Foto</a></td>' +
-        '</tr>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var item = data[i];
+      html += '<tr class="hover:bg-slate-50">';
+      html += '<td class="p-4"><p class="font-bold text-slate-700">' + item.nama_warga + '</p><p class="text-[9px] text-slate-400 uppercase">' + item.jabatan + '</p></td>';
+      html += '<td class="p-4 font-black text-xs uppercase text-emerald-600">' + item.kegiatan_id + '</td>';
+      html += '<td class="p-4 text-slate-500 text-[10px]">' + new Date(item.waktu_absen).toLocaleString('id-ID') + '</td>';
+      html += '<td class="p-4"><a href="' + item.photo_selfie_url + '" target="_blank" class="text-blue-500 font-bold text-[9px] uppercase underline">Lihat Foto</a></td>';
+      html += '</tr>';
+    }
+    tbody.innerHTML = html;
   } else {
     tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Belum ada data absensi</td></tr>';
   }
@@ -571,12 +555,13 @@ async function loadAbsen() {
 
 async function exportAbsenPDF() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  var jsPDF = window.jspdf.jsPDF;
+  var doc = new jsPDF();
   
-  const { data, error } = await _supabase.from('absensi').select('*').order('waktu_absen', { ascending: false });
+  var result = await _supabase.from('absensi').select('*').order('waktu_absen', { ascending: false });
+  var data = result.data;
   
-  if(error || !data) {
+  if(!data || data.length === 0) {
     notify("Gagal memuat data absensi", "bg-rose-600");
     return;
   }
@@ -592,9 +577,17 @@ async function exportAbsenPDF() {
   doc.setFontSize(11); doc.setFont("helvetica", "bold");
   doc.text("DAFTAR HADIR KEGIATAN WARGA", 105, 45, { align: "center" });
   
-  const tableBody = data.map(function(row, index) {
-    return [index + 1, row.nama_warga, row.rt, row.jabatan, row.kegiatan_id, new Date(row.waktu_absen).toLocaleDateString('id-ID')];
-  });
+  var tableBody = [];
+  for(var i = 0; i < data.length; i++) {
+    tableBody.push([
+      i + 1,
+      data[i].nama_warga,
+      data[i].rt,
+      data[i].jabatan,
+      data[i].kegiatan_id,
+      new Date(data[i].waktu_absen).toLocaleDateString('id-ID')
+    ]);
+  }
   
   doc.autoTable({
     startY: 52,
@@ -606,7 +599,7 @@ async function exportAbsenPDF() {
     columnStyles: { 0: { halign: 'center', cellWidth: 10 }, 2: { halign: 'center', cellWidth: 20 }, 5: { cellWidth: 35 } }
   });
   
-  const finalY = doc.lastAutoTable.finalY + 20;
+  var finalY = doc.lastAutoTable.finalY + 20;
   doc.setFontSize(9);
   doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID'), 150, finalY);
   doc.text("Sekretaris RW.01,", 150, finalY + 5);
@@ -616,29 +609,36 @@ async function exportAbsenPDF() {
   notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
 
-// ============================================
-// SURAT MASUK
-// ============================================
 async function loadSurat() {
-  const { data } = await _supabase.from('pengajuan_surat').select('*').order('waktu_pengajuan', { ascending: false });
-  const list = document.getElementById('list-surat');
+  var result = await _supabase.from('pengajuan_surat').select('*').order('waktu_pengajuan', { ascending: false });
+  var data = result.data;
+  var list = document.getElementById('list-surat');
+  
   if(data && data.length > 0) {
-    list.innerHTML = data.map(function(i) {
-      return '<div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between gap-4">' +
-        '<div>' +
-        '<div class="flex items-center gap-2 mb-2">' +
-        '<h4 class="font-black text-sm uppercase text-slate-800">' + i.jenis_surat + '</h4>' +
-        '<span class="text-[8px] font-bold uppercase px-2 py-0.5 rounded ' + (i.status === 'Menunggu' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700') + '">' + i.status + '</span>' +
-        '</div>' +
-        '<p class="text-[10px] text-slate-500 font-bold">Pemohon: ' + i.nama + ' (' + i.rt + ')</p>' +
-        '<p class="text-[10px] text-slate-400 mt-1">Keterangan: ' + i.keterangan + '</p>' +
-        '</div>' +
-        (i.status === 'Menunggu' ? '<div class="flex gap-2">' +
-        '<button type="button" onclick="updateSurat(\'' + i.id + '\', \'Disetujui\')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Setujui</button>' +
-        '<button type="button" onclick="updateSurat(\'' + i.id + '\', \'Ditolak\')" class="bg-rose-500 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Tolak</button>' +
-        '</div>' : '<p class="text-[9px] font-bold text-slate-400 self-center">Selesai Diproses</p>') +
-        '</div>';
-    }).join('');
+    var html = '';
+    for(var i = 0; i < data.length; i++) {
+      var item = data[i];
+      var statusClass = item.status === 'Menunggu' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+      html += '<div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between gap-4">';
+      html += '<div>';
+      html += '<div class="flex items-center gap-2 mb-2">';
+      html += '<h4 class="font-black text-sm uppercase text-slate-800">' + item.jenis_surat + '</h4>';
+      html += '<span class="text-[8px] font-bold uppercase px-2 py-0.5 rounded ' + statusClass + '">' + item.status + '</span>';
+      html += '</div>';
+      html += '<p class="text-[10px] text-slate-500 font-bold">Pemohon: ' + item.nama + ' (' + item.rt + ')</p>';
+      html += '<p class="text-[10px] text-slate-400 mt-1">Keterangan: ' + item.keterangan + '</p>';
+      html += '</div>';
+      if(item.status === 'Menunggu') {
+        html += '<div class="flex gap-2">';
+        html += '<button type="button" onclick="updateSurat(\'' + item.id + '\', \'Disetujui\')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Setujui</button>';
+        html += '<button type="button" onclick="updateSurat(\'' + item.id + '\', \'Ditolak\')" class="bg-rose-500 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase shadow-lg">Tolak</button>';
+        html += '</div>';
+      } else {
+        html += '<p class="text-[9px] font-bold text-slate-400 self-center">Selesai Diproses</p>';
+      }
+      html += '</div>';
+    }
+    list.innerHTML = html;
   } else {
     list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada surat masuk</p>';
   }
@@ -650,36 +650,42 @@ async function updateSurat(id, status) {
   loadDashboard();
 }
 
-// ============================================
-// SETTINGS
-// ============================================
 async function loadSettings() {
-  const { data } = await _supabase.from('settings').select('*');
+  var result = await _supabase.from('settings').select('*');
+  var data = result.data;
   
-  const adminWa = data ? data.find(function(s) { return s.key === 'admin_wa'; }) : null;
-  const runningText = data ? data.find(function(s) { return s.key === 'running_text'; }) : null;
-  
-  if(adminWa) document.getElementById('set-admin-wa').value = adminWa.value;
-  if(runningText) document.getElementById('set-running-text').value = runningText.value;
+  if(data) {
+    for(var i = 0; i < data.length; i++) {
+      if(data[i].key === 'admin_wa') {
+        document.getElementById('set-admin-wa').value = data[i].value;
+      }
+      if(data[i].key === 'running_text') {
+        document.getElementById('set-running-text').value = data[i].value;
+      }
+    }
+  }
   
   if(window.lucide) lucide.createIcons();
 }
 
 async function saveSetting(e, key) {
   e.preventDefault();
-  const value = key === 'admin_wa' 
-    ? document.getElementById('set-admin-wa').value 
-    : document.getElementById('set-running-text').value;
+  var value = '';
+  if(key === 'admin_wa') {
+    value = document.getElementById('set-admin-wa').value;
+  } else {
+    value = document.getElementById('set-running-text').value;
+  }
   
   if(!value) return alert('Isi tidak boleh kosong!');
   
   try {
-    const { data: existing } = await _supabase.from('settings').select('*').eq('key', key).single();
+    var result = await _supabase.from('settings').select('*').eq('key', key).single();
     
-    if(existing) {
+    if(result.data) {
       await _supabase.from('settings').update({ value }).eq('key', key);
     } else {
-      await _supabase.from('settings').insert({ key, value });
+      await _supabase.from('settings').insert({ key: key, value: value });
     }
     
     alert('Pengaturan Disimpan!');
@@ -689,11 +695,8 @@ async function saveSetting(e, key) {
   }
 }
 
-// ============================================
-// UTILS
-// ============================================
 function notify(msg, color) {
-  const t = document.createElement('div');
+  var t = document.createElement('div');
   t.textContent = msg;
   t.className = 'fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold animate-fade ' + (color || 'bg-emerald-600');
   document.body.appendChild(t);
@@ -703,7 +706,7 @@ function notify(msg, color) {
 async function hapusData(table, id) {
   if(confirm('Hapus data ini?')) {
     await _supabase.from(table).delete().eq('id', id);
-    const activeTab = document.querySelector('.sidebar-active').id.replace('nav-', '');
+    var activeTab = document.querySelector('.sidebar-active').id.replace('nav-', '');
     switchTab(activeTab);
   }
 }
