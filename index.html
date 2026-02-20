@@ -481,14 +481,76 @@ async function loadAbsen() {
   `).join('');
 }
 
-function exportAbsenPDF() {
+// ============================================
+// PDF GENERATOR (LENGKAP)
+// ============================================
+async function exportAbsenPDF() {
+  notify("Menyiapkan Dokumen...", "bg-blue-600");
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.text("LAPORAN ABSENSI WARGA RW.01", 14, 20);
-  // Logic sederhana, bisa dikembangkan dengan autoTable seperti di user page
-  doc.save("Laporan_Absen_Admin.pdf");
+  
+  // Ambil Data Absensi
+  const { data, error } = await _supabase
+    .from('absensi') // Langsung pakai string table name
+    .select('*')
+    .order('waktu_absen', { ascending: false });
+  
+  if(error || !data) {
+    notify("Gagal memuat data absensi", "bg-rose-600");
+    return;
+  }
+  
+  // 1. Header Kop Surat
+  doc.setFontSize(14); doc.setFont("helvetica", "bold");
+  doc.text("PENGURUS RUKUN WARGA 01", 105, 20, { align: "center" });
+  doc.setFontSize(10); doc.setFont("helvetica", "normal");
+  doc.text("KELURAHAN KEBON MANGGIS - KECAMATAN MATRAMAN", 105, 25, { align: "center" });
+  doc.setFontSize(8); doc.text("Sekretariat: Jl. Matraman Salemba GG VIII, Jakarta Timur", 105, 29, { align: "center" });
+  
+  // Garis Bawah Header
+  doc.setLineWidth(0.5);
+  doc.line(20, 32, 190, 32); 
+  doc.line(20, 33, 190, 33);
+  
+  // 2. Judul Laporan
+  doc.setFontSize(11); doc.setFont("helvetica", "bold");
+  doc.text("DAFTAR HADIR KEGIATAN WARGA", 105, 45, { align: "center" });
+  
+  // 3. Isi Tabel
+  const tableBody = data.map((row, index) => [
+    index + 1, 
+    row.nama_warga, 
+    row.rt, 
+    row.jabatan, 
+    row.kegiatan_id, 
+    new Date(row.waktu_absen).toLocaleDateString('id-ID')
+  ]);
+  
+  doc.autoTable({
+    startY: 52,
+    head: [['NO', 'NAMA WARGA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
+    body: tableBody,
+    theme: 'grid',
+    headStyles: { fillColor: [5, 150, 105], halign: 'center', textColor: 255 }, // Warna Emerald
+    styles: { fontSize: 8, cellPadding: 3, borderColor: [200, 200, 200] },
+    columnStyles: { 
+      0: { halign: 'center', cellWidth: 10 }, 
+      2: { halign: 'center', cellWidth: 20 },
+      5: { cellWidth: 35 }
+    }
+  });
+  
+  // 4. Tanda Tangan
+  const finalY = doc.lastAutoTable.finalY + 20;
+  doc.setFontSize(9);
+  doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID'), 150, finalY);
+  doc.text("Sekretaris RW.01,", 150, finalY + 5);
+  doc.text("( ____________________ )", 150, finalY + 25);
+  
+  // 5. Simpan
+  doc.save("Laporan_Absensi_RW01_Lengkap.pdf");
+  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
-
 // ============================================
 // SURAT MASUK
 // ============================================
