@@ -239,10 +239,10 @@ function updateSubJabatan() {
   const options = {
     "Pengurus RW": ["Ketua RW", "Wakil 1 RW", "Wakil 2 RW", "Sekretaris 1 RW", "Sekretaris 2 RW", "Bendahara RW", "Seksi Humas", "Seksi Sosial"],
     "Pengurus RT": ["Ketua RT", "Sekretaris RT", "Bendahara RT"],
-    "Kader": ["Dawis/PKK", "Jumantik", "Posyandu", "Dasawisma"]
-    "Karang Taruna": ["Ketua", "Anggota"]
-    "PAUD": ["Kepala Sekolah", "Guru"]
-    "Keamanan": ["Kepala Keamanan", "Anggota"]
+    "Kader": ["Dawis/PKK", "Jumantik", "Posyandu", "Dasawisma"],
+    "Karang Taruna": ["Ketua", "Anggota"],
+    "PAUD": ["Kepala Sekolah", "Guru"],
+    "Keamanan": ["Kepala Keamanan", "Anggota"],
     "Kebersihan": ["Petugas Kebersihan", "Bank Sampah"]
   };
 
@@ -255,7 +255,10 @@ function updateSubJabatan() {
       subSelect.appendChild(opt);
     });
   }
-  if (kat !== "Warga") manualContainer.classList.remove('hidden');
+  
+  if (kat !== "Warga") {
+    manualContainer.classList.remove('hidden');
+  }
 }
 
 // ============================================
