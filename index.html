@@ -402,55 +402,59 @@ list.innerHTML = '<div class="grid grid-cols-2 gap-3">' +
 // ============================================
 // LIKE / LOVE FEATURE
 // ============================================
-async function toggleLike(fotoId, btnElement) {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if(!user) return notify("Silakan login untuk memberikan Love", "bg-rose-600");
-  
-  const icon = btnElement.querySelector('i');
-  const countEl = document.getElementById('like-count-' + fotoId);
-  let currentCount = parseInt(countEl.innerText) || 0;
-  
-  try {
-    // 1. Cek apakah user sudah pernah like
-    const { data: existing, error: fetchError } = await _supabase
-      .from('dokumentasi_likes')
-      .select('id')
-      .eq('foto_id', fotoId)
-      .eq('username', user.username)
-      .maybeSingle();
-
-    if(existing) {
-      // 2. Jika sudah ada, maka UNLIKE (Hapus)
-      await _supabase.from('dokumentasi_likes').delete().eq('id', existing.id);
-      icon.classList.remove('fill-rose-500', 'text-rose-500');
-      icon.classList.add('text-slate-400');
-      countEl.innerText = Math.max(0, currentCount - 1);
-    } else {
-      // 3. Jika belum, maka LIKE (Tambah)
-      await _supabase.from('dokumentasi_likes').insert({
-        foto_id: fotoId,
-        username: user.username
-      });
-      icon.classList.remove('text-slate-400');
-      icon.classList.add('fill-rose-500', 'text-rose-500');
-      countEl.innerText = currentCount + 1;
-      
-      // Efek animasi detak jantung
-      btnElement.classList.add('scale-150');
-      setTimeout(() => btnElement.classList.remove('scale-150'), 200);
-    }
-  } catch(err) {
-    console.error("Like Error:", err);
-    notify("Gagal memproses Like", "bg-rose-600");
-  }
-}
 
 
 // ============================================
 // ABSENSI & PDF LOGIC
 // ============================================
 function bukaAbsen(judul) {
-  document.getElementById('abs-kegiatan-id').value = judul;
+  document.getElementById('abs-kegiatan-id').value = async function toggleLike(fotoId, btnElement) {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user) return notify("Silakan login dahulu", "bg-rose-600");
+
+  const icon = btnElement.querySelector('i');
+  const countEl = document.getElementById('like-count-' + fotoId);
+  let currentCount = parseInt(countEl.innerText) || 0;
+
+  try {
+    // 1. Cek apakah sudah di-like
+    const { data: existing } = await _supabase
+      .from('dokumentasi_likes')
+      .select('id')
+      .eq('foto_id', fotoId.toString()) // Pastikan string
+      .eq('username', user.username)
+      .maybeSingle();
+
+    if (existing) {
+      // 2. Jika sudah ada, hapus (Unlike)
+      const { error } = await _supabase.from('dokumentasi_likes').delete().eq('id', existing.id);
+      if (error) throw error;
+      
+      icon.classList.remove('fill-rose-500', 'text-rose-500');
+      icon.classList.add('text-slate-400');
+      countEl.innerText = Math.max(0, currentCount - 1);
+    } else {
+      // 3. Jika belum ada, tambah (Like)
+      const { error } = await _supabase.from('dokumentasi_likes').insert({
+        foto_id: fotoId.toString(),
+        username: user.username
+      });
+      if (error) throw error;
+
+      icon.classList.remove('text-slate-400');
+      icon.classList.add('fill-rose-500', 'text-rose-500');
+      countEl.innerText = currentCount + 1;
+      
+      // Animasi kecil
+      btnElement.classList.add('scale-125');
+      setTimeout(() => btnElement.classList.remove('scale-125'), 200);
+    }
+  } catch (err) {
+    console.error("Detail Error:", err);
+    notify("Gagal: Pastikan tabel likes sudah dibuat", "bg-rose-600");
+  }
+}
+judul;
   document.getElementById('modal-absen').classList.remove('hidden');
   const canvas = document.getElementById('canvas-ttd');
   canvas.width = canvas.offsetWidth;
