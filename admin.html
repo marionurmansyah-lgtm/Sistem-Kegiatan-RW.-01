@@ -2,8 +2,9 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Super Admin - Sinergi RW.01</title>
+<link rel="manifest" href="manifest.json">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,111 +13,149 @@
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-    body { font-family: 'Inter', sans-serif; background: #f8fafc; }
-    .nav-active { background: #059669; color: white; border-radius: 12px; }
-    .branding-line { height: 5px; width: 100%; background: linear-gradient(to right, #e11d48 25%, #f1f5f9 25%, #f1f5f9 50%, #fbbf24 50%, #fbbf24 75%, #059669 75%); position: fixed; top: 0; left: 0; z-index: 1000; }
+    body { font-family: 'Inter', sans-serif; background: #f1f5f9; color: #1e293b; }
+    .nav-active { background: #059669 !important; color: white !important; transform: scale(1.05); }
+    .branding-line { height: 6px; width: 100%; background: linear-gradient(to right, #e11d48 25%, #f1f5f9 25%, #f1f5f9 50%, #fbbf24 50%, #fbbf24 75%, #059669 75%); position: fixed; top: 0; left: 0; z-index: 1000; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
+    .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
 </style>
 </head>
 <body class="pb-24">
 <div class="branding-line"></div>
 
-<header class="bg-white p-6 shadow-sm sticky top-0 z-50 border-b">
+<header class="bg-white p-5 shadow-sm sticky top-0 z-50 border-b border-slate-200">
     <div class="max-w-5xl mx-auto flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-black text-emerald-900 tracking-tighter">CONTROL CENTER</h1>
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">RW.01 Kebon Manggis</p>
+        <div class="flex items-center gap-3">
+            <div class="bg-emerald-600 p-2 rounded-xl text-white">
+                <i data-lucide="shield-check" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-black text-emerald-900 tracking-tighter leading-none">CONTROL CENTER</h1>
+                <p id="live-clock" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">MEMUAT WAKTU...</p>
+            </div>
         </div>
-        <button onclick="location.href='index.html'" class="bg-rose-500 text-white p-2 rounded-xl shadow-lg shadow-rose-200"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+        <button onclick="logout()" class="bg-rose-500 text-white p-3 rounded-2xl shadow-lg shadow-rose-200 active:scale-90 transition-transform">
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+        </button>
     </div>
 </header>
 
 <main class="max-w-5xl mx-auto p-4">
     <div class="flex gap-2 overflow-x-auto pb-4 no-scrollbar">
-        <button onclick="switchTab('surat')" id="tab-surat" class="nav-active flex items-center gap-2 py-3 px-5 text-xs font-black uppercase whitespace-nowrap"><i data-lucide="mail" class="w-4 h-4"></i> Surat Pengajuan</button>
-        <button onclick="switchTab('upload')" id="tab-upload" class="flex items-center gap-2 py-3 px-5 text-xs font-black uppercase whitespace-nowrap"><i data-lucide="plus-circle" class="w-4 h-4"></i> Upload Konten</button>
-        <button onclick="switchTab('absen')" id="tab-absen" class="flex items-center gap-2 py-3 px-5 text-xs font-black uppercase whitespace-nowrap"><i data-lucide="file-check" class="w-4 h-4"></i> Laporan Absen</button>
-        <button onclick="switchTab('config')" id="tab-config" class="flex items-center gap-2 py-3 px-5 text-xs font-black uppercase whitespace-nowrap"><i data-lucide="settings" class="w-4 h-4"></i> Konfigurasi</button>
+        <button onclick="switchTab('surat')" id="tab-surat" class="nav-active flex items-center gap-2 py-3 px-6 bg-white text-slate-600 rounded-2xl text-[11px] font-black uppercase shadow-sm border transition-all whitespace-nowrap"><i data-lucide="mail" class="w-4 h-4"></i> Surat</button>
+        <button onclick="switchTab('upload')" id="tab-upload" class="flex items-center gap-2 py-3 px-6 bg-white text-slate-600 rounded-2xl text-[11px] font-black uppercase shadow-sm border transition-all whitespace-nowrap"><i data-lucide="megaphone" class="w-4 h-4"></i> Info</button>
+        <button onclick="switchTab('dokumentasi')" id="tab-dokumentasi" class="flex items-center gap-2 py-3 px-6 bg-white text-slate-600 rounded-2xl text-[11px] font-black uppercase shadow-sm border transition-all whitespace-nowrap"><i data-lucide="camera" class="w-4 h-4"></i> Galeri</button>
+        <button onclick="switchTab('absen')" id="tab-absen" class="flex items-center gap-2 py-3 px-6 bg-white text-slate-600 rounded-2xl text-[11px] font-black uppercase shadow-sm border transition-all whitespace-nowrap"><i data-lucide="file-check" class="w-4 h-4"></i> Laporan</button>
+        <button onclick="switchTab('config')" id="tab-config" class="flex items-center gap-2 py-3 px-6 bg-white text-slate-600 rounded-2xl text-[11px] font-black uppercase shadow-sm border transition-all whitespace-nowrap"><i data-lucide="settings" class="w-4 h-4"></i> Config</button>
     </div>
 
-    <div id="admin-content" class="mt-4 space-y-6"></div>
+    <div id="admin-content" class="mt-2 space-y-4"></div>
 </main>
 
-<footer class="mt-20 py-10 flex flex-col items-center border-t border-slate-200">
+<footer class="mt-10 py-10 flex flex-col items-center opacity-60">
     <div class="h-[1px] w-12 bg-slate-300 mb-4"></div>
-    <p class="text-[11px] font-black text-slate-400 tracking-[0.3em] uppercase">©2026 createdby:sekretariat_team</p>
-    <p class="text-[10px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
+    <p class="text-[10px] font-black text-slate-400 tracking-[0.3em] uppercase">©2026 SEKRETARIAT RW.01</p>
 </footer>
 
 <script>
+// KONFIGURASI SUPABASE
 const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+// JAM REALTIME
+function updateClock() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    document.getElementById('live-clock').innerText = now.toLocaleDateString('id-ID', options);
+}
+setInterval(updateClock, 1000);
+
+// FUNGSI LOGOUT
+function logout() {
+    localStorage.removeItem('user');
+    location.href = 'index.html';
+}
+
+// SWITCH TAB LOGIC
 async function switchTab(tab) {
     const content = document.getElementById('admin-content');
     document.querySelectorAll('main button').forEach(b => b.classList.remove('nav-active'));
     document.getElementById('tab-' + tab).classList.add('nav-active');
-    content.innerHTML = '<div class="flex justify-center py-20 animate-spin"><i data-lucide="loader" class="w-8 h-8 text-emerald-600"></i></div>';
+    
+    content.innerHTML = '<div class="flex justify-center py-20 animate-spin"><i data-lucide="loader-2" class="w-10 h-10 text-emerald-600"></i></div>';
     lucide.createIcons();
 
     if (tab === 'surat') {
         const { data } = await _supabase.from('pengajuan_surat').select('*').order('created_at', { ascending: false });
-        content.innerHTML = `<h3 class="font-black text-sm mb-4 uppercase">Monitoring Surat Warga</h3>` + 
+        content.innerHTML = `<h3 class="font-black text-xs mb-3 uppercase tracking-widest text-slate-400">Monitoring Surat Warga</h3>` + 
         (data.length ? data.map(s => `
-            <div class="bg-white p-5 rounded-[2rem] border mb-3 flex justify-between items-center shadow-sm">
-                <div>
-                    <p class="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">${s.jenis_surat}</p>
-                    <h4 class="font-black uppercase text-xs">${s.nama} - RT ${s.rt}</h4>
-                    <p class="text-[10px] text-slate-400 italic mt-1">"${s.keterangan || 'Tidak ada catatan'}"</p>
+            <div class="bg-white p-5 rounded-[2rem] border border-slate-100 mb-3 flex justify-between items-center shadow-sm">
+                <div class="pr-2">
+                    <span class="px-2 py-1 bg-emerald-100 text-emerald-700 text-[8px] font-black rounded-lg uppercase italic">${s.jenis_surat}</span>
+                    <h4 class="font-black uppercase text-xs mt-2">${s.nama} <span class="text-slate-400">/ RT ${s.rt}</span></h4>
+                    <p class="text-[10px] text-slate-500 italic mt-1 line-clamp-2">"${s.keterangan || 'Tidak ada catatan'}"</p>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="window.open('https://wa.me/6281319934154')" class="bg-emerald-500 text-white p-3 rounded-2xl shadow-lg"><i data-lucide="phone" class="w-4 h-4"></i></button>
-                </div>
-            </div>`).join('') : '<p class="text-center text-slate-400 py-10">Belum ada pengajuan surat.</p>');
+                <button onclick="window.open('https://wa.me/6281319934154')" class="bg-emerald-500 text-white p-4 rounded-2xl shadow-lg flex-shrink-0 active:bg-emerald-600"><i data-lucide="message-circle" class="w-5 h-5"></i></button>
+            </div>`).join('') : '<div class="p-10 text-center text-slate-400 text-xs font-bold">BELUM ADA PENGAJUAN</div>');
 
     } else if (tab === 'upload') {
         content.innerHTML = `
-            <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-                <h3 class="font-black text-sm mb-4 uppercase">Upload Agenda / Pengumuman</h3>
+            <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm border-slate-100">
+                <h3 class="font-black text-sm mb-5 uppercase flex items-center gap-2"><i data-lucide="plus-circle" class="text-emerald-500"></i> Upload Pengumuman</h3>
                 <div class="space-y-4">
-                    <select id="up-tipe" class="w-full p-4 bg-slate-50 border rounded-2xl text-xs font-bold">
+                    <div><label class="text-[10px] font-black ml-2 uppercase text-slate-400">Tipe Konten</label>
+                    <select id="up-tipe" class="w-full mt-1 p-4 bg-slate-50 border-none rounded-2xl text-xs font-bold ring-1 ring-slate-100">
                         <option value="Kegiatan">Kegiatan (Absensi Aktif)</option>
                         <option value="Pengumuman">Pengumuman Biasa</option>
                         <option value="Agenda">Agenda Mendatang</option>
-                    </select>
-                    <input type="text" id="up-judul" placeholder="Judul Konten" class="w-full p-4 bg-slate-50 border rounded-2xl text-xs">
-                    <input type="date" id="up-tgl" class="w-full p-4 bg-slate-50 border rounded-2xl text-xs">
-                    <textarea id="up-isi" placeholder="Isi detail informasi..." class="w-full p-4 bg-slate-50 border rounded-2xl text-xs" rows="4"></textarea>
-                    <button onclick="simpanKonten()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs shadow-lg shadow-emerald-100">PUBLIKASIKAN SEKARANG</button>
+                    </select></div>
+                    <input type="text" id="up-judul" placeholder="Judul Konten..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs ring-1 ring-slate-100 focus:ring-emerald-500">
+                    <input type="date" id="up-tgl" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs ring-1 ring-slate-100">
+                    <textarea id="up-isi" placeholder="Detail informasi untuk warga..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs ring-1 ring-slate-100" rows="4"></textarea>
+                    <button onclick="simpanKonten()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition-all uppercase tracking-widest">Publikasikan Ke Warga</button>
                 </div>
             </div>`;
 
+    } else if (tab === 'dokumentasi') {
+        content.innerHTML = `
+            <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm border-slate-100 mb-6">
+                <h3 class="font-black text-sm mb-5 uppercase flex items-center gap-2"><i data-lucide="camera" class="text-rose-500"></i> Upload Foto Kegiatan</h3>
+                <div class="space-y-4">
+                    <input type="text" id="doc-judul" placeholder="Nama Kegiatan..." class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs ring-1 ring-slate-100">
+                    <input type="file" id="doc-file" accept="image/*" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs ring-1 ring-slate-100">
+                    <button onclick="uploadFoto()" id="btn-upload-foto" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-xs shadow-xl active:scale-95 transition-all">UPLOAD FOTO</button>
+                </div>
+            </div>
+            <div id="gallery-preview" class="grid grid-cols-2 gap-3 pb-10"></div>`;
+        loadGalleryPreview();
+
     } else if (tab === 'absen') {
         const { data: kegs } = await _supabase.from('pengumuman').select('judul').eq('tipe', 'Kegiatan');
-        content.innerHTML = `<div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-            <h3 class="font-black text-sm mb-4 uppercase">Generate Laporan PDF</h3>
-            <select id="pilih-kegiatan" class="w-full p-4 bg-slate-50 border rounded-2xl text-xs font-bold mb-4">
+        content.innerHTML = `<div class="bg-white p-6 rounded-[2.5rem] border shadow-sm">
+            <h3 class="font-black text-sm mb-4 uppercase">Generate Laporan Absensi</h3>
+            <p class="text-[10px] text-slate-400 mb-4 font-bold">Hasil download akan menyertakan KOP SURAT RW.01</p>
+            <select id="pilih-kegiatan" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs font-bold mb-4 ring-1 ring-slate-100">
                 <option value="">-- Pilih Nama Kegiatan --</option>
                 ${kegs.map(k => `<option value="${k.judul}">${k.judul}</option>`).join('')}
             </select>
-            <button onclick="downloadLaporan()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg">
+            <button onclick="downloadLaporan()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
                 <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD PDF
             </button>
         </div>`;
 
     } else if (tab === 'config') {
         content.innerHTML = `
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-                    <h3 class="font-black text-sm mb-4 uppercase text-emerald-700">📢 Running Text</h3>
-                    <textarea id="set-running-text" class="w-full p-4 bg-slate-50 border rounded-2xl text-[10px]" rows="3"></textarea>
-                    <button onclick="saveConfig('running_text')" class="w-full mt-3 bg-slate-900 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest">Update</button>
+            <div class="grid gap-4">
+                <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm">
+                    <h3 class="font-black text-[10px] mb-4 uppercase text-slate-400 tracking-widest italic">📢 Running Text Warga</h3>
+                    <textarea id="set-running-text" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs font-bold ring-1 ring-slate-100" rows="3"></textarea>
+                    <button onclick="saveConfig('running_text')" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">Update Running Text</button>
                 </div>
-                <div class="bg-white p-6 rounded-[2rem] border shadow-sm">
-                    <h3 class="font-black text-sm mb-4 uppercase text-emerald-700">📱 WhatsApp Admin</h3>
-                    <input type="tel" id="set-wa-admin" class="w-full p-4 bg-slate-50 border rounded-2xl text-xs" placeholder="62812xxx">
-                    <button onclick="saveConfig('wa_admin')" class="w-full mt-3 bg-slate-900 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest">Simpan</button>
+                <div class="bg-white p-6 rounded-[2.5rem] border shadow-sm">
+                    <h3 class="font-black text-[10px] mb-4 uppercase text-slate-400 tracking-widest italic">📱 WhatsApp Admin Utama</h3>
+                    <input type="tel" id="set-wa-admin" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-xs font-bold ring-1 ring-slate-100" placeholder="62812xxx">
+                    <button onclick="saveConfig('wa_admin')" class="w-full mt-3 bg-emerald-600 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest">Simpan Nomor WA</button>
                 </div>
             </div>`;
         loadCurrentConfig();
@@ -124,25 +163,112 @@ async function switchTab(tab) {
     lucide.createIcons();
 }
 
+// LOGIKA UPLOAD DOKUMENTASI
+// GANTI BAGIAN LOGIKA UPLOAD & DOWNLOAD DI ADMIN.HTML DENGAN INI
+
+async function uploadFoto() {
+    const fileInput = document.getElementById('doc-file');
+    const judul = document.getElementById('doc-judul').value;
+    const file = fileInput.files[0];
+    const btn = document.getElementById('btn-upload-foto');
+
+    if (!file || !judul) return alert("Pilih foto dan isi judul!");
+
+    btn.disabled = true;
+    btn.innerHTML = `<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> PROSES...`;
+    lucide.createIcons();
+
+    try {
+        const fileName = `${Date.now()}_${file.name}`;
+        // Gunakan bucket 'media-sinergi' agar sama dengan sisi warga
+        const { data: uploadData, error: uploadError } = await _supabase.storage
+            .from('media-sinergi')
+            .upload('dokumentasi/' + fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = _supabase.storage.from('media-sinergi').getPublicUrl('dokumentasi/' + fileName);
+
+        // Kolom disamakan menjadi 'file_url'
+        const { error: dbError } = await _supabase.from('dokumentasi').insert([
+            { judul: judul, file_url: urlData.publicUrl, created_at: new Date() }
+        ]);
+
+        if (dbError) throw dbError;
+
+        alert("Foto terbit di galeri warga!");
+        switchTab('dokumentasi');
+    } catch (err) {
+        alert("Gagal: " + err.message);
+        btn.disabled = false;
+        btn.innerText = "UPLOAD FOTO";
+    }
+}
+
+async function loadGalleryPreview() {
+    // Ambil data dari tabel dokumentasi
+    const { data } = await _supabase.from('dokumentasi').select('*').order('created_at', { ascending: false });
+    const container = document.getElementById('gallery-preview');
+    if(data) {
+        container.innerHTML = data.map(img => `
+            <div class="bg-white p-2 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
+                <img src="${img.file_url}" class="w-full h-32 object-cover rounded-2xl">
+                <div class="absolute bottom-2 left-2 right-2 p-2 bg-white/90 backdrop-blur rounded-xl border border-slate-100">
+                    <p class="text-[8px] font-black uppercase truncate">${img.judul}</p>
+                    <button onclick="deleteFoto('${img.id}')" class="text-[8px] text-rose-500 font-black mt-1 uppercase">Hapus Galeri</button>
+                </div>
+            </div>`).join('');
+    }
+}
+
+// FUNGSI DOWNLOAD LAPORAN (DENGAN FOTO SELFIE & TTD)
+async function downloadLaporan() {
+    const keg = document.getElementById('pilih-kegiatan').value;
+    if(!keg) return alert("Pilih kegiatan!");
+    
+    const { data } = await _supabase.from('absensi').select('*').eq('kegiatan_id', keg);
+    if(!data.length) return alert("Belum ada data absensi.");
+    
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // KOP SURAT RW.01
+    doc.setFontSize(14).setFont('helvetica', 'bold');
+    doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 15, { align: 'center' });
+    doc.setFontSize(10).setFont('helvetica', 'normal');
+    doc.text("Kelurahan Kebon Manggis, Matraman, Jakarta Timur", 105, 21, { align: 'center' });
+    doc.setLineWidth(0.5).line(15, 25, 195, 25);
+
+    doc.setFontSize(12).setFont('helvetica', 'bold');
+    doc.text(`LAPORAN KEHADIRAN: ${keg.toUpperCase()}`, 15, 35);
+    
+    // TABEL UTAMA
+    doc.autoTable({
+        startY: 40,
+        head: [['NAMA', 'RT', 'JABATAN', 'WAKTU', 'LOKASI']],
+        body: data.map(r => [
+            r.nama_warga.toUpperCase(), 
+            r.rt, 
+            r.jabatan, 
+            new Date(r.waktu_absen).toLocaleString('id-ID'),
+            r.lokasi || '-'
+        ]),
+        headStyles: { fillColor: [5, 150, 105] },
+        styles: { fontSize: 8 }
+    });
+    
+    doc.save(`Laporan_RW01_${keg}.pdf`);
+}
+
+// FUNGSI LAIN (TETAP SAMA)
 async function simpanKonten() {
     const tipe = document.getElementById('up-tipe').value;
     const judul = document.getElementById('up-judul').value;
     const tgl = document.getElementById('up-tgl').value;
     const isi = document.getElementById('up-isi').value;
-
     if(!judul || !isi) return alert("Lengkapi data!");
-
-    const { error } = await _supabase.from('pengumuman').insert([
-        { tipe, judul, tanggal: tgl, isi, created_at: new Date() }
-    ]);
-
-    if(!error) {
-        alert("Konten berhasil diupload!");
-        document.getElementById('up-judul').value = "";
-        document.getElementById('up-isi').value = "";
-    } else {
-        alert("Gagal upload: " + error.message);
-    }
+    const { error } = await _supabase.from('pengumuman').insert([{ tipe, judul, tanggal: tgl, isi }]);
+    if(!error) { alert("Konten Terbit!"); switchTab('upload'); }
 }
 
 async function loadCurrentConfig() {
@@ -157,22 +283,6 @@ async function saveConfig(key) {
     const val = key === 'running_text' ? document.getElementById('set-running-text').value : document.getElementById('set-wa-admin').value;
     await _supabase.from('app_config').upsert({ key: key, value: val }, { onConflict: 'key' });
     alert("Update Berhasil!");
-}
-
-async function downloadLaporan() {
-    const keg = document.getElementById('pilih-kegiatan').value;
-    if(!keg) return alert("Pilih kegiatan!");
-    const { data } = await _supabase.from('absensi').select('*').eq('kegiatan_id', keg);
-    if(!data.length) return alert("Belum ada data.");
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text(`LAPORAN ABSENSI: ${keg}`, 10, 10);
-    doc.autoTable({
-        head: [['Nama', 'RT', 'Jabatan', 'Waktu']],
-        body: data.map(r => [r.nama_warga, r.rt, r.jabatan, new Date(r.waktu_absen).toLocaleString('id-ID')])
-    });
-    doc.save(`Absen_${keg}.pdf`);
 }
 
 window.onload = () => {
