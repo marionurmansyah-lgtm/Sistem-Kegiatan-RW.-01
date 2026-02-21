@@ -703,13 +703,65 @@ function notify(msg, color) {
   setTimeout(function() { t.remove(); }, 3000);
 }
 
-async function hapusData(table, id) {
-  if(confirm('Hapus data ini?')) {
-    await _supabase.from(table).delete().eq('id', id);
-    var activeTab = document.querySelector('.sidebar-active').id.replace('nav-', '');
-    switchTab(activeTab);
+// 1. Fungsi Khusus Hapus Warga (Agar lebih spesifik)
+// 1. Fungsi Khusus Hapus Warga (Agar lebih spesifik)
+async function hapusWarga(id) {
+  if(confirm('Apakah Anda yakin ingin menghapus warga ini? Data login mereka akan hilang selamanya.')) {
+    notify("Menghapus...", "bg-amber-600");
+    const { error } = await _supabase.from('users').delete().eq('id', id);
+    
+    if(!error) {
+      notify("Warga berhasil dihapus", "bg-emerald-600");
+      loadWarga(); // Refresh tabel warga
+      loadDashboard(); // Refresh angka statistik di dashboard
+    } else {
+      notify("Gagal menghapus: " + error.message, "bg-rose-600");
+    }
   }
 }
+
+// 2. Fungsi Hapus Umum (Untuk Pengumuman, Agenda, Galeri)
+async function hapusData(table, id) {
+  if(confirm('Hapus data ini secara permanen?')) {
+    notify("Menghapus...", "bg-amber-600");
+    const { error } = await _supabase.from(table).delete().eq('id', id);
+    
+    if(!error) {
+      notify("Data berhasil dihapus", "bg-emerald-600");
+      
+      // Deteksi otomatis tab mana yang harus di-refresh
+      if(table === 'pengumuman') loadPengumuman();
+      if(table === 'agenda') loadAgenda();
+      if(table === 'dokumentasi') loadGaleri();
+      
+      loadDashboard(); // Update angka di dashboard
+    } else {
+      notify("Gagal menghapus: " + error.message, "bg-rose-600");
+    }
+  }
+}
+
+// 2. Fungsi Hapus Umum (Untuk Pengumuman, Agenda, Galeri)
+async function hapusData(table, id) {
+  if(confirm('Hapus data ini secara permanen?')) {
+    notify("Menghapus...", "bg-amber-600");
+    const { error } = await _supabase.from(table).delete().eq('id', id);
+    
+    if(!error) {
+      notify("Data berhasil dihapus", "bg-emerald-600");
+      
+      // Deteksi otomatis tab mana yang harus di-refresh
+      if(table === 'pengumuman') loadPengumuman();
+      if(table === 'agenda') loadAgenda();
+      if(table === 'dokumentasi') loadGaleri();
+      
+      loadDashboard(); // Update angka di dashboard
+    } else {
+      notify("Gagal menghapus: " + error.message, "bg-rose-600");
+    }
+  }
+}
+
 
 if(window.lucide) lucide.createIcons();
 </script>
