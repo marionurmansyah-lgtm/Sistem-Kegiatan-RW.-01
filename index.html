@@ -624,44 +624,108 @@ document.getElementById('form-login').onsubmit = async function(e) {
   e.preventDefault();
   const u = document.getElementById('login-user').value;
   const p = document.getElementById('login-pass').value;
+  
   notify("Memverifikasi...", "bg-blue-600");
   
-  const { data } = await _supabase.from('users').select('*').eq('username', u).eq('password', p).single();
-  if(data) { 
-    localStorage.setItem('user', JSON.stringify(data)); 
-    location.reload(); 
-  } else { 
-    notify("Login Gagal!", "bg-rose-600"); 
+  // 1. CEK JIKA YANG LOGIN ADALAH ADMIN (Hardcoded seperti di admin.html)
+  if (u === 'sekretaris' && p === 'adminrw01') {
+    const adminData = {
+      nama: "Admin Sekretariat",
+      username: "sekretaris",
+      role: "admin", // Kita tambahkan flag role
+      rt: "RW 01",
+      jabatan: "ADMIN SISTEM"
+    };
+    localStorage.setItem('user', JSON.stringify(adminData));
+    notify("Login Admin Berhasil!", "bg-emerald-600");
+    setTimeout(() => { window.location.href = 'admin.html'; }, 1000);
+    return;
+  }
+
+  // 2. CEK JIKA WARGA BIASA (Ke Supabase)
+  try {
+    const { data, error } = await _supabase
+      .from('users')
+      .select('*')
+      .eq('username', u)
+      .eq('password', p)
+      .single();
+
+    if (data) { 
+      data.role = 'warga'; // Tambahkan flag role warga
+      localStorage.setItem('user', JSON.stringify(data)); 
+      notify("Login Berhasil!", "bg-emerald-600");
+      setTimeout(() => { location.reload(); }, 1000); 
+    } else { 
+      notify("Username/Password Salah!", "bg-rose-600"); 
+    }
+  } catch (err) {
+    notify("Terjadi kesalahan koneksi", "bg-rose-600");
   }
 };
 
+
 document.getElementById('form-register').onsubmit = async function(e) {
   e.preventDefault();
+  
+  // Ambil Nilai
+  const nama = document.getElementById('reg-nama').value;
+  const rt = document.getElementById('reg-rt').value;
+  const hp = document.getElementById('reg-hp').value;
+  const user = document.getElementById('reg-user').value.toLowerCase().trim(); // Kecilkan huruf
+  const pass = document.getElementById('reg-pass').value;
+  
   const rawJabatan = document.getElementById('reg-kategori').value;
   const subJab = document.getElementById('reg-sub-jabatan').value;
   const detMan = document.getElementById('reg-detail-manual').value;
   
-  const payload = {
-    nama: document.getElementById('reg-nama').value,
-    rt: document.getElementById('reg-rt').value,
-    nomor_hp: document.getElementById('reg-hp').value,
-    username: document.getElementById('reg-user').value,
-    password: document.getElementById('reg-pass').value,
-    jabatan: subJab ? rawJabatan + ' (' + subJab + ')' : rawJabatan,
-    keterangan: detMan || "-"
-  };
-  
-  notify("Mendaftarkan...", "bg-blue-600");
+  // Gabungkan Jabatan agar rapi
+  let jabatanFinal = rawJabatan;
+  if (rawJabatan !== "Warga" && subJab) {
+    jabatanFinal = rawJabatan + " - " + subJab;
+  }
+
+  notify("Mengecek Username...", "bg-blue-600");
+
   try {
-    const { data, error } = await _supabase.from('users').insert(payload).select().single();
-    if(data && !error) { 
-      notify("Pendaftaran Berhasil! Silakan Login."); 
-      setTimeout(function() { showPage('page-login'); }, 1500); 
+    // 1. CEK APAKAH USERNAME SUDAH TERPAKAI
+    const { data: cekUser } = await _supabase
+      .from('users')
+      .select('username')
+      .eq('username', user)
+      .maybeSingle();
+
+    if (cekUser) {
+      notify("Username sudah terpakai! Cari yang lain.", "bg-rose-600");
+      return;
+    }
+
+    // 2. PROSES DAFTAR
+    const payload = {
+      nama: nama,
+      rt: rt,
+      nomor_hp: hp,
+      username: user,
+      password: pass,
+      jabatan: jabatanFinal,
+      keterangan: detMan || "-",
+      role: 'warga' // Tambahkan role default
+    };
+
+    const { error } = await _supabase.from('users').insert(payload);
+    
+    if(!error) { 
+      notify("Pendaftaran Berhasil! Silakan Login.", "bg-emerald-600"); 
+      setTimeout(function() { 
+        e.target.reset(); // Kosongkan form
+        showPage('page-login'); 
+      }, 2000); 
     } else {
-      notify("Gagal Daftar: " + (error ? error.message : "Unknown Error"), "bg-rose-600");
+      throw error;
     }
   } catch (err) { 
-    notify("Gagal Daftar!", "bg-rose-600"); 
+    console.error(err);
+    notify("Gagal Daftar: " + err.message, "bg-rose-600"); 
   }
 };
 
