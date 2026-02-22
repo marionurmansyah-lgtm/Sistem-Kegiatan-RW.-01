@@ -211,27 +211,115 @@
         }
 
         async function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', [215.9, 330.2]); // F4
-            const { data: rawData } = await _supabase.from('absensi').select('*');
+    const { jsPDF } = window.jspdf;
+    // Menggunakan ukuran F4 (215.9mm x 330.2mm)
+    const doc = new jsPDF('p', 'mm', [215.9, 330.2]); 
+    const { data: rawData } = await _supabase.from('absensi').select('*').order('waktu_absen', {ascending:false});
 
-            // Header Kop
-            doc.setFontSize(14).setFont("helvetica", "bold").text("PENGURUS RUKUN WARGA 01 (RW.01)", 107, 20, {align:"center"});
-            doc.setFontSize(10).setFont("helvetica", "normal").text("Laporan Kehadiran Warga - Sinergi Digital RW.01", 107, 26, {align:"center"});
-            doc.line(15, 30, 200, 30);
+    // 1. URL Logo & Konfigurasi
+    const logoUrl = "https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+    const namaKetuaRW = "NAMA KETUA RW ANDA"; // Silakan ubah nama ini
 
-            const tableData = rawData.map((r, i) => [i + 1, r.nama_warga, r.rt, r.kegiatan_id, new Date(r.waktu_absen).toLocaleDateString('id-ID')]);
+    // Fungsi Helper untuk memproses gambar ke Base64 agar bisa masuk ke PDF
+    const getBase64FromUrl = (url) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = "anonymous"; 
+            img.src = url;
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL("image/png"));
+            };
+            img.onerror = reject;
+        });
+    };
 
-            doc.autoTable({
-                startY: 40,
-                head: [['No', 'Nama', 'RT', 'Kegiatan', 'Tanggal']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [5, 150, 105] }
-            });
+    try {
+        // Ambil data gambar logo
+        const imgData = await getBase64FromUrl(logoUrl);
+        
+        // --- BAGIAN HEADER (KOP SURAT) ---
+        // Logo di kiri atas
+        doc.addImage(imgData, 'PNG', 15, 12, 20, 20);
 
-            doc.save("Laporan_RW01.pdf");
-        }
+        // Teks Kop Surat
+        doc.setFontSize(16).setFont("helvetica", "bold");
+        doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 115, 20, {align:"center"});
+        
+        doc.setFontSize(10).setFont("helvetica", "normal");
+        doc.text("Kelurahan Contoh, Kecamatan Contoh, Kota Administrasi Jakarta Pusat", 115, 25, {align:"center"});
+        doc.setFontSize(9).setCharSpace(0.5);
+        doc.text("Sistem Informasi Sinergi Digital RW.01", 115, 30, {align:"center"});
+        
+        // Garis Tebal Kop Surat
+        doc.setLineWidth(0.8);
+        doc.line(15, 35, 200, 35);
+        doc.setLineWidth(0.2);
+        doc.line(15, 36, 200, 36);
+
+        // --- BAGIAN JUDUL LAPORAN ---
+        doc.setCharSpace(0);
+        doc.setFontSize(12).setFont("helvetica", "bold");
+        doc.text("LAPORAN KEHADIRAN WARGA", 107.9, 45, {align:"center"});
+        doc.setFontSize(10).setFont("helvetica", "normal");
+        doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 15, 52);
+
+        // --- BAGIAN TABEL DATA ---
+        const tableData = rawData.map((r, i) => [
+            i + 1, 
+            r.nama_warga.toUpperCase(), 
+            `RT.0${r.rt}`, 
+            r.kegiatan_id, 
+            new Date(r.waktu_absen).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'})
+        ]);
+
+        doc.autoTable({
+            startY: 55,
+            head: [['NO', 'NAMA WARGA', 'UNIT', 'NAMA KEGIATAN', 'TANGGAL']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [5, 150, 105], halign: 'center', textColor: 255 },
+            styles: { fontSize: 9, cellPadding: 3 },
+            columnStyles: {
+                0: { cellWidth: 12, halign: 'center' },
+                2: { cellWidth: 20, halign: 'center' },
+                4: { cellWidth: 35, halign: 'center' }
+            }
+        });
+
+        // --- BAGIAN TANDA TANGAN (FOOTER) ---
+        const finalY = doc.lastAutoTable.finalY + 20; // Ambil posisi koordinat setelah tabel selesai
+        
+        // Pastikan tanda tangan tidak terpotong jika tabel terlalu panjang (pindah halaman jika perlu)
+        if (finalY > 280) { doc.addPage(); }
+
+        const ttdX = 140; // Posisi horizontal tanda tangan
+        doc.setFontSize(10).setFont("helvetica", "normal");
+        doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}), ttdX, finalY);
+        doc.text("Ketua RW.01,", ttdX, finalY + 7);
+        
+        // Tanda Tangan Digital (Berupa Teks Bold/Italic atau Anda bisa ganti dengan addImage jika ada scan TTD)
+        doc.setFont("times", "italic").setFontSize(12);
+        doc.text("Ditandatangani secara Digital", ttdX, finalY + 20);
+        
+        // Nama Ketua RW
+        doc.setFont("helvetica", "bold").setFontSize(10);
+        doc.text(Abdul Khadir Abu, ttdX, finalY + 35);
+        doc.line(ttdX, finalY + 36, ttdX + 45, finalY + 36); // Garis bawah nama
+
+        // Simpan File
+        doc.save(`Laporan_Kehadiran_RW01_${Date.now()}.pdf`);
+
+    } catch (error) {
+        console.error("Error generating PDF:", error);
+        alert("Terjadi kesalahan saat membuat PDF. Pastikan logo tersedia di storage.");
+    }
+}
+
 
         function logoutAdmin() {
             localStorage.clear();
