@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sinergi RW.01 - Kebon Manggis</title>
+    <link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#059669">
+<link rel="apple-touch-icon" href="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">   
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -181,7 +186,7 @@ async function switchTabWarga(tab) {
             </div>
             <div class="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl animate-up relative overflow-hidden">
                 <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 blur-[50px] rounded-full"></div>
-                <p class="text-[10px] font-bold opacity-50 uppercase tracking-widest italic">Warga RW.01,</p>
+                <p class="tex init-[10px] font-bold opacity-50 uppercase tracking-widest italic">Warga RW.01,</p>
                 <h2 class="text-2xl font-extrabold mt-1 tracking-tight">${user.nama.toUpperCase()}</h2>
                 <div class="mt-6 p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3">
                     <div class="p-2 bg-emerald-500 rounded-xl"><i data-lucide="award" class="w-4 h-4"></i></div>
@@ -273,6 +278,11 @@ document.getElementById('form-login').onsubmit = async (e) => {
         alert("Username atau Password Salah!");
     }
 };
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(() => console.log("Sinergi 01: Offline Mode Aktif"))
+      .catch((err) => console.log("SW Log:", err));
+}
 
 
 document.getElementById('form-register').onsubmit = async (e) => {
