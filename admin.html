@@ -4,11 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control Center - Sinergi RW.01</title>
-    <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#059669">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -19,8 +14,10 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; }
         .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
-        .tab-active { background: #059669; color: white; }
+        .tab-active { background: #059669; color: white; border-color: #059669; }
         .btn-press:active { transform: scale(0.95); transition: 0.1s; }
+        .animate-up { animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen">
@@ -39,32 +36,60 @@
     <main class="p-6 max-w-4xl mx-auto space-y-8">
         
         <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button onclick="switchTab('post')" id="tab-post" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass tab-active btn-press">POSTING</button>
+            <button onclick="switchTab('post')" id="tab-post" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass tab-active btn-press">PENGUMUMAN & FOTO</button>
+            <button onclick="switchTab('agenda')" id="tab-agenda" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass btn-press">BUAT AGENDA/KEGIATAN</button>
             <button onclick="switchTab('data')" id="tab-data" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass btn-press">DATA ABSENSI</button>
             <button onclick="window.location.href='index.html'" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap bg-slate-800 text-white btn-press">LIHAT WEB WARGA</button>
         </div>
 
         <section id="sec-post" class="space-y-6 animate-up">
             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                <h3 class="font-extrabold text-sm mb-6 flex items-center gap-2 uppercase tracking-widest"><i data-lucide="plus-circle" class="text-emerald-500"></i> Buat Postingan Baru</h3>
+                <h3 class="font-extrabold text-sm mb-6 flex items-center gap-2 uppercase tracking-widest"><i data-lucide="megaphone" class="text-emerald-500"></i> Publikasi Informasi</h3>
                 
                 <div class="space-y-4">
                     <select id="post-tipe" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
                         <option value="Pengumuman">Pengumuman Biasa</option>
-                        <option value="Kegiatan">Kegiatan (Ada Tombol Absen)</option>
-                        <option value="Dokumentasi">Dokumentasi (Hanya Foto Galeri)</option>
+                        <option value="Dokumentasi">Dokumentasi (Hanya Foto & Judul)</option>
                     </select>
 
                     <input type="text" id="post-judul" placeholder="Judul Postingan" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
-                    
-                    <textarea id="post-isi" rows="4" placeholder="Ketik isi pengumuman atau deskripsi foto di sini..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100"></textarea>
+                    <textarea id="post-isi" rows="4" placeholder="Isi detail pengumuman..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100"></textarea>
                     
                     <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Unggah Gambar (Wajib jika Dokumentasi)</label>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Unggah Gambar (Opsional)</label>
                         <input type="file" id="post-file" class="text-xs">
                     </div>
 
-                    <button onclick="handlePublish()" class="w-full bg-emerald-600 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-emerald-200 btn-press">PUBLIKASIKAN SEKARANG</button>
+                    <button onclick="handlePublish('info')" class="w-full bg-emerald-600 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-lg btn-press">POSTING INFORMASI</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-agenda" class="hidden space-y-6 animate-up">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
+                <h3 class="font-extrabold text-sm mb-6 flex items-center gap-2 uppercase tracking-widest"><i data-lucide="calendar" class="text-blue-500"></i> Buat Agenda Baru</h3>
+                
+                <div class="space-y-4">
+                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 mb-4">
+                        <p class="text-[10px] text-blue-700 font-bold italic">* Postingan di sini otomatis akan memiliki tombol "Absen Sekarang" pada aplikasi warga.</p>
+                    </div>
+
+                    <input type="text" id="agenda-judul" placeholder="Nama Kegiatan (Contoh: Kerja Bakti Massal)" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 ml-2">TANGGAL PELAKSANAAN</label>
+                            <input type="date" id="agenda-tgl" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100 mt-1">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 ml-2">WAKTU (WIB)</label>
+                            <input type="time" id="agenda-jam" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100 mt-1">
+                        </div>
+                    </div>
+
+                    <textarea id="agenda-isi" rows="3" placeholder="Detail kegiatan dan instruksi warga..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100"></textarea>
+
+                    <button onclick="handlePublish('agenda')" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-lg btn-press">PUBLIKASIKAN AGENDA</button>
                 </div>
             </div>
         </section>
@@ -74,7 +99,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="font-extrabold text-sm uppercase tracking-widest">Database Kehadiran</h3>
                     <button onclick="generatePDF()" class="bg-rose-600 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg btn-press">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> Download PDF (F4)
+                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak PDF
                     </button>
                 </div>
 
@@ -88,8 +113,7 @@
                                 <th class="p-4">Waktu</th>
                             </tr>
                         </thead>
-                        <tbody id="list-absen" class="font-bold divide-y divide-slate-50">
-                            </tbody>
+                        <tbody id="list-absen" class="font-bold divide-y divide-slate-50"></tbody>
                     </table>
                 </div>
             </div>
@@ -98,11 +122,11 @@
     </main>
 
     <script>
-        // CONFIG & PROTEKSI
         const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+        // Security
         (function() {
             const user = JSON.parse(localStorage.getItem('user'));
             if (!user || user.role !== 'admin') {
@@ -111,112 +135,102 @@
             }
         })();
 
-        // TAB LOGIC
         function switchTab(t) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('nav button, .overflow-x-auto button').forEach(b => b.classList.remove('tab-active'));
+            document.querySelectorAll('.overflow-x-auto button').forEach(b => b.classList.remove('tab-active'));
             document.getElementById('sec-' + t).classList.remove('hidden');
             document.getElementById('tab-' + t).classList.add('tab-active');
             if(t === 'data') loadAbsensi();
             lucide.createIcons();
         }
 
-        // POSTING LOGIC
-        async function handlePublish() {
-            const tipe = document.getElementById('post-tipe').value;
-            const judul = document.getElementById('post-judul').value;
-            const isi = document.getElementById('post-isi').value;
-            const file = document.getElementById('post-file').files[0];
-
-            if(!judul || !isi) return alert("Lengkapi data!");
-
-            let file_url = "";
-            if(file) {
-                const fileName = Date.now() + "_" + file.name;
-                const { data, error } = await _supabase.storage.from('Dokumentasi').upload(fileName, file);
-                if(data) {
-                    const { data: publicUrl } = _supabase.storage.from('Dokumentasi').getPublicUrl(fileName);
-                    file_url = publicUrl.publicUrl;
+        async function handlePublish(mode) {
+            let table = "pengumuman";
+            let payload = {};
+            
+            if(mode === 'info') {
+                const tipe = document.getElementById('post-tipe').value;
+                const judul = document.getElementById('post-judul').value;
+                const isi = document.getElementById('post-isi').value;
+                const file = document.getElementById('post-file').files[0];
+                
+                if(!judul || !isi) return alert("Isi judul dan deskripsi!");
+                
+                let img_url = "";
+                if(file) {
+                    const fileName = Date.now() + "_" + file.name;
+                    const { data } = await _supabase.storage.from('Dokumentasi').upload(fileName, file);
+                    if(data) {
+                        const { data: pub } = _supabase.storage.from('Dokumentasi').getPublicUrl(fileName);
+                        img_url = pub.publicUrl;
+                    }
                 }
+
+                if(tipe === "Dokumentasi") {
+                    table = "dokumentasi";
+                    payload = { judul, file_url: img_url };
+                } else {
+                    payload = { judul, isi, tipe: "Pengumuman", file_url: img_url };
+                }
+
+            } else if(mode === 'agenda') {
+                const judul = document.getElementById('agenda-judul').value;
+                const tgl = document.getElementById('agenda-tgl').value;
+                const jam = document.getElementById('agenda-jam').value;
+                const isi = document.getElementById('agenda-isi').value;
+
+                if(!judul || !tgl) return alert("Lengkapi data agenda!");
+
+                payload = { 
+                    judul: judul, 
+                    isi: `Pelaksanaan: ${tgl} Jam: ${jam}. ${isi}`,
+                    tipe: "Kegiatan" // Ini yang memicu tombol absen di sisi warga
+                };
             }
 
-            const table = (tipe === "Dokumentasi") ? "dokumentasi" : "pengumuman";
-            const payload = (tipe === "Dokumentasi") ? { judul, file_url } : { judul, isi, tipe };
-
-            const { error: err } = await _supabase.from(table).insert([payload]);
-            if(!err) {
+            const { error } = await _supabase.from(table).insert([payload]);
+            if(!error) {
                 alert("Berhasil Dipublikasikan!");
                 location.reload();
             } else {
-                alert("Gagal: " + err.message);
+                alert("Gagal: " + error.message);
             }
         }
 
-        // LOAD DATA ABSEN
         async function loadAbsensi() {
             const { data } = await _supabase.from('absensi').select('*').order('waktu_absen', {ascending:false});
             const list = document.getElementById('list-absen');
             list.innerHTML = data.map(h => `
                 <tr class="hover:bg-slate-50 transition-all">
                     <td class="p-4 uppercase">${h.nama_warga}</td>
-                    <td class="p-4">${h.rt}</td>
+                    <td class="p-4">RT.0${h.rt}</td>
                     <td class="p-4 text-emerald-600">${h.kegiatan_id}</td>
-                    <td class="p-4 text-slate-400">${new Date(h.waktu_absen).toLocaleString()}</td>
+                    <td class="p-4 text-slate-400">${new Date(h.waktu_absen).toLocaleString('id-ID')}</td>
                 </tr>
             `).join('');
         }
 
-        // GENERATOR PDF (STANDAR F4 & KOP SURAT)
         async function generatePDF() {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', [215.9, 330.2]); // Ukuran F4 (215.9mm x 330.2mm)
-            
+            const doc = new jsPDF('p', 'mm', [215.9, 330.2]); // F4
             const { data: rawData } = await _supabase.from('absensi').select('*');
-            const user = JSON.parse(localStorage.getItem('user'));
 
-            // 1. KOP SURAT
-            const logoUrl = "https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-            doc.addImage(logoUrl, 'PNG', 15, 10, 20, 20);
-            doc.setFontSize(14);
-            doc.setFont("helvetica", "bold");
-            doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 40, 18);
-            doc.setFontSize(10);
-            doc.setFont("helvetica", "normal");
-            doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman, Jakarta Timur", 40, 23);
-            doc.line(15, 32, 200, 32); // Garis Kop
+            // Header Kop
+            doc.setFontSize(14).setFont("helvetica", "bold").text("PENGURUS RUKUN WARGA 01 (RW.01)", 107, 20, {align:"center"});
+            doc.setFontSize(10).setFont("helvetica", "normal").text("Laporan Kehadiran Warga - Sinergi Digital RW.01", 107, 26, {align:"center"});
+            doc.line(15, 30, 200, 30);
 
-            // 2. JUDUL LAPORAN
-            doc.setFontSize(12);
-            doc.setFont("helvetica", "bold");
-            doc.text("LAPORAN DAFTAR HADIR KEGIATAN", 107, 45, {align: "center"});
-
-            // 3. TABEL DATA
-            const tableData = rawData.map((row, index) => [
-                index + 1,
-                row.nama_warga,
-                row.rt,
-                row.jabatan || '-',
-                row.nomor_hp || '-',
-                new Date(row.waktu_absen).toLocaleDateString('id-ID')
-            ]);
+            const tableData = rawData.map((r, i) => [i + 1, r.nama_warga, r.rt, r.kegiatan_id, new Date(r.waktu_absen).toLocaleDateString('id-ID')]);
 
             doc.autoTable({
-                startY: 55,
-                head: [['No', 'Nama Lengkap', 'RT', 'Jabatan', 'No. HP', 'Tanggal']],
+                startY: 40,
+                head: [['No', 'Nama', 'RT', 'Kegiatan', 'Tanggal']],
                 body: tableData,
                 theme: 'grid',
-                headStyles: { fillColor: [30, 41, 59], fontSize: 9 },
-                styles: { fontSize: 8, font: 'helvetica' }
+                headStyles: { fillColor: [5, 150, 105] }
             });
 
-            // 4. TANDA TANGAN (TTD)
-            const finalY = doc.lastAutoTable.finalY + 20;
-            doc.setFontSize(10);
-            doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID')}`, 150, finalY);
-            doc.text("Ketua RW.01", 150, finalY + 5);
-            doc.text("( .................................. )", 150, finalY + 30);
-
-            doc.save("Laporan_Absensi_RW01.pdf");
+            doc.save("Laporan_RW01.pdf");
         }
 
         function logoutAdmin() {
@@ -225,14 +239,6 @@
         }
 
         window.onload = () => lucide.createIcons();
-
-        if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('service-worker.js')
-      .then(() => console.log("Sinergi 01: Offline Mode Aktif"))
-      .catch((err) => console.log("SW Log:", err));
-        }
-        
     </script>
 </body>
 </html>
-
