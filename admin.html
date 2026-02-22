@@ -218,7 +218,7 @@
 
     // 1. URL Logo & Konfigurasi
     const logoUrl = "https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-    const namaKetuaRW = "NAMA KETUA RW ANDA"; // Silakan ubah nama ini
+    const namaKetuaRW = "Abdul Khadir Abu"; // Silakan ubah nama ini
 
     // Fungsi Helper untuk memproses gambar ke Base64 agar bisa masuk ke PDF
     const getBase64FromUrl = (url) => {
@@ -308,7 +308,7 @@
         
         // Nama Ketua RW
         doc.setFont("helvetica", "bold").setFontSize(10);
-        doc.text(Abdul Khadir Abu, ttdX, finalY + 35);
+        doc.text(namaKetuaRW, ttdX, finalY + 35);
         doc.line(ttdX, finalY + 36, ttdX + 45, finalY + 36); // Garis bawah nama
 
         // Simpan File
