@@ -156,12 +156,12 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
         </div>
         <div class="text-right">
           <p id="live-clock" class="text-lg font-black leading-none">00:00:00</p>
-          <p id="live-date" class="text-12px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
+          <p id="live-date" class="text-[12px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
         </div>
       </div>
       <div class="flex items-center gap-2 mt-4 relative z-10">
-        <span id="kartu-jabatan" class="text-[9px] bg-white/20 px-3 py-1.5 rounded-full font-bold border border-white/10">...</span>
-        <span id="kartu-rt" class="text-[9px] bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-black shadow-sm">...</span>
+        <span id="kartu-jabatan" class="text-[12px] bg-white/20 px-3 py-1.5 rounded-full font-bold border border-white/10">...</span>
+        <span id="kartu-rt" class="text-[12px] bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-black shadow-sm">...</span>
       </div>
     </div>
     
@@ -245,14 +245,14 @@ function showPage(id) {
 function togglePass(id) {
   const el = document.getElementById(id);
   el.type = el.type === "password" ? "text" : "password";
-  lucide.createIcons(); // ✅ FIX: Re-init icons after toggle
+  lucide.createIcons();
 }
 
 function notify(msg, color = "bg-emerald-600") {
   const t = document.getElementById('toast');
-  t.textContent = msg; 
+  t.textContent = msg;
   t.className = `fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl text-white font-bold animate-fade ${color}`;
-  t.classList.remove('hidden'); 
+  t.classList.remove('hidden');
   setTimeout(() => t.classList.add('hidden'), 3000);
 }
 
@@ -265,23 +265,8 @@ function updateLiveTime() {
 }
 setInterval(updateLiveTime, 1000);
 
-  // Tambahkan fungsi ini di utility functions
-function clearQRCode() {
-  const qrContainer = document.getElementById("qrcode");
-  if(qrContainer) {
-    qrContainer.innerHTML = "";
-  }
-}
-// Gunakan di switchTabWarga sebelum generate QR baru
-clearQRCode();
-new QRCode(document.getElementById("qrcode"), { 
-  text: user.username, 
-  width: 120, 
-  height: 120 
-});
-
 // ============================================
-// SUB-JABATAN LOGIC (FIXED - HAPUS DUPLIKASI)
+// SUB-JABATAN LOGIC
 // ============================================
 function updateSubJabatan() {
   const kat = document.getElementById('reg-kategori').value;
@@ -289,8 +274,8 @@ function updateSubJabatan() {
   const sub = document.getElementById('reg-sub-jabatan');
   const detCont = document.getElementById('reg-detail-manual-container');
   
-  subCont.classList.add('hidden'); 
-  detCont.classList.add('hidden'); 
+  subCont.classList.add('hidden');
+  detCont.classList.add('hidden');
   sub.innerHTML = '';
   
   if (kat === 'Pengurus RW') {
@@ -300,11 +285,11 @@ function updateSubJabatan() {
     subCont.classList.remove('hidden');
     sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
   } else if (kat === 'Kader') {
-    subCont.classList.remove('hidden'); 
+    subCont.classList.remove('hidden');
     detCont.classList.remove('hidden');
     sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="DAWIS">Kader DAWIS</option><option value="Posyandu">Kader Posyandu</option>';
   } else if (kat === 'Seksi Pendidikan') {
-    subCont.classList.remove('hidden'); 
+    subCont.classList.remove('hidden');
     detCont.classList.remove('hidden');
     sub.innerHTML = '<option value="PAUD">Guru PAUD</option><option value="Guru Ngaji">Guru Ngaji</option>';
   } else if (kat === 'Keamanan') {
@@ -503,107 +488,247 @@ async function switchTabWarga(tab) {
           </div>
           <p class="text-[8px] text-slate-400 text-center mt-4 font-bold uppercase">Pengajuan akan dikirim langsung ke WhatsApp Admin</p>
         </div>`;
+      lucide.createIcons();
       
-    } // ============================================
-// TAB RIWAYAT (FIXED)
-// ============================================
-else if(tab === 'riwayat') {
-  const { data, error } = await _supabase
-    .from(TABLES.ABSENSI)
-    .select('*')
-    .eq('nama_warga', user.nama)
-    .order('waktu_absen', { ascending: false });
-  
-  const myAbsen = data || [];
-  
-  list.innerHTML = `
-  <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
-    <div id="qrcode"></div>
-    <p class="text-[9px] font-black text-emerald-600 uppercase mt-3 tracking-widest">${user.username}</p>
-  </div>
-  ${(user.jabatan.includes('Ketua') || user.jabatan.includes('Sekretaris') || user.jabatan === 'Admin') ? `
-  <div class="bg-amber-50 p-4 rounded-3xl border border-amber-100 mb-6">
-    <p class="text-[9px] font-black text-amber-700 uppercase mb-3">Menu Sekretariat</p>
-    <button onclick="generateLaporanPDF()" class="w-full bg-amber-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-100">
-      <i data-lucide="file-down" class="w-4 h-4"></i> Cetak Daftar Hadir Semua Warga
-    </button>
-  </div>` : ''}
-  <h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> Riwayat Absen Anda</h5>
-  <div class="space-y-3">
-    ${myAbsen.length > 0 ? myAbsen.map(r => `
-    <div class="bg-white p-4 rounded-3xl flex items-center gap-4 border border-slate-50">
-      <img src="${r.photo_selfie_url}" class="w-12 h-12 object-cover rounded-xl" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Hadir')">
-      <div class="flex-1">
-        <p class="font-black text-[10px] uppercase text-slate-800">${r.kegiatan_id}</p>
-        <p class="text-[8px] text-slate-400 uppercase mt-1 font-bold">${new Date(r.waktu_absen).toLocaleString('id-ID')}</p>
+    } else if(tab === 'riwayat') {
+      const { data, error } = await _supabase
+        .from(TABLES.ABSENSI)
+        .select('*')
+        .eq('nama_warga', user.nama)
+        .order('waktu_absen', { ascending: false });
+      
+      const myAbsen = data || [];
+      
+      list.innerHTML = `
+      <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
+        <div id="qrcode"></div>
+        <p class="text-[9px] font-black text-emerald-600 uppercase mt-3 tracking-widest">${user.username}</p>
       </div>
-      <img src="${r.tanda_tangan_url}" class="w-10 h-10 object-contain opacity-50">
-    </div>`).join('') : '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada riwayat absensi</p>'}
-  </div>`;
-  
-  // ✅ FIXED: Tambahkan 'new' sebelum QRCode
-  new QRCode(document.getElementById("qrcode"), { 
-    text: user.username, 
-    width: 120, 
-    height: 120,
-    colorDark: "#059669",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
-  });
-  
-  lucide.createIcons();
+      ${(user.jabatan.includes('Ketua') || user.jabatan.includes('Sekretaris') || user.jabatan === 'Admin') ? `
+      <div class="bg-amber-50 p-4 rounded-3xl border border-amber-100 mb-6">
+        <p class="text-[9px] font-black text-amber-700 uppercase mb-3">Menu Sekretariat</p>
+        <button onclick="generateLaporanPDF()" class="w-full bg-amber-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-100">
+          <i data-lucide="file-down" class="w-4 h-4"></i> Cetak Daftar Hadir Semua Warga
+        </button>
+      </div>` : ''}
+      <h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> Riwayat Absen Anda</h5>
+      <div class="space-y-3">
+        ${myAbsen.length > 0 ? myAbsen.map(r => `
+        <div class="bg-white p-4 rounded-3xl flex items-center gap-4 border border-slate-50">
+          <img src="${r.photo_selfie_url}" class="w-12 h-12 object-cover rounded-xl" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Hadir')">
+          <div class="flex-1">
+            <p class="font-black text-[10px] uppercase text-slate-800">${r.kegiatan_id}</p>
+            <p class="text-[8px] text-slate-400 uppercase mt-1 font-bold">${new Date(r.waktu_absen).toLocaleString('id-ID')}</p>
+          </div>
+          <img src="${r.tanda_tangan_url}" class="w-10 h-10 object-contain opacity-50">
+        </div>`).join('') : '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada riwayat absensi</p>'}
+      </div>`;
+      
+      // ✅ FIXED: Tambahkan 'new' sebelum QRCode
+      new QRCode(document.getElementById("qrcode"), { 
+        text: user.username, 
+        width: 120, 
+        height: 120,
+        colorDark: "#059669",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+    
+    lucide.createIcons();
+  } catch(err) {
+    console.error(err);
+    list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat data</p>';
+  }
 }
 
 // ============================================
-// PDF GENERATOR
+// PDF GENERATOR - DENGAN GRID/BORDER
+// ============================================
+// ============================================
+// PDF GENERATOR - DIPERBAIKI (NO GREEN HEADER)
 // ============================================
 async function generateLaporanPDF() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
   
-  const { data, error } = await _supabase
-    .from(TABLES.ABSENSI)
-    .select('*')
-    .order('waktu_absen', { ascending: false });
-  
-  if(error || !data) {
-    notify("Gagal memuat data absensi", "bg-rose-600");
-    return;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // === 1. HEADER (WARNA DASAR KERTAS - PUTIH) ===
+    // ❌ HAPUS background hijau
+    // ✅ Biarkan putih polos
+    
+    // Logo (Kiri Atas) - Optional
+    const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+    
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null); // Fallback jika logo gagal load
+        img.src = url;
+      });
+    };
+    
+    const logoBase64 = await loadImage(logoUrl);
+    
+    // Tampilkan Logo jika berhasil load
+    if(logoBase64) {
+      doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+    }
+    
+    // Teks Header (Hitam - bukan putih)
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14).setFont("helvetica", "bold");
+    doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
+    
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
+    doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
+    
+    doc.setFontSize(8);
+    doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
+    
+    // Garis Ganda Pembatas Header (Hitam)
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(15, 38, 195, 38);
+    doc.setLineWidth(0.2);
+    doc.line(15, 40, 195, 40);
+    
+    // === 2. JUDUL LAPORAN ===
+    doc.setFontSize(12).setFont("helvetica", "bold");
+    doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
+    
+    // Tanggal Cetak
+    doc.setFontSize(8).setFont("helvetica", "normal");
+    const printDate = new Date().toLocaleString('id-ID', { 
+      day: 'numeric', 
+      month: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Dicetak pada: ${printDate}`, 15, 56);
+    
+    // === 3. AMBIL DATA ===
+    const { data, error } = await _supabase
+      .from(TABLES.ABSENSI)
+      .select('*')
+      .order('waktu_absen', { ascending: false });
+    
+    if(error || !data) {
+      notify("Gagal memuat data absensi", "bg-rose-600");
+      return;
+    }
+    
+    // === 4. TABEL DENGAN GRID/BORDER ===
+    const tableBody = data.map((row, index) => [
+      index + 1, 
+      row.nama_warga, 
+      row.rt, 
+      row.jabatan, 
+      row.kegiatan_id, 
+      new Date(row.waktu_absen).toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      })
+    ]);
+    
+    doc.autoTable({
+      startY: 60,
+      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
+      body: tableBody,
+      
+      // === GRID/BORDER SETTINGS ===
+      theme: 'grid',
+      tableLineColor: [200, 200, 200],
+      tableLineWidth: 0.2,
+      
+      headStyles: { 
+        fillColor: [5, 150, 105],  // ✅ Header tabel tetap hijau (opsional)
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 9,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2
+      },
+      
+      alternateRowStyles: { 
+        fillColor: [250, 250, 250]
+      },
+      
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 3,
+        valign: 'middle',
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2,
+        overflow: 'linebreak'  // ✅ Fix text overflow
+      },
+      
+      // === FIX: KOLOM TANGGAL TIDAK TERBAGI ===
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 12 },   // NO
+        1: { cellWidth: 45 },                      // NAMA WARGA
+        2: { halign: 'center', cellWidth: 18 },   // UNIT
+        3: { cellWidth: 35 },                      // JABATAN
+        4: { cellWidth: 45 },                      // NAMA KEGIATAN
+        5: { halign: 'left', cellWidth: 32 }      // ✅ TANGGAL (fixed width)
+      },
+      
+      margin: { left: 15, right: 15, top: 60 },
+      pageBreak: 'auto',
+      
+      // ✅ FIX: Custom draw cell untuk border yang konsisten
+      didDrawCell: (data) => {
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+      }
+    });
+    
+    // === 5. TANDA TANGAN (FOOTER) ===
+    const finalY = doc.lastAutoTable.finalY + 20;
+    
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    })}`, 150, finalY);
+    
+    doc.text("Ketua RW.01,", 150, finalY + 6);
+    
+    doc.setFontSize(9).setFont("helvetica", "italic");
+    doc.text("Ditandatangani secara Digital", 150, finalY + 15);
+    
+    doc.setFontSize(10).setFont("helvetica", "bold");
+    doc.text("Abdul Khadir Abu", 150, finalY + 25);
+    
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(150, finalY + 27, 195, finalY + 27);
+    
+    // === 6. SAVE PDF ===
+    doc.save(`Laporan_RW01_${Date.now()}.pdf`);
+    notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+    
+  } catch (err) {
+    console.error(err);
+    notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
   }
-  
-  doc.setFontSize(14); doc.setFont("helvetica", "bold");
-  doc.text("PENGURUS RUKUN WARGA 01", 105, 20, { align: "center" });
-  doc.setFontSize(10); doc.setFont("helvetica", "normal");
-  doc.text("KELURAHAN KEBON MANGGIS - KECAMATAN MATRAMAN", 105, 25, { align: "center" });
-  doc.setFontSize(8); doc.text("Sekretariat: Jl. Kebon Manggis I, Jakarta Timur", 105, 29, { align: "center" });
-  doc.line(20, 32, 190, 32); doc.line(20, 33, 190, 33);
-  
-  doc.setFontSize(11); doc.setFont("helvetica", "bold");
-  doc.text("DAFTAR HADIR KEGIATAN WARGA", 105, 45, { align: "center" });
-  
-  const tableBody = data.map((row, index) => [
-    index + 1, row.nama_warga, row.rt, row.jabatan, row.kegiatan_id, new Date(row.waktu_absen).toLocaleDateString('id-ID')
-  ]);
-  
-  doc.autoTable({
-    startY: 52,
-    head: [['NO', 'NAMA WARGA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
-    body: tableBody,
-    theme: 'grid',
-    headStyles: { fillColor: [5, 150, 105], halign: 'center' },
-    styles: { fontSize: 8, cellPadding: 3 },
-    columnStyles: { 0: { halign: 'center' }, 2: { halign: 'center' } }
-  });
-  
-  const finalY = doc.lastAutoTable.finalY + 15;
-  doc.setFontSize(9);
-  doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID'), 150, finalY);
-  doc.text("Sekretaris RW.01,", 150, finalY + 5);
-  doc.text("( ____________________ )", 150, finalY + 25);
-  
-  doc.save("Laporan_Absensi_RW01.pdf");
-  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
 
 // ============================================
@@ -631,7 +756,7 @@ document.getElementById('form-login').onsubmit = async (e) => {
   
   if (u === 'sekretaris' && p === 'adminrw01') {
     localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
-    window.location.href = 'admin.html'; 
+    window.location.href = 'admin.html';
     return;
   }
   
@@ -647,11 +772,11 @@ document.getElementById('form-login').onsubmit = async (e) => {
     if(data && !error) {
       localStorage.setItem('user', JSON.stringify(data));
       data.jabatan === 'Admin' ? window.location.href='admin.html' : location.reload();
-    } else { 
-      notify("Username/Password Salah!", "bg-rose-600"); 
+    } else {
+      notify("Username/Password Salah!", "bg-rose-600");
     }
-  } catch (err) { 
-    notify("Kesalahan Server", "bg-rose-600"); 
+  } catch (err) {
+    notify("Kesalahan Server", "bg-rose-600");
   }
 };
 
@@ -679,14 +804,14 @@ document.getElementById('form-register').onsubmit = async (e) => {
       .select()
       .single();
     
-    if(data && !error) { 
-      notify("Pendaftaran Berhasil!"); 
-      setTimeout(()=>showPage('page-login'), 1500); 
+    if(data && !error) {
+      notify("Pendaftaran Berhasil!");
+      setTimeout(()=>showPage('page-login'), 1500);
     } else {
       notify("Gagal Daftar: " + error.message, "bg-rose-600");
     }
-  } catch (err) { 
-    notify("Gagal Daftar!", "bg-rose-600"); 
+  } catch (err) {
+    notify("Gagal Daftar!", "bg-rose-600");
   }
 };
 
@@ -705,7 +830,7 @@ function toggleZoom(el) {
 
 function viewImage(url, caption) {
   const img = document.getElementById('full-image');
-  img.src = url; 
+  img.src = url;
   img.style.transform = "scale(1)";
   document.getElementById('image-caption').innerText = caption;
   document.getElementById('image-viewer').classList.remove('hidden');
@@ -713,8 +838,8 @@ function viewImage(url, caption) {
   lucide.createIcons();
 }
 
-function closeImageViewer() { 
-  document.getElementById('image-viewer').classList.add('hidden'); 
+function closeImageViewer() {
+  document.getElementById('image-viewer').classList.add('hidden');
 }
 
 // ============================================
@@ -749,8 +874,8 @@ document.getElementById('form-submit-absen').onsubmit = async (e) => {
       .getPublicUrl(`absen/${fileName}`);
     
     const payload = {
-      nama_warga: user.nama, 
-      rt: user.rt, 
+      nama_warga: user.nama,
+      rt: user.rt,
       jabatan: user.jabatan,
       waktu_absen: new Date().toISOString(),
       kegiatan_id: document.getElementById('abs-kegiatan-id').value,
@@ -767,17 +892,17 @@ document.getElementById('form-submit-absen').onsubmit = async (e) => {
     notify("Absensi Berhasil Terkirim ✓");
     document.getElementById('modal-absen').classList.add('hidden');
     switchTabWarga('riwayat');
-  } catch (err) { 
-    notify("Gagal Mengirim: " + err.message, "bg-rose-600"); 
+  } catch (err) {
+    notify("Gagal Mengirim: " + err.message, "bg-rose-600");
   }
 };
 
 // ============================================
 // LOGOUT
 // ============================================
-function logout() { 
-  localStorage.clear(); 
-  location.reload(); 
+function logout() {
+  localStorage.clear();
+  location.reload();
 }
 
 // ============================================
@@ -786,8 +911,8 @@ function logout() {
 window.onload = () => {
   const user = JSON.parse(localStorage.getItem('user'));
   if(user) {
-    if(user.jabatan === 'Admin') { 
-      window.location.href = 'admin.html'; 
+    if(user.jabatan === 'Admin') {
+      window.location.href = 'admin.html';
     } else {
       showPage('page-user');
       document.getElementById('kartu-nama').innerText = user.nama;
