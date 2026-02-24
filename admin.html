@@ -120,7 +120,7 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
       <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
       <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Information System</p>
     </div>
-    <!-- Tombol Kembali ke Dashboard -->
+    <!-- ✅ TOMBOL KEMBALI KE DASHBOARD WARGA -->
     <button onclick="window.location.href='index.html'" class="btn-back px-4 py-2 rounded-xl text-xs flex items-center gap-2">
       <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
     </button>
@@ -291,7 +291,7 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
 <script>
 // ============================================
-// CONFIG - SAMA DENGAN INDEX.HTML (FIXED - NO SPACES)
+// CONFIG - SAMA DENGAN INDEX.HTML
 // ============================================
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
@@ -379,7 +379,7 @@ async function postPengumuman() {
       await _supabase.storage
         .from('media-sinergi')
         .upload(`undangan/${pName}`, filePdf);
-      const {  dPdf } = _supabase.storage
+      const { data: dPdf } = _supabase.storage
         .from('media-sinergi')
         .getPublicUrl(`undangan/${pName}`);
       pdfUrl = dPdf.publicUrl;
@@ -495,45 +495,197 @@ async function hapusAbsen(id) {
   }
 }
 
+// ============================================
+// PDF GENERATOR - DENGAN GRID/BORDER CELL
+// ============================================
+// ============================================
+// PDF GENERATOR - DIPERBAIKI (KONSISTEN DENGAN INDEX.HTML)
+// ============================================
 async function downloadPDFMaster() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
-  const { jsPDF } = window.jspdf;
   const filter = document.getElementById('select-kegiatan-laporan').value;
   
-  let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
-  if(filter) query = query.eq('kegiatan_id', filter);
-  
-  const { data, error } = await query;
-  
-  if(error || !data) {
-    notify("Gagal memuat data", "bg-rose-600");
-    return;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // === 1. LOAD LOGO ===
+    const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+    
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null); // Fallback jika logo gagal load
+        img.src = url;
+      });
+    };
+    
+    const logoBase64 = await loadImage(logoUrl);
+    
+    // === 2. HEADER (WARNA DASAR KERTAS - PUTIH) ===
+    // Tampilkan Logo jika berhasil load
+    if(logoBase64) {
+      doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+    }
+    
+    // Teks Header (Hitam - bukan putih)
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(14).setFont("helvetica", "bold");
+    doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
+    
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
+    doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
+    
+    doc.setFontSize(8);
+    doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
+    
+    // Garis Ganda Pembatas Header (Hitam)
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(15, 38, 195, 38);
+    doc.setLineWidth(0.2);
+    doc.line(15, 40, 195, 40);
+    
+    // === 3. JUDUL LAPORAN ===
+    doc.setFontSize(12).setFont("helvetica", "bold");
+    doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
+    
+    // Tanggal Cetak
+    doc.setFontSize(8).setFont("helvetica", "normal");
+    const printDate = new Date().toLocaleString('id-ID', { 
+      day: 'numeric', 
+      month: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    doc.text(`Dicetak pada: ${printDate}`, 15, 56);
+    
+    // Filter Kegiatan (jika ada)
+    if(filter) {
+      doc.text(`Kegiatan: ${filter}`, 15, 61);
+    }
+    
+    // === 4. AMBIL DATA ===
+    let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
+    if(filter) query = query.eq('kegiatan_id', filter);
+    
+    const { data, error } = await query;
+    
+    if(error || !data) {
+      notify("Gagal memuat data absensi", "bg-rose-600");
+      return;
+    }
+    
+    // === 5. TABEL DENGAN GRID/BORDER ===
+    const tableBody = data.map((row, index) => [
+      index + 1, 
+      row.nama_warga, 
+      row.rt, 
+      row.jabatan, 
+      row.kegiatan_id, 
+      new Date(row.waktu_absen).toLocaleDateString('id-ID', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      })
+    ]);
+    
+    doc.autoTable({
+      startY: filter ? 65 : 60,
+      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
+      body: tableBody,
+      
+      // === GRID/BORDER SETTINGS ===
+      theme: 'grid',
+      tableLineColor: [200, 200, 200],
+      tableLineWidth: 0.2,
+      
+      headStyles: { 
+        fillColor: [5, 150, 105],  // Header tabel tetap hijau
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 9,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2
+      },
+      
+      alternateRowStyles: { 
+        fillColor: [250, 250, 250]
+      },
+      
+      styles: { 
+        fontSize: 8, 
+        cellPadding: 3,
+        valign: 'middle',
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2,
+        overflow: 'linebreak'  // Fix text overflow
+      },
+      
+      // === FIX: KOLOM TANGGAL TIDAK TERBAGI ===
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 12 },   // NO
+        1: { cellWidth: 45 },                      // NAMA WARGA
+        2: { halign: 'center', cellWidth: 18 },   // UNIT
+        3: { cellWidth: 35 },                      // JABATAN
+        4: { cellWidth: 45 },                      // NAMA KEGIATAN
+        5: { halign: 'left', cellWidth: 32 }      // TANGGAL (fixed width)
+      },
+      
+      margin: { left: 15, right: 15, top: filter ? 65 : 60 },
+      pageBreak: 'auto',
+      
+      // === FIX: CUSTOM DRAW CELL UNTUK BORDER KONSISTEN ===
+      didDrawCell: (data) => {
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+      }
+    });
+    
+    // === 6. TANDA TANGAN (FOOTER) ===
+    const finalY = doc.lastAutoTable.finalY + 20;
+    
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    })}`, 150, finalY);
+    
+    doc.text("Ketua RW.01,", 150, finalY + 6);
+    
+    doc.setFontSize(9).setFont("helvetica", "italic");
+    doc.text("Ditandatangani secara Digital", 150, finalY + 15);
+    
+    doc.setFontSize(10).setFont("helvetica", "bold");
+    doc.text("Abdul Khadir Abu", 150, finalY + 25);
+    
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(150, finalY + 27, 195, finalY + 27);
+    
+    // === 7. SAVE PDF ===
+    doc.save(`Laporan_RW01_${Date.now()}.pdf`);
+    notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+    
+  } catch (err) {
+    console.error(err);
+    notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
   }
-
-  const doc = new jsPDF();
-  doc.setFillColor(5, 150, 105);
-  doc.rect(0, 0, 210, 35, 'F');
-  doc.addImage("https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png", 'PNG', 10, 5, 20, 20);
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16).setFont(undefined, 'bold').text("DAFTAR HADIR WARGA RW.01", 35, 15);
-  doc.setFontSize(10).setFont(undefined, 'normal').text(filter ? `Kegiatan: ${filter}` : "Laporan Absensi Keseluruhan", 35, 22);
-  doc.setFontSize(8).text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 35, 28);
-
-  const tableRows = data.map((d, i) => [i+1, d.nama_warga, d.rt, d.jabatan, d.kegiatan_id, new Date(d.waktu_absen).toLocaleDateString('id-ID')]);
-
-  doc.autoTable({
-    startY: 40,
-    head: [['No', 'Nama Lengkap', 'RT', 'Jabatan', 'Nama Kegiatan', 'Waktu']],
-    body: tableRows,
-    headStyles: { fillStyle: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
-    alternateRowStyles: { fillStyle: [245, 245, 245] },
-    styles: { fontSize: 8, cellPadding: 3 }
-  });
-
-  doc.save(`Laporan_Absen_RW01_${Date.now()}.pdf`);
-  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
-
 // ============================================
 // KELOLA USERS
 // ============================================
@@ -626,7 +778,7 @@ function filterUser(val) {
 }
 
 // ============================================
-// DOKUMENTASI (FIXED)
+// DOKUMENTASI
 // ============================================
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
