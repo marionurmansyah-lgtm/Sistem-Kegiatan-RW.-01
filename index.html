@@ -73,7 +73,9 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
       <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
       <div class="relative">
         <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
-        <button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"><i data-lucide="eye" class="w-5 h-5"></i></button>
+        <button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+          <i data-lucide="eye" class="w-5 h-5"></i>
+        </button>
       </div>
       <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">Masuk</button>
     </form>
@@ -138,6 +140,7 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
     <button onclick="logout()" class="text-rose-600 font-black text-[10px] uppercase bg-rose-50 px-3 py-2 rounded-lg active:bg-rose-100">Keluar</button>
   </header>
   
+  <!-- Running Text -->
   <div class="running-text-container" id="container-running-text">
     <div class="running-text-content" id="running-text-val">Memuat informasi terbaru...</div>
   </div>
@@ -178,7 +181,7 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
     <button onclick="switchTabWarga('pengumuman')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengumuman"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Beranda</span></button>
     <button onclick="switchTabWarga('agenda')" class="nav-item flex flex-col items-center text-slate-400" id="nav-agenda"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Agenda</span></button>
     <button onclick="switchTabWarga('dokumentasi')" class="nav-item flex flex-col items-center text-slate-400" id="nav-dokumentasi"><i data-lucide="camera" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Galeri</span></button>
-    <button onclick="switchTabWarga('pengajuan')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengajuan"><i data-lucide="file-text" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Surat</span></button>
+    <button onclick="switchTabWarga('surat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-surat"><i data-lucide="file-text" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Surat</span></button>
     <button onclick="switchTabWarga('riwayat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-riwayat"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Riwayat</span></button>
   </footer>
 </div>
@@ -212,13 +215,12 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 
 <script>
 // ============================================
-// CONFIG - SAMA DENGAN ADMIN.HTML
+// CONFIG
 // ============================================
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-// Table names
 const TABLES = {
   USERS: 'users',
   PENGUMUMAN: 'pengumuman',
@@ -243,7 +245,7 @@ function showPage(id) {
 function togglePass(id) {
   const el = document.getElementById(id);
   el.type = el.type === "password" ? "text" : "password";
-  lucide.createIcons();
+  lucide.createIcons(); // ✅ FIX: Re-init icons after toggle
 }
 
 function notify(msg, color = "bg-emerald-600") {
@@ -264,7 +266,7 @@ function updateLiveTime() {
 setInterval(updateLiveTime, 1000);
 
 // ============================================
-// SUB-JABATAN LOGIC (LENGKAP)
+// SUB-JABATAN LOGIC (FIXED - HAPUS DUPLIKASI)
 // ============================================
 function updateSubJabatan() {
   const kat = document.getElementById('reg-kategori').value;
@@ -291,15 +293,17 @@ function updateSubJabatan() {
     detCont.classList.remove('hidden');
     sub.innerHTML = '<option value="PAUD">Guru PAUD</option><option value="Guru Ngaji">Guru Ngaji</option>';
   } else if (kat === 'Keamanan') {
-    subCont.classList.remove('hidden'); 
-    sub.innerHTML = '<option value="Kordinator Keamanan">Kordinator Keamanan</option><option value="Anggota Keamanan">Angota keamanan</option>';
+    subCont.classList.remove('hidden');
+    sub.innerHTML = '<option value="Kordinator Keamanan">Kordinator Keamanan</option><option value="Anggota Keamanan">Anggota Keamanan</option>';
   } else if (kat === 'Kebersihan') {
-    subCont.classList.remove('hidden'); 
-    sub.innerHTML = 'sub.innerHTML = '<option value="Petugas Kebersihan">Petugas Kebersihan</option><option value="Petugas Bank Sampah">Petugas Bank Sampah</option>';
+    subCont.classList.remove('hidden');
+    sub.innerHTML = '<option value="Petugas Kebersihan">Petugas Kebersihan</option><option value="Petugas Bank Sampah">Petugas Bank Sampah</option>';
   } else if (kat === 'Karang Taruna') {
-    subCont.classList.remove('hidden'); 
-    sub.innerHTML = 'sub.innerHTML = '<option value="KETUA">KETUA</option><option value="ANGGOTA">ANGGOTA</option>';  
+    subCont.classList.remove('hidden');
+    sub.innerHTML = '<option value="KETUA">KETUA</option><option value="ANGGOTA">ANGGOTA</option>';
   }
+  
+  lucide.createIcons();
 }
 
 // ============================================
@@ -328,6 +332,7 @@ async function switchTabWarga(tab) {
   if(document.getElementById(`nav-${tab}`)) document.getElementById(`nav-${tab}`).classList.add('nav-active');
   
   list.innerHTML = '<div class="flex flex-col items-center justify-center py-20 gap-3"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sinkronisasi Data...</p></div>';
+  lucide.createIcons();
   
   try {
     if(tab === 'pengumuman') {
@@ -483,8 +488,6 @@ async function switchTabWarga(tab) {
           </div>
           <p class="text-[8px] text-slate-400 text-center mt-4 font-bold uppercase">Pengajuan akan dikirim langsung ke WhatsApp Admin</p>
         </div>`;
-      lucide.createIcons();
-    }
       
     } else if(tab === 'riwayat') {
       const { data, error } = await _supabase
@@ -582,7 +585,10 @@ async function generateLaporanPDF() {
   notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
 
-}function kirimSurat() {
+// ============================================
+// KIRIM SURAT (WHATSAPP DIRECT)
+// ============================================
+function kirimSurat() {
   const jenis = document.getElementById('jenis-surat').value;
   const user = JSON.parse(localStorage.getItem('user'));
   
@@ -594,7 +600,6 @@ async function generateLaporanPDF() {
   notify("Mengarahkan ke WhatsApp...", "bg-emerald-600");
 }
 
-    
 // ============================================
 // AUTHENTICATION
 // ============================================
@@ -745,40 +750,6 @@ document.getElementById('form-submit-absen').onsubmit = async (e) => {
     notify("Gagal Mengirim: " + err.message, "bg-rose-600"); 
   }
 };
-
-// ============================================
-// PENGAJUAN SURAT
-// ============================================
-async function kirimPengajuanSurat() {
-  const user = JSON.parse(localStorage.getItem('user'));
-  const jenis = document.getElementById('jenis-surat').value;
-  
-  if(!jenis) return alert("Pilih jenis surat!");
-  
-  notify("Mengirim Permohonan...", "bg-blue-600");
-  try {
-    const payload = {
-      nama: user.nama, 
-      rt: user.rt, 
-      hp: user.nomor_hp || "-",
-      jenis_surat: jenis, 
-      keterangan: document.getElementById('ket-surat').value || "-",
-      status: "Menunggu", 
-      waktu_pengajuan: new Date().toISOString()
-    };
-    
-    const { error } = await _supabase
-      .from(TABLES.PENGAJUAN)
-      .insert(payload);
-    
-    if(error) throw error;
-    
-    notify("Pengajuan Terkirim ✓");
-    switchTabWarga('pengumuman');
-  } catch (err) { 
-    notify("Gagal Mengirim!", "bg-rose-600"); 
-  }
-}
 
 // ============================================
 // LOGOUT
