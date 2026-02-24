@@ -1,332 +1,883 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Center - Sinergi RW.01</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f1f5f9; color: #0f172a; }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
-        .tab-active { background: #059669; color: white; border-color: #059669; }
-        .btn-press:active { transform: scale(0.95); transition: 0.1s; }
-        .animate-up { animation: slideUp 0.4s ease-out; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel - Sinergi RW.01</title>
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- External Libraries -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+.sidebar-item { transition: all 0.3s ease; cursor: pointer; background: transparent; color: #64748b; position: relative; }
+.sidebar-item:hover { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.sidebar-item.active-tab { background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: 800; }
+.sidebar-item.active-tab::before { content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 4px; background: #10b981; }
+.tab-content { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.card-admin { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.btn-admin { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3); }
+.btn-admin:active { transform: scale(0.97); }
+.btn-danger { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: white; font-weight: 800; text-transform: uppercase; }
+.btn-danger:active { transform: scale(0.97); }
+.input-admin { border: 2px solid #e2e8f0; background: #f8fafc; border-radius: 1rem; padding: 14px 16px; font-size: 14px; font-weight: 600; outline: none; transition: 0.2s; }
+.input-admin:focus { border-color: #059669; background: white; }
+#toast { transition: all 0.3s ease; }
+#image-viewer { backdrop-filter: blur(5px); }
+.table-admin th { font-size: 10px; font-weight: 800; text-transform: uppercase; color: #94a3b8; }
+.table-admin td { font-size: 11px; }
+.table-admin tr:hover { background: #f8fafc; }
+.modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+.footer-credit { opacity: 0.5; transition: 0.3s; }
+.footer-credit:hover { opacity: 1; }
+</style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="min-h-screen flex">
 
-    <header class="p-6 glass sticky top-0 z-50 flex justify-between items-center shadow-sm">
-        <div class="flex items-center gap-4">
-            <img src="https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png" class="w-12 h-12 object-contain" alt="Logo">
-            <div>
-                <h1 class="text-lg font-extrabold uppercase tracking-tighter">Control Center</h1>
-                <p class="text-[10px] font-bold text-emerald-600 tracking-widest uppercase italic">Administrator RW.01</p>
-            </div>
+<!-- Toast Notification -->
+<div id="toast" class="fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold text-sm hidden"></div>
+
+<!-- Image Viewer Modal -->
+<div id="image-viewer" class="fixed inset-0 z-[200] hidden flex flex-col items-center justify-center p-4" onclick="this.classList.add('hidden')">
+  <button class="absolute top-6 right-6 text-white bg-white/20 p-3 rounded-full hover:bg-white/30 transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+  <img id="full-image" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl border-4 border-white/20">
+  <p id="image-caption" class="text-white mt-4 font-black uppercase text-sm tracking-widest"></p>
+</div>
+
+<!-- Edit User Modal -->
+<div id="modal-edit-user" class="fixed inset-0 modal-backdrop z-[100] hidden flex items-center justify-center p-4">
+  <div class="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-fade">
+    <h3 class="font-black text-emerald-800 uppercase mb-6 text-center">Update Data Warga</h3>
+    <div class="space-y-4">
+      <input type="hidden" id="edit-old-id">
+      <input type="text" id="edit-nama" placeholder="Nama Lengkap" class="input-admin w-full">
+      <div class="grid grid-cols-2 gap-4">
+        <input type="text" id="edit-rt" placeholder="RT" class="input-admin w-full">
+        <input type="text" id="edit-jabatan" placeholder="Jabatan" class="input-admin w-full">
+      </div>
+      <input type="text" id="edit-hp" placeholder="WhatsApp (Awali 62)" class="input-admin w-full">
+      <div class="flex gap-2 pt-4">
+        <button onclick="closeEditUserModal()" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold text-xs uppercase">Batal</button>
+        <button onclick="updateUser()" class="flex-1 btn-admin py-3 rounded-xl text-xs">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<aside class="w-72 bg-white border-r hidden md:flex flex-col sticky top-0 h-screen">
+  <div class="p-6 border-b text-center">
+    <img class="w-20 h-20 mx-auto mb-2" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+    <h1 class="font-black text-emerald-800 text-sm">ADMIN RW.01</h1>
+    <p class="text-slate-500 text-xs">Kel.Kebon Manggis Kec.Matraman</p>
+  </div>
+  <nav class="flex-1 p-4 space-y-2">
+    <button onclick="switchTab('pengumuman', this)" class="sidebar-item active-tab w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="megaphone" class="w-4 h-4"></i> Pengumuman
+    </button>
+    <button onclick="switchTab('dokumentasi', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="camera" class="w-4 h-4"></i> Dokumentasi
+    </button>
+    <button onclick="switchTab('laporan', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="printer" class="w-4 h-4"></i> Laporan Absensi
+    </button>
+    <button onclick="switchTab('users', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="users" class="w-4 h-4"></i> Kelola User
+    </button>
+    <button onclick="switchTab('agenda', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="calendar" class="w-4 h-4"></i> Kelola Agenda
+    </button>
+    <button onclick="switchTab('pengajuan', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="file-check" class="w-4 h-4"></i> Pengajuan Surat
+    </button>
+    <button onclick="switchTab('setting', this)" class="sidebar-item w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
+      <i data-lucide="settings" class="w-4 h-4"></i> Pengaturan
+    </button>
+  </nav>
+  <div class="p-4 border-t">
+    <button onclick="logoutAdmin()" class="w-full bg-rose-50 text-rose-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-rose-100 transition">Keluar Admin</button>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="flex-1 p-4 md:p-6 overflow-y-auto">
+  <div id="content-header" class="mb-6">
+    <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
+    <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Information System</p>
+  </div>
+
+  <!-- TAB: PENGUMUMAN -->
+  <div id="sec-pengumuman" class="tab-content space-y-6">
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Buat Pengumuman Baru</h3>
+      <div class="grid gap-4">
+        <input type="text" id="p-judul" placeholder="Judul Pengumuman" class="input-admin w-full">
+        <select id="p-tipe" class="input-admin w-full bg-white">
+          <option value="Informasi">Informasi Biasa</option>
+          <option value="Kegiatan">Kegiatan (Aktifkan Absensi)</option>
+        </select>
+        <textarea id="p-detail" placeholder="Isi detail informasi..." class="input-admin w-full h-32 resize-none"></textarea>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Foto Sampul (PNG/JPG)</label>
+            <input type="file" id="p-file-foto" accept="image/*" class="w-full text-[10px] border p-2 rounded-xl bg-slate-50">
+          </div>
+          <div class="space-y-1">
+            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Lampiran PDF (Opsional)</label>
+            <input type="file" id="p-file-pdf" accept="application/pdf" class="w-full text-[10px] border p-2 rounded-xl bg-slate-50">
+          </div>
         </div>
-        <button onclick="logoutAdmin()" class="bg-rose-50 p-3 rounded-2xl text-rose-500 btn-press"><i data-lucide="log-out"></i></button>
-    </header>
+        <button onclick="postPengumuman()" class="btn-admin w-full py-4 rounded-xl text-xs">Sampaikan Pengumuman</button>
+      </div>
+    </div>
 
-    <main class="p-6 max-w-4xl mx-auto space-y-8">
-        
-        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <button onclick="switchTab('post')" id="tab-post" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass tab-active btn-press">PENGUMUMAN & FOTO</button>
-            <button onclick="switchTab('agenda')" id="tab-agenda" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass btn-press">BUAT AGENDA/KEGIATAN</button>
-            <button onclick="switchTab('data')" id="tab-data" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap glass btn-press">DATA ABSENSI</button>
-            <button onclick="window.location.href='index.html'" class="px-6 py-3 rounded-2xl text-xs font-bold whitespace-nowrap bg-slate-800 text-white btn-press">LIHAT WEB WARGA</button>
-        </div>
+    <div class="card-admin overflow-hidden">
+      <table class="w-full text-left table-admin">
+        <thead class="bg-slate-50 border-b">
+          <tr>
+            <th class="p-4">Tanggal</th>
+            <th class="p-4">Judul</th>
+            <th class="p-4">Tipe</th>
+            <th class="p-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="log-pengumuman-body"></tbody>
+      </table>
+    </div>
+  </div>
 
-        <section id="sec-post" class="space-y-6 animate-up">
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                <h3 class="font-extrabold text-sm mb-6 flex items-center gap-2 uppercase tracking-widest"><i data-lucide="megaphone" class="text-emerald-500"></i> Publikasi Informasi</h3>
-                
-                <div class="space-y-4">
-                    <select id="post-tipe" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
-                        <option value="Pengumuman">Pengumuman Biasa</option>
-                        <option value="Dokumentasi">Dokumentasi (Hanya Foto & Judul)</option>
-                    </select>
+  <!-- TAB: LAPORAN -->
+  <div id="sec-laporan" class="tab-content hidden space-y-4">
+    <div class="card-admin p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="w-full md:w-1/2">
+        <h4 class="font-black uppercase text-[10px] text-slate-400 mb-2">Pilih Filter Kegiatan</h4>
+        <select id="select-kegiatan-laporan" class="input-admin w-full bg-slate-50 font-bold text-emerald-800">
+          <option value="">-- Semua Riwayat Absensi --</option>
+        </select>
+      </div>
+      <button onclick="downloadPDFMaster()" class="btn-admin px-8 py-3 rounded-xl text-xs flex items-center gap-2">
+        <i data-lucide="download" class="w-4 h-4"></i> DOWNLOAD LAPORAN PDF
+      </button>
+    </div>
+    <div class="card-admin overflow-x-auto">
+      <table class="w-full text-left table-admin">
+        <thead class="bg-slate-50 uppercase font-black text-slate-400 border-b">
+          <tr>
+            <th class="p-4">Nama Warga</th>
+            <th class="p-4">RT</th>
+            <th class="p-4">Kegiatan</th>
+            <th class="p-4">Waktu</th>
+            <th class="p-4 text-center">Bukti Foto</th>
+            <th class="p-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="table-absen-body"></tbody>
+      </table>
+    </div>
+  </div>
 
-                    <input type="text" id="post-judul" placeholder="Judul Postingan" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
-                    <textarea id="post-isi" rows="4" placeholder="Isi detail pengumuman..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100"></textarea>
-                    
-                    <div class="p-4 border-2 border-dashed border-slate-200 rounded-2xl">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Unggah Gambar (Opsional)</label>
-                        <input type="file" id="post-file" class="text-xs">
-                    </div>
+  <!-- TAB: USERS -->
+  <div id="sec-users" class="tab-content hidden space-y-4">
+    <div class="card-admin p-6 flex justify-between items-center flex-wrap gap-4">
+      <h4 class="font-black uppercase text-xs text-emerald-800">Database Warga RW.01</h4>
+      <div class="relative">
+        <input type="text" onkeyup="filterUser(this.value)" placeholder="Cari nama..." class="input-admin pl-10 w-48 text-[11px]">
+        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+    </div>
+    <div class="card-admin overflow-x-auto">
+      <table class="w-full text-left table-admin">
+        <thead class="bg-slate-50 font-black text-slate-400 border-b">
+          <tr>
+            <th class="p-4">Nama</th>
+            <th class="p-4">Username</th>
+            <th class="p-4">RT / Jabatan</th>
+            <th class="p-4">WhatsApp</th>
+            <th class="p-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="table-user-body"></tbody>
+      </table>
+    </div>
+  </div>
 
-                    <button onclick="handlePublish('info')" class="w-full bg-emerald-600 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-lg btn-press">POSTING INFORMASI</button>
-                </div>
-            </div>
-        </section>
+  <!-- TAB: DOKUMENTASI -->
+  <div id="sec-dokumentasi" class="tab-content hidden space-y-6">
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Arsip Dokumentasi Kegiatan</h3>
+      <div class="space-y-4">
+        <input type="text" id="d-judul" placeholder="Nama Kegiatan (Misal: Kerja Bakti RT.02)" class="input-admin w-full">
+        <input type="file" id="d-foto" class="w-full text-xs" accept="image/*">
+        <button onclick="postDokumentasi()" class="btn-admin px-10 py-3 rounded-xl text-xs">Simpan ke Galeri</button>
+      </div>
+    </div>
+    <div id="list-dokumentasi" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+  </div>
 
-        <section id="sec-agenda" class="hidden space-y-6 animate-up">
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                <h3 class="font-extrabold text-sm mb-6 flex items-center gap-2 uppercase tracking-widest"><i data-lucide="calendar" class="text-blue-500"></i> Buat Agenda Baru</h3>
-                
-                <div class="space-y-4">
-                    <div class="p-4 bg-blue-50 rounded-2xl border border-blue-100 mb-4">
-                        <p class="text-[10px] text-blue-700 font-bold italic">* Postingan di sini otomatis akan memiliki tombol "Absen Sekarang" pada aplikasi warga.</p>
-                    </div>
+  <!-- TAB: AGENDA -->
+  <div id="sec-agenda" class="tab-content hidden space-y-6">
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Jadwal Agenda Mendatang</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="date" id="ag-tanggal" class="input-admin w-full">
+        <input type="text" id="ag-kegiatan" placeholder="Nama Acara" class="input-admin w-full">
+        <input type="text" id="ag-jam" placeholder="Jam (08:00 - Selesai)" class="input-admin w-full">
+        <input type="text" id="ag-lokasi" placeholder="Lokasi Pelaksanaan" class="input-admin w-full">
+        <button onclick="postAgenda()" class="md:col-span-2 btn-admin py-3 rounded-xl text-xs">Posting ke Kalender Warga</button>
+      </div>
+    </div>
+    <div id="list-agenda-admin" class="card-admin divide-y overflow-hidden"></div>
+  </div>
 
-                    <input type="text" id="agenda-judul" placeholder="Nama Kegiatan (Contoh: Kerja Bakti Massal)" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100">
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 ml-2">TANGGAL PELAKSANAAN</label>
-                            <input type="date" id="agenda-tgl" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100 mt-1">
-                        </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 ml-2">WAKTU (WIB)</label>
-                            <input type="time" id="agenda-jam" class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100 mt-1">
-                        </div>
-                    </div>
+  <!-- TAB: PENGAJUAN SURAT -->
+  <div id="sec-pengajuan" class="tab-content hidden space-y-4">
+    <div class="card-admin p-6">
+      <h4 class="font-black uppercase text-xs text-emerald-800 mb-4">Daftar Pengajuan Surat Warga</h4>
+    </div>
+    <div class="card-admin overflow-x-auto">
+      <table class="w-full text-left table-admin">
+        <thead class="bg-slate-50 font-black text-slate-400 border-b">
+          <tr>
+            <th class="p-4">Nama</th>
+            <th class="p-4">RT</th>
+            <th class="p-4">Jenis Surat</th>
+            <th class="p-4">Status</th>
+            <th class="p-4">Waktu</th>
+            <th class="p-4">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="table-pengajuan-body"></tbody>
+      </table>
+    </div>
+  </div>
 
-                    <textarea id="agenda-isi" rows="3" placeholder="Detail kegiatan dan instruksi warga..." class="w-full p-4 bg-slate-50 rounded-2xl font-bold text-sm outline-none border border-slate-100"></textarea>
+  <!-- TAB: SETTING -->
+  <div id="sec-setting" class="tab-content hidden space-y-6">
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-amber-600">Pesan Running Text (Beranda Warga)</h3>
+      <textarea id="set-running-text" placeholder="Tulis pengumuman singkat yang akan berjalan di layar utama warga..." class="input-admin w-full h-24 resize-none"></textarea>
+      <button onclick="updateRunningText()" class="btn-admin px-8 py-3 rounded-xl text-xs mt-4">Simpan Perubahan</button>
+    </div>
+    
+    <!-- Footer Credit -->
+    <div class="mt-12 pt-8 border-t flex flex-col items-center justify-center text-center footer-credit">
+      <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
+      <p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
+      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
+    </div>
+  </div>
+</main>
 
-                    <button onclick="handlePublish('agenda')" class="w-full bg-blue-600 text-white py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-lg btn-press">PUBLIKASIKAN AGENDA</button>
-                </div>
-            </div>
-        </section>
+<script>
+// ============================================
+// CONFIG - SAMA DENGAN INDEX.HTML
+// ============================================
+const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
+const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        <section id="sec-data" class="hidden space-y-6 animate-up">
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="font-extrabold text-sm uppercase tracking-widest">Database Kehadiran</h3>
-                    <button onclick="generatePDF()" class="bg-rose-600 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase flex items-center gap-2 shadow-lg btn-press">
-                        <i data-lucide="file-text" class="w-4 h-4"></i> Cetak PDF
-                    </button>
-                </div>
+// Table names
+const TABLES = {
+  USERS: 'users',
+  PENGUMUMAN: 'pengumuman',
+  ABSENSI: 'absensi',
+  AGENDA: 'agenda',
+  DOKUMENTASI: 'dokumentasi',
+  PENGAJUAN: 'pengajuan_surat',
+  SETTINGS: 'settings'
+};
 
-                <div class="overflow-x-auto">
-                    <table id="table-absen" class="w-full text-left text-[11px]">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-400 font-black uppercase">
-                                <th class="p-4">Warga</th>
-                                <th class="p-4">RT</th>
-                                <th class="p-4">Kegiatan</th>
-                                <th class="p-4">Waktu</th>
-                            </tr>
-                        </thead>
-                        <tbody id="list-absen" class="font-bold divide-y divide-slate-50"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <script>
-        const SB_URL = "https://ybuobehttmorjdiqwfta.supabase.co";
-        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlidW9iZWh0dG1vcmpkaXF3ZnRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1MjQyMTMsImV4cCI6MjA4NzEwMDIxM30.dzdldaWRLjyTV-NK5LXZKxI2mK1MDYLHKRBXCDpMHPE";
-        const _supabase = supabase.createClient(SB_URL, SB_KEY);
-
-        // Security
-        (function() {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (!user || user.role !== 'admin') {
-                alert("Akses Terlarang!");
-                window.location.href = 'index.html';
-            }
-        })();
-
-        function switchTab(t) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.overflow-x-auto button').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById('sec-' + t).classList.remove('hidden');
-            document.getElementById('tab-' + t).classList.add('tab-active');
-            if(t === 'data') loadAbsensi();
-            lucide.createIcons();
-        }
-
-        async function handlePublish(mode) {
-            let table = "pengumuman";
-            let payload = {};
-            
-            if(mode === 'info') {
-                const tipe = document.getElementById('post-tipe').value;
-                const judul = document.getElementById('post-judul').value;
-                const isi = document.getElementById('post-isi').value;
-                const file = document.getElementById('post-file').files[0];
-                
-                if(!judul || !isi) return alert("Isi judul dan deskripsi!");
-                
-                let img_url = "";
-                if(file) {
-                    const fileName = Date.now() + "_" + file.name;
-                    const { data } = await _supabase.storage.from('Dokumentasi').upload(fileName, file);
-                    if(data) {
-                        const { data: pub } = _supabase.storage.from('Dokumentasi').getPublicUrl(fileName);
-                        img_url = pub.publicUrl;
-                    }
-                }
-
-                if(tipe === "Dokumentasi") {
-                    table = "dokumentasi";
-                    payload = { judul, file_url: img_url };
-                } else {
-                    payload = { judul, isi, tipe: "Pengumuman", file_url: img_url };
-                }
-
-            } else if(mode === 'agenda') {
-                const judul = document.getElementById('agenda-judul').value;
-                const tgl = document.getElementById('agenda-tgl').value;
-                const jam = document.getElementById('agenda-jam').value;
-                const isi = document.getElementById('agenda-isi').value;
-
-                if(!judul || !tgl) return alert("Lengkapi data agenda!");
-
-                payload = { 
-                    judul: judul, 
-                    isi: `Pelaksanaan: ${tgl} Jam: ${jam}. ${isi}`,
-                    tipe: "Kegiatan" // Ini yang memicu tombol absen di sisi warga
-                };
-            }
-
-            const { error } = await _supabase.from(table).insert([payload]);
-            if(!error) {
-                alert("Berhasil Dipublikasikan!");
-                location.reload();
-            } else {
-                alert("Gagal: " + error.message);
-            }
-        }
-
-        async function loadAbsensi() {
-            const { data } = await _supabase.from('absensi').select('*').order('waktu_absen', {ascending:false});
-            const list = document.getElementById('list-absen');
-            list.innerHTML = data.map(h => `
-                <tr class="hover:bg-slate-50 transition-all">
-                    <td class="p-4 uppercase">${h.nama_warga}</td>
-                    <td class="p-4">RT.0${h.rt}</td>
-                    <td class="p-4 text-emerald-600">${h.kegiatan_id}</td>
-                    <td class="p-4 text-slate-400">${new Date(h.waktu_absen).toLocaleString('id-ID')}</td>
-                </tr>
-            `).join('');
-        }
-
-        async function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    // Menggunakan ukuran F4 (215.9mm x 330.2mm)
-    const doc = new jsPDF('p', 'mm', [215.9, 330.2]); 
-    const { data: rawData } = await _supabase.from('absensi').select('*').order('waktu_absen', {ascending:false});
-
-    // 1. URL Logo & Konfigurasi
-    const logoUrl = "https://ybuobehttmorjdiqwfta.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-    const namaKetuaRW = "Abdul Khadir Abu"; // Silakan ubah nama ini
-
-    // Fungsi Helper untuk memproses gambar ke Base64 agar bisa masuk ke PDF
-    const getBase64FromUrl = (url) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = "anonymous"; 
-            img.src = url;
-            img.onload = () => {
-                const canvas = document.createElement("canvas");
-                canvas.width = img.width;
-                canvas.height = img.height;
-                const ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL("image/png"));
-            };
-            img.onerror = reject;
-        });
-    };
-
-    try {
-        // Ambil data gambar logo
-        const imgData = await getBase64FromUrl(logoUrl);
-        
-        // --- BAGIAN HEADER (KOP SURAT) ---
-        // Logo di kiri atas
-        doc.addImage(imgData, 'PNG', 15, 12, 20, 20);
-
-        // Teks Kop Surat
-        doc.setFontSize(16).setFont("helvetica", "bold");
-        doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 115, 20, {align:"center"});
-        
-        doc.setFontSize(10).setFont("helvetica", "normal");
-        doc.text("Kelurahan Contoh, Kecamatan Contoh, Kota Administrasi Jakarta Pusat", 115, 25, {align:"center"});
-        doc.setFontSize(9).setCharSpace(0.5);
-        doc.text("Sistem Informasi Sinergi Digital RW.01", 115, 30, {align:"center"});
-        
-        // Garis Tebal Kop Surat
-        doc.setLineWidth(0.8);
-        doc.line(15, 35, 200, 35);
-        doc.setLineWidth(0.2);
-        doc.line(15, 36, 200, 36);
-
-        // --- BAGIAN JUDUL LAPORAN ---
-        doc.setCharSpace(0);
-        doc.setFontSize(12).setFont("helvetica", "bold");
-        doc.text("LAPORAN KEHADIRAN WARGA", 107.9, 45, {align:"center"});
-        doc.setFontSize(10).setFont("helvetica", "normal");
-        doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 15, 52);
-
-        // --- BAGIAN TABEL DATA ---
-        const tableData = rawData.map((r, i) => [
-            i + 1, 
-            r.nama_warga.toUpperCase(), 
-            `RT.0${r.rt}`, 
-            r.kegiatan_id, 
-            new Date(r.waktu_absen).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'})
-        ]);
-
-        doc.autoTable({
-            startY: 55,
-            head: [['NO', 'NAMA WARGA', 'UNIT', 'NAMA KEGIATAN', 'TANGGAL']],
-            body: tableData,
-            theme: 'grid',
-            headStyles: { fillColor: [5, 150, 105], halign: 'center', textColor: 255 },
-            styles: { fontSize: 9, cellPadding: 3 },
-            columnStyles: {
-                0: { cellWidth: 12, halign: 'center' },
-                2: { cellWidth: 20, halign: 'center' },
-                4: { cellWidth: 35, halign: 'center' }
-            }
-        });
-
-        // --- BAGIAN TANDA TANGAN (FOOTER) ---
-        const finalY = doc.lastAutoTable.finalY + 20; // Ambil posisi koordinat setelah tabel selesai
-        
-        // Pastikan tanda tangan tidak terpotong jika tabel terlalu panjang (pindah halaman jika perlu)
-        if (finalY > 280) { doc.addPage(); }
-
-        const ttdX = 140; // Posisi horizontal tanda tangan
-        doc.setFontSize(10).setFont("helvetica", "normal");
-        doc.text("Jakarta, " + new Date().toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'}), ttdX, finalY);
-        doc.text("Ketua RW.01,", ttdX, finalY + 7);
-        
-        // Tanda Tangan Digital (Berupa Teks Bold/Italic atau Anda bisa ganti dengan addImage jika ada scan TTD)
-        doc.setFont("times", "italic").setFontSize(12);
-        doc.text("Ditandatangani secara Digital", ttdX, finalY + 20);
-        
-        // Nama Ketua RW
-        doc.setFont("helvetica", "bold").setFontSize(10);
-        doc.text(namaKetuaRW, ttdX, finalY + 35);
-        doc.line(ttdX, finalY + 36, ttdX + 45, finalY + 36); // Garis bawah nama
-
-        // Simpan File
-        doc.save(`Laporan_Kehadiran_RW01_${Date.now()}.pdf`);
-
-    } catch (error) {
-        console.error("Error generating PDF:", error);
-        alert("Terjadi kesalahan saat membuat PDF. Pastikan logo tersedia di storage.");
-    }
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
+function notify(msg, color = "bg-emerald-600") {
+  const t = document.getElementById('toast');
+  t.textContent = msg; 
+  t.className = `fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl text-white font-bold text-sm animate-fade ${color}`;
+  t.classList.remove('hidden'); 
+  setTimeout(() => t.classList.add('hidden'), 3000);
 }
 
+function viewImage(url, caption) {
+  document.getElementById('full-image').src = url;
+  document.getElementById('image-caption').innerText = caption;
+  document.getElementById('image-viewer').classList.remove('hidden');
+  document.getElementById('image-viewer').classList.add('flex');
+  lucide.createIcons();
+}
 
-        function logoutAdmin() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
+// ============================================
+// TAB NAVIGATION
+// ============================================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(s => s.classList.add('hidden'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active-tab'));
+  document.getElementById(`sec-${tab}`).classList.remove('hidden');
+  if(btn) btn.classList.add('active-tab');
+  document.getElementById('tab-title').innerText = `Kelola ${tab}`;
+  
+  if(tab === 'laporan') loadAbsensiData();
+  if(tab === 'users') loadUsers();
+  if(tab === 'pengumuman') loadPengumuman();
+  if(tab === 'agenda') loadAgendaAdmin();
+  if(tab === 'dokumentasi') loadDokumentasi();
+  if(tab === 'pengajuan') loadPengajuanSurat();
+  if(tab === 'setting') loadSettings();
+  lucide.createIcons();
+}
 
-        window.onload = () => lucide.createIcons();
-    </script>
+// ============================================
+// PENGUMUMAN CRUD
+// ============================================
+async function postPengumuman() {
+  const vJudul = document.getElementById('p-judul').value;
+  const vTipe = document.getElementById('p-tipe').value;
+  const vDetail = document.getElementById('p-detail').value;
+  const fileFoto = document.getElementById('p-file-foto').files[0];
+  const filePdf = document.getElementById('p-file-pdf').files[0];
+
+  if(!vJudul || !vDetail || !fileFoto) return alert("Lengkapi Judul, Detail, dan Foto Sampul!");
+
+  try {
+    let fotoUrl = "-";
+    let pdfUrl = "-";
+
+    const fName = `announcement_${Date.now()}.jpg`;
+    const { error: uploadError } = await _supabase.storage
+      .from('media-sinergi')
+      .upload(`pengumuman/${fName}`, fileFoto);
+    
+    if(uploadError) throw uploadError;
+    
+    const { data: dFoto } = _supabase.storage
+      .from('media-sinergi')
+      .getPublicUrl(`pengumuman/${fName}`);
+    fotoUrl = dFoto.publicUrl;
+
+    if (filePdf) {
+      const pName = `doc_${Date.now()}.pdf`;
+      await _supabase.storage
+        .from('media-sinergi')
+        .upload(`undangan/${pName}`, filePdf);
+      const { data: dPdf } = _supabase.storage
+        .from('media-sinergi')
+        .getPublicUrl(`undangan/${pName}`);
+      pdfUrl = dPdf.publicUrl;
+    }
+
+    const { error } = await _supabase
+      .from(TABLES.PENGUMUMAN)
+      .insert({
+        judul: vJudul,
+        tipe: vTipe,
+        detail: vDetail,
+        file_url: fotoUrl,
+        pdf_url: pdfUrl,
+        created_at: new Date().toISOString()
+      });
+
+    if(error) throw error;
+
+    notify("Pengumuman Berhasil Diterbitkan!");
+    location.reload();
+  } catch (err) { 
+    alert("Error: " + err.message); 
+  }
+}
+
+async function loadPengumuman() {
+  const { data, error } = await _supabase
+    .from(TABLES.PENGUMUMAN)
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if(error || !data) {
+    document.getElementById('log-pengumuman-body').innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+    return;
+  }
+
+  document.getElementById('log-pengumuman-body').innerHTML = data.map(p => `
+    <tr class="border-b hover:bg-slate-50 transition-colors">
+      <td class="p-4 text-slate-400 font-medium">${new Date(p.created_at).toLocaleDateString('id-ID')}</td>
+      <td class="p-4 font-bold text-emerald-800">${p.judul}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded bg-emerald-50 text-emerald-600 text-[9px] font-bold uppercase">${p.tipe}</span></td>
+      <td class="p-4">
+        <button onclick="hapusPengumuman('${p.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function hapusPengumuman(id) {
+  if(!confirm("Hapus pengumuman ini?")) return;
+  const { error } = await _supabase
+    .from(TABLES.PENGUMUMAN)
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("Pengumuman dihapus!");
+    loadPengumuman();
+  }
+}
+
+// ============================================
+// LAPORAN ABSENSI
+// ============================================
+async function loadAbsensiData() {
+  const { data, error } = await _supabase
+    .from(TABLES.ABSENSI)
+    .select('*')
+    .order('waktu_absen', { ascending: false });
+  
+  if(error || !data) {
+    document.getElementById('table-absen-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+    return;
+  }
+  
+  const listKegiatan = [...new Set(data.map(d => d.kegiatan_id))];
+  const select = document.getElementById('select-kegiatan-laporan');
+  select.innerHTML = '<option value="">-- Semua Riwayat Absensi --</option>' + 
+                     listKegiatan.map(k => `<option value="${k}">${k}</option>`).join('');
+
+  document.getElementById('table-absen-body').innerHTML = data.map(d => `
+    <tr class="border-t hover:bg-slate-50 transition-colors">
+      <td class="p-4 font-bold text-slate-700">${d.nama_warga}</td>
+      <td class="p-4 text-slate-500">${d.rt}</td>
+      <td class="p-4 font-black text-emerald-600">${d.kegiatan_id}</td>
+      <td class="p-4 text-[10px] text-slate-400">${new Date(d.waktu_absen).toLocaleString('id-ID')}</td>
+      <td class="p-4 text-center">
+        <img src="${d.photo_selfie_url}" onclick="viewImage('${d.photo_selfie_url}', '${d.nama_warga}')" class="w-10 h-10 mx-auto rounded-lg object-cover border-2 border-emerald-100 cursor-pointer hover:scale-110 transition-transform">
+      </td>
+      <td class="p-4">
+        <button onclick="hapusAbsen('${d.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function hapusAbsen(id) {
+  if(!confirm("Hapus data absensi ini?")) return;
+  const { error } = await _supabase
+    .from(TABLES.ABSENSI)
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("Absensi dihapus!");
+    loadAbsensiData();
+  }
+}
+
+async function downloadPDFMaster() {
+  notify("Menyiapkan Dokumen...", "bg-blue-600");
+  const { jsPDF } = window.jspdf;
+  const filter = document.getElementById('select-kegiatan-laporan').value;
+  
+  let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
+  if(filter) query = query.eq('kegiatan_id', filter);
+  
+  const { data, error } = await query;
+  
+  if(error || !data) {
+    notify("Gagal memuat data", "bg-rose-600");
+    return;
+  }
+
+  const doc = new jsPDF();
+  doc.setFillColor(5, 150, 105);
+  doc.rect(0, 0, 210, 35, 'F');
+  doc.addImage("https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png", 'PNG', 10, 5, 20, 20);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16).setFont(undefined, 'bold').text("DAFTAR HADIR WARGA RW.01", 35, 15);
+  doc.setFontSize(10).setFont(undefined, 'normal').text(filter ? `Kegiatan: ${filter}` : "Laporan Absensi Keseluruhan", 35, 22);
+  doc.setFontSize(8).text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 35, 28);
+
+  const tableRows = data.map((d, i) => [i+1, d.nama_warga, d.rt, d.jabatan, d.kegiatan_id, new Date(d.waktu_absen).toLocaleDateString('id-ID')]);
+
+  doc.autoTable({
+    startY: 40,
+    head: [['No', 'Nama Lengkap', 'RT', 'Jabatan', 'Nama Kegiatan', 'Waktu']],
+    body: tableRows,
+    headStyles: { fillStyle: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillStyle: [245, 245, 245] },
+    styles: { fontSize: 8, cellPadding: 3 }
+  });
+
+  doc.save(`Laporan_Absen_RW01_${Date.now()}.pdf`);
+  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+}
+
+// ============================================
+// KELOLA USERS
+// ============================================
+async function loadUsers() {
+  const { data, error } = await _supabase
+    .from(TABLES.USERS)
+    .select('*')
+    .order('nama', { ascending: true });
+  
+  if(error || !data) {
+    document.getElementById('table-user-body').innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+    return;
+  }
+
+  document.getElementById('table-user-body').innerHTML = data.map(u => `
+    <tr class="border-t hover:bg-emerald-50/50 transition-colors">
+      <td class="p-4 font-bold text-slate-800">${u.nama}</td>
+      <td class="p-4 text-emerald-600">@${u.username}</td>
+      <td class="p-4 font-medium">${u.rt} / ${u.jabatan}</td>
+      <td class="p-4">
+        <a href="https://wa.me/${u.nomor_hp}" target="_blank" class="flex items-center gap-1 text-emerald-600 font-bold hover:underline">
+          <i data-lucide="phone" class="w-3 h-3"></i> ${u.nomor_hp}
+        </a>
+      </td>
+      <td class="p-4 flex gap-3">
+        <button onclick="openEditUser('${u.id}', '${u.username}', '${u.nama}', '${u.rt}', '${u.jabatan}', '${u.nomor_hp}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+        <button onclick="deleteUser('${u.id}')" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function deleteUser(id) {
+  if(!confirm(`Hapus akun ini?`)) return;
+  const { error } = await _supabase
+    .from(TABLES.USERS)
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("User dihapus!");
+    loadUsers();
+  }
+}
+
+function openEditUser(id, username, nama, rt, jab, hp) {
+  document.getElementById('edit-old-id').value = id;
+  document.getElementById('edit-nama').value = nama;
+  document.getElementById('edit-rt').value = rt;
+  document.getElementById('edit-jabatan').value = jab;
+  document.getElementById('edit-hp').value = hp;
+  document.getElementById('modal-edit-user').classList.remove('hidden');
+}
+
+function closeEditUserModal() {
+  document.getElementById('modal-edit-user').classList.add('hidden');
+}
+
+async function updateUser() {
+  const id = document.getElementById('edit-old-id').value;
+  const data = { 
+    nama: document.getElementById('edit-nama').value, 
+    rt: document.getElementById('edit-rt').value, 
+    jabatan: document.getElementById('edit-jabatan').value, 
+    nomor_hp: document.getElementById('edit-hp').value 
+  };
+  
+  const { error } = await _supabase
+    .from(TABLES.USERS)
+    .update(data)
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal update: " + error.message);
+  } else {
+    notify("Data Berhasil Diperbarui!");
+    closeEditUserModal();
+    loadUsers();
+  }
+}
+
+function filterUser(val) {
+  const rows = document.querySelectorAll('#table-user-body tr');
+  rows.forEach(r => { 
+    r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; 
+  });
+}
+
+// ============================================
+// DOKUMENTASI (FIXED)
+// ============================================
+async function postDokumentasi() {
+  const title = document.getElementById('d-judul').value;
+  const file = document.getElementById('d-foto').files[0];
+  if(!file || !title) return alert("Pilih Foto & Nama Kegiatan!");
+  
+  try {
+    const fileName = `gallery_${Date.now()}.jpg`;
+    
+    const { error: uploadError } = await _supabase.storage
+      .from('media-sinergi')
+      .upload(`kegiatan/${fileName}`, file);
+    
+    if(uploadError) throw uploadError;
+    
+    const { data } = _supabase.storage
+      .from('media-sinergi')
+      .getPublicUrl(`kegiatan/${fileName}`);
+    
+    const { error } = await _supabase
+      .from(TABLES.DOKUMENTASI)
+      .insert({ 
+        judul: title, 
+        foto_url: data.publicUrl,
+        created_at: new Date().toISOString() 
+      });
+    
+    if(error) throw error;
+    
+    notify("Dokumentasi Berhasil Disimpan!");
+    document.getElementById('d-judul').value = "";
+    document.getElementById('d-foto').value = "";
+    loadDokumentasi();
+  } catch (err) {
+    alert("Error: " + err.message);
+  }
+}
+
+async function loadDokumentasi() {
+  const { data, error } = await _supabase
+    .from(TABLES.DOKUMENTASI)
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if(error || !data) {
+    document.getElementById('list-dokumentasi').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada dokumentasi</p>';
+    return;
+  }
+
+  document.getElementById('list-dokumentasi').innerHTML = data.map(d => `
+    <div class="card-admin overflow-hidden animate-fade">
+      <img src="${d.foto_url}" onclick="viewImage('${d.foto_url}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
+      <div class="p-4">
+        <p class="text-[10px] font-black uppercase truncate text-slate-700">${d.judul}</p>
+        <p class="text-[8px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
+        <button onclick="hapusDokumentasi('${d.id}')" class="mt-3 w-full text-rose-500 bg-rose-50 py-2 rounded-lg text-[9px] font-bold uppercase hover:bg-rose-100 transition">Hapus</button>
+      </div>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function hapusDokumentasi(id) {
+  if(!confirm("Hapus dokumentasi ini?")) return;
+  const { error } = await _supabase
+    .from(TABLES.DOKUMENTASI)
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("Dokumentasi dihapus!");
+    loadDokumentasi();
+  }
+}
+
+// ============================================
+// AGENDA
+// ============================================
+async function postAgenda() {
+  const data = { 
+    tanggal: document.getElementById('ag-tanggal').value, 
+    kegiatan: document.getElementById('ag-kegiatan').value, 
+    jam: document.getElementById('ag-jam').value, 
+    lokasi: document.getElementById('ag-lokasi').value,
+    created_at: new Date().toISOString()
+  };
+  
+  const { error } = await _supabase
+    .from(TABLES.AGENDA)
+    .insert(data);
+  
+  if(error) {
+    alert("Gagal menyimpan: " + error.message);
+  } else {
+    notify("Agenda Berhasil Disimpan!"); 
+    loadAgendaAdmin();
+  }
+}
+
+async function loadAgendaAdmin() {
+  const { data, error } = await _supabase
+    .from(TABLES.AGENDA)
+    .select('*')
+    .order('tanggal', { ascending: false });
+  
+  if(error || !data) {
+    document.getElementById('list-agenda-admin').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada agenda</p>';
+    return;
+  }
+
+  document.getElementById('list-agenda-admin').innerHTML = data.map(a => `
+    <div class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
+      <div>
+        <p class="text-[10px] font-black uppercase text-emerald-700">${a.kegiatan}</p>
+        <p class="text-[9px] text-slate-400 font-bold">${a.tanggal} | ${a.jam} | ${a.lokasi}</p>
+      </div>
+      <button onclick="hapusAgenda('${a.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function hapusAgenda(id) {
+  const { error } = await _supabase
+    .from(TABLES.AGENDA)
+    .delete()
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal menghapus: " + error.message);
+  } else {
+    notify("Agenda dihapus!");
+    loadAgendaAdmin();
+  }
+}
+
+// ============================================
+// PENGAJUAN SURAT
+// ============================================
+async function loadPengajuanSurat() {
+  const { data, error } = await _supabase
+    .from(TABLES.PENGAJUAN)
+    .select('*')
+    .order('waktu_pengajuan', { ascending: false });
+  
+  if(error || !data) {
+    document.getElementById('table-pengajuan-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+    return;
+  }
+
+  const statusColors = {
+    'Menunggu': 'bg-amber-50 text-amber-600',
+    'Diproses': 'bg-blue-50 text-blue-600',
+    'Selesai': 'bg-emerald-50 text-emerald-600',
+    'Ditolak': 'bg-rose-50 text-rose-600'
+  };
+
+  document.getElementById('table-pengajuan-body').innerHTML = data.map(p => `
+    <tr class="border-t hover:bg-slate-50 transition-colors">
+      <td class="p-4 font-bold text-slate-700">${p.nama}</td>
+      <td class="p-4 text-slate-500">${p.rt}</td>
+      <td class="p-4 font-medium">${p.jenis_surat}</td>
+      <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${statusColors[p.status] || 'bg-slate-50 text-slate-600'}">${p.status}</span></td>
+      <td class="p-4 text-[10px] text-slate-400">${new Date(p.waktu_pengajuan).toLocaleString('id-ID')}</td>
+      <td class="p-4 flex gap-2">
+        <button onclick="updateStatusSurat('${p.id}', 'Diproses')" class="text-blue-500 bg-blue-50 p-2 rounded-lg hover:bg-blue-100 transition" title="Proses"><i data-lucide="clock" class="w-4 h-4"></i></button>
+        <button onclick="updateStatusSurat('${p.id}', 'Selesai')" class="text-emerald-500 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="Selesai"><i data-lucide="check" class="w-4 h-4"></i></button>
+        <button onclick="updateStatusSurat('${p.id}', 'Ditolak')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Tolak"><i data-lucide="x" class="w-4 h-4"></i></button>
+        <a href="https://wa.me/${p.hp}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+      </td>
+    </tr>
+  `).join('');
+  lucide.createIcons();
+}
+
+async function updateStatusSurat(id, status) {
+  const { error } = await _supabase
+    .from(TABLES.PENGAJUAN)
+    .update({ status: status })
+    .eq('id', id);
+  
+  if(error) {
+    alert("Gagal update status: " + error.message);
+  } else {
+    notify(`Status diubah menjadi ${status}!`);
+    loadPengajuanSurat();
+  }
+}
+
+// ============================================
+// SETTINGS (RUNNING TEXT)
+// ============================================
+async function loadSettings() {
+  const { data, error } = await _supabase
+    .from(TABLES.SETTINGS)
+    .select('*')
+    .eq('key', 'running_text')
+    .single();
+  
+  if(data && !error) {
+    document.getElementById('set-running-text').value = data.value;
+  }
+  lucide.createIcons();
+}
+
+async function updateRunningText() {
+  const text = document.getElementById('set-running-text').value;
+  
+  const { data: existing } = await _supabase
+    .from(TABLES.SETTINGS)
+    .select('*')
+    .eq('key', 'running_text')
+    .single();
+  
+  let error;
+  if(existing) {
+    const { error: updateError } = await _supabase
+      .from(TABLES.SETTINGS)
+      .update({ value: text, updated_at: new Date().toISOString() })
+      .eq('key', 'running_text');
+    error = updateError;
+  } else {
+    const { error: insertError } = await _supabase
+      .from(TABLES.SETTINGS)
+      .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
+    error = insertError;
+  }
+  
+  if(error) {
+    alert("Gagal update: " + error.message);
+  } else {
+    notify("Teks Berjalan Berhasil Diperbarui!");
+  }
+}
+
+// ============================================
+// LOGOUT
+// ============================================
+function logoutAdmin() {
+  if(confirm("Keluar dari sistem admin?")) {
+    localStorage.clear();
+    window.location.href = 'index.html';
+  }
+}
+
+// ============================================
+// INIT
+// ============================================
+window.onload = () => {
+  const user = JSON.parse(localStorage.getItem('user'));
+  if (!user || user.jabatan !== 'Admin') { 
+    window.location.href = 'index.html'; 
+  }
+  lucide.createIcons();
+  loadPengumuman();
+};
+</script>
 </body>
 </html>
