@@ -32,6 +32,8 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 .btn-admin:active { transform: scale(0.97); }
 .btn-danger { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); color: white; font-weight: 800; text-transform: uppercase; }
 .btn-danger:active { transform: scale(0.97); }
+.btn-back { background: #f1f5f9; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.btn-back:active { transform: scale(0.97); }
 .input-admin { border: 2px solid #e2e8f0; background: #f8fafc; border-radius: 1rem; padding: 14px 16px; font-size: 14px; font-weight: 600; outline: none; transition: 0.2s; }
 .input-admin:focus { border-color: #059669; background: white; }
 #toast { transition: all 0.3s ease; }
@@ -113,9 +115,15 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
 <!-- Main Content -->
 <main class="flex-1 p-4 md:p-6 overflow-y-auto">
-  <div id="content-header" class="mb-6">
-    <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
-    <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Information System</p>
+  <div id="content-header" class="mb-6 flex justify-between items-center">
+    <div>
+      <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
+      <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Information System</p>
+    </div>
+    <!-- Tombol Kembali ke Dashboard -->
+    <button onclick="window.location.href='index.html'" class="btn-back px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+      <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+    </button>
   </div>
 
   <!-- TAB: PENGUMUMAN -->
@@ -276,20 +284,19 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
     <div class="mt-12 pt-8 border-t flex flex-col items-center justify-center text-center footer-credit">
       <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
       <p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
-      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
+      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nachrulli</p>
     </div>
   </div>
 </main>
 
 <script>
 // ============================================
-// CONFIG - SAMA DENGAN INDEX.HTML
+// CONFIG - SAMA DENGAN INDEX.HTML (FIXED - NO SPACES)
 // ============================================
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-// Table names
 const TABLES = {
   USERS: 'users',
   PENGUMUMAN: 'pengumuman',
@@ -372,7 +379,7 @@ async function postPengumuman() {
       await _supabase.storage
         .from('media-sinergi')
         .upload(`undangan/${pName}`, filePdf);
-      const { data: dPdf } = _supabase.storage
+      const {  dPdf } = _supabase.storage
         .from('media-sinergi')
         .getPublicUrl(`undangan/${pName}`);
       pdfUrl = dPdf.publicUrl;
