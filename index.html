@@ -44,6 +44,65 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 #toast { transition: all 0.3s ease; }
 .footer-credit { opacity: 0.5; transition: 0.3s; }
 .footer-credit:hover { opacity: 1; }
+
+/* ✅ ANIMASI EVENT DOT - PULSING EFFECT */
+.event-dot {
+  width: 6px;
+  height: 6px;
+  background: #FF6D2D;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 10px;
+  animation: pulse-dot 2s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+}
+
+/* ✅ ANIMASI PULSING */
+@keyframes pulse-dot {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+/* ✅ ANIMASI BACKGROUND UNTUK TANGGAL BERAGENDA */
+.day-has-event {
+  background: #ecfdf5 !important;
+  color: #059669 !important;
+  border: 2px solid #FF6D2D !important;
+  animation: highlight-event 3s ease-in-out infinite;
+}
+
+@keyframes highlight-event {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+}
+
+/* ✅ ANIMASI SAAT HOVER TANGGAL BERAGENDA */
+.day-has-event:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  z-index: 5;
+}
+
+/* ✅ ANIMASI KALENDER CONTAINER */
+.calendar-grid {
+  animation: fadeIn 0.5s ease-out;
+}
+
+
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900 pb-24">
@@ -418,23 +477,23 @@ async function switchTabWarga(tab) {
     
     list.innerHTML = `
     <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade">
-      <!-- ✅ NAVIGASI BULAN -->
+      <!-- ✅ NAVIGASI BULAN DENGAN ANIMASI -->
       <div class="flex justify-between items-center mb-4">
         <button 
           onclick="changeMonth(-1)" 
-          class="p-2 rounded-xl ${hasPrevMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+          class="p-2 rounded-xl transition-all duration-300 ${hasPrevMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
           ${!hasPrevMonth ? 'disabled' : ''}
         >
           <i data-lucide="chevron-left" class="w-5 h-5"></i>
         </button>
         
-        <h4 class="font-black text-xs uppercase text-emerald-800">
+        <h4 class="font-black text-xs uppercase text-emerald-800 animate-fade">
           ${monthNames[currentMonth]} ${currentYear}
         </h4>
         
         <button 
           onclick="changeMonth(1)" 
-          class="p-2 rounded-xl ${hasNextMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+          class="p-2 rounded-xl transition-all duration-300 ${hasNextMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
           ${!hasNextMonth ? 'disabled' : ''}
         >
           <i data-lucide="chevron-right" class="w-5 h-5"></i>
@@ -443,13 +502,13 @@ async function switchTabWarga(tab) {
       
       <!-- Grid Kalender -->
       <div class="calendar-grid text-center mb-2">
-        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[10px] font-black text-slate-500 uppercase">${d}</div>`).join('')}
+        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[8px] font-black text-slate-300 uppercase">${d}</div>`).join('')}
       </div>
       <div id="calendar-days" class="calendar-grid"></div>
     </div>
     
     <div id="event-details" class="space-y-3 mt-4">
-      <p class="text-center py-10 text-[9px] font-black text-slate-400 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
+      <p class="text-center py-10 text-[9px] font-black text-slate-300 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
     </div>`;
     
     // Render hari-hari dalam bulan
@@ -461,15 +520,31 @@ async function switchTabWarga(tab) {
     for(let day=1; day<=daysInMonth; day++) {
       const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
       const hasEvent = allEvents.find(e => e.tanggal === dateStr);
-      const isToday = day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear() ? 'border-2 border-emerald-200' : '';
+      const isToday = day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+      
       const dayEl = document.createElement('div');
-      dayEl.className = `calendar-day ${hasEvent ? 'day-has-event' : ''} ${isToday}`;
-      dayEl.innerHTML = `${day} ${hasEvent ? '<div class="event-dot"></div>' : ''}`;
+      
+      if (hasEvent) {
+        // ✅ TANGGAL DENGAN AGENDA - ANIMASI PULSING
+        dayEl.className = `calendar-day day-has-event ${isToday ? 'border-2 border-emerald-200' : ''}`;
+        dayEl.innerHTML = `
+          <span class="relative z-10">${day}</span>
+          <div class="event-dot"></div>
+        `;
+      } else {
+        // ✅ TANGGAL TANPA AGENDA
+        dayEl.className = `calendar-day ${isToday ? 'border-2 border-emerald-200' : ''}`;
+        dayEl.innerHTML = `<span class="relative z-10">${day}</span>`;
+      }
+      
       dayEl.onclick = () => {
         document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
         dayEl.classList.add('day-selected');
         showEventDetail(hasEvent);
       };
+      
+      // ✅ ANIMASI FADE IN BERURUTAN UNTUK SETIAP TANGGAL
+      dayEl.style.animation = `fadeIn 0.3s ease-out ${day * 0.02}s backwards`;
       calDays.appendChild(dayEl);
     }
     
@@ -493,36 +568,105 @@ async function switchTabWarga(tab) {
   renderCalendar();
   
   // Fungsi menampilkan detail event
-  function showEventDetail(event) {
-    const detailCont = document.getElementById('event-details');
-    if(!event) {
-      detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
-        <p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
-      </div>`;
-      return;
-    }
-    detailCont.innerHTML = `
-    <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
-        <div>
-          <p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
-          <h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
-        </div>
-      </div>
-      <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-50">
-        <div class="flex items-center gap-2">
-          <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
-          <span class="text-[9px] font-bold text-slate-500 uppercase">${event.jam}</span>
-        </div>
-        <div class="flex items-center gap-2 text-right justify-end">
-          <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
-          <span class="text-[9px] font-bold text-slate-500 uppercase truncate">${event.lokasi}</span>
-        </div>
-      </div>
+function showEventDetail(event) {
+  const detailCont = document.getElementById('event-details');
+  
+  if(!event) {
+    detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
+      <p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
     </div>`;
-    lucide.createIcons();
+    return;
   }
+  
+  // ✅ CEK STATUS KEGIATAN BERDASARKAN WAKTU
+  const now = new Date();
+  const eventDate = new Date(event.tanggal);
+  
+  // Set jam event untuk perbandingan yang lebih akurat
+  const eventDateTime = new Date(`${event.tanggal} ${event.jam || '00:00'}`);
+  
+  let statusBadge = '';
+  let statusColor = '';
+  let statusIcon = '';
+  let statusText = '';
+  
+  // Bandingkan tanggal
+  const isToday = eventDate.toDateString() === now.toDateString();
+  const isPast = eventDate < now.setHours(0,0,0,0); // Tanggal sudah lewat
+  const isFuture = eventDate > now.setHours(0,0,0,0); // Tanggal masih akan datang
+  
+  if (isPast) {
+    // ✅ KEGIATAN SUDAH SELESAI
+    statusBadge = 'bg-slate-100 text-slate-600';
+    statusColor = 'text-slate-600';
+    statusIcon = 'check-circle';
+    statusText = 'Kegiatan ini telah selesai';
+  } else if (isToday) {
+    // ✅ KEGIATAN SEDANG BERLANGSUNG
+    statusBadge = 'bg-emerald-100 text-emerald-600 animate-pulse';
+    statusColor = 'text-emerald-600';
+    statusIcon = 'clock';
+    statusText = 'Sedang berlangsung';
+  } else {
+    // ✅ KEGIATAN AKAN DATANG
+    statusBadge = 'bg-blue-100 text-blue-600';
+    statusColor = 'text-blue-600';
+    statusIcon = 'calendar';
+    statusText = 'Akan datang';
+  }
+  
+  detailCont.innerHTML = `
+  <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
+    <!-- ✅ STATUS BADGE -->
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor}"></i>
+      <span class="px-3 py-1 rounded-full text-[12px] font-black uppercase ${statusBadge}">
+        ${statusText}
+      </span>
+    </div>
+    
+    <div class="flex items-center gap-3 mb-3">
+      <div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
+        <i data-lucide="calendar" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
+        <h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
+      </div>
+    </div>
+    
+    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-50">
+      <div class="flex items-center gap-2">
+        <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+        <span class="text-[9px] font-bold text-slate-500 uppercase">${event.jam || '-'}</span>
+      </div>
+      <div class="flex items-center gap-2 text-right justify-end">
+        <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+        <span class="text-[9px] font-bold text-slate-500 uppercase truncate">${event.lokasi || '-'}</span>
+      </div>
+    </div>
+    
+    <!-- ✅ PESAN TAMBAHAN JIKA SUDAH SELESAI -->
+    ${isPast ? `
+    <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
+      <p class="text-[8px] font-bold text-slate-500 uppercase text-center">
+        📅 Tanggal kegiatan: ${new Date(event.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+      </p>
+    </div>
+    ` : ''}
+    
+    <!-- ✅ PESAN TAMBAHAN JIKA SEDANG BERLANGSUNG -->
+    ${isToday ? `
+    <div class="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+      <p class="text-[8px] font-bold text-emerald-600 uppercase text-center animate-pulse">
+        🔴 Jangan lupa hadir tepat waktu!
+      </p>
+    </div>
+    ` : ''}
+  </div>`;
+  
+  lucide.createIcons();
+}
       
     } else if(tab === 'surat') {
       list.innerHTML = `
