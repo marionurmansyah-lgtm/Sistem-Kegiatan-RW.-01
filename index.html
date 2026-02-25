@@ -443,87 +443,143 @@ async function switchTabWarga(tab) {
       </div>`;
       
     } else if(tab === 'agenda') {
-      const { data, error } = await _supabase
-        .from(TABLES.AGENDA)
-        .select('*')
-        .order('tanggal', { ascending: true });
-      
-      if(error || !data) {
-        list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat agenda</p>';
-        return;
-      }
-      
-      const allEvents = data;
-      const now = new Date();
-      const currentMonth = now.getMonth();
-      const currentYear = now.getFullYear();
-      const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-      
-      list.innerHTML = `
-      <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade">
-        <div class="flex justify-between items-center mb-4">
-          <h4 class="font-black text-xs uppercase text-emerald-800">${monthNames[currentMonth]} ${currentYear}</h4>
-          <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-500"></div><span class="text-[7px] font-bold text-slate-400 uppercase">Agenda</span></div>
-        </div>
-        <div class="calendar-grid text-center mb-2">
-          ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[8px] font-black text-slate-300 uppercase">${d}</div>`).join('')}
-        </div>
-        <div id="calendar-days" class="calendar-grid"></div>
+        } else if(tab === 'agenda') {
+  const { data, error } = await _supabase
+    .from(TABLES.AGENDA)
+    .select('*')
+    .order('tanggal', { ascending: true });
+  
+  if(error || !data) {
+    list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat agenda</p>';
+    return;
+  }
+  
+  const allEvents = data;
+  const now = new Date();
+  let currentMonth = now.getMonth();
+  let currentYear = now.getFullYear();
+  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+  
+  // ✅ Fungsi untuk cek apakah bulan tertentu ada agenda
+  function hasEventsInMonth(year, month) {
+    return allEvents.some(e => {
+      const eventDate = new Date(e.tanggal);
+      return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+    });
+  }
+  
+  // ✅ Fungsi untuk render kalender
+  function renderCalendar() {
+    const hasPrevMonth = hasEventsInMonth(currentYear, currentMonth - 1);
+    const hasNextMonth = hasEventsInMonth(currentYear, currentMonth + 1);
+    
+    list.innerHTML = `
+    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade">
+      <!-- ✅ NAVIGASI BULAN -->
+      <div class="flex justify-between items-center mb-4">
+        <button 
+          onclick="changeMonth(-1)" 
+          class="p-2 rounded-xl ${hasPrevMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+          ${!hasPrevMonth ? 'disabled' : ''}
+        >
+          <i data-lucide="chevron-left" class="w-5 h-5"></i>
+        </button>
+        
+        <h4 class="font-black text-xs uppercase text-emerald-800">
+          ${monthNames[currentMonth]} ${currentYear}
+        </h4>
+        
+        <button 
+          onclick="changeMonth(1)" 
+          class="p-2 rounded-xl ${hasNextMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+          ${!hasNextMonth ? 'disabled' : ''}
+        >
+          <i data-lucide="chevron-right" class="w-5 h-5"></i>
+        </button>
       </div>
-      <div id="event-details" class="space-y-3 mt-4">
-        <p class="text-center py-10 text-[9px] font-black text-slate-300 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
+      
+      <!-- Grid Kalender -->
+      <div class="calendar-grid text-center mb-2">
+        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[10px] font-black text-slate-500 uppercase">${d}</div>`).join('')}
+      </div>
+      <div id="calendar-days" class="calendar-grid"></div>
+    </div>
+    
+    <div id="event-details" class="space-y-3 mt-4">
+      <p class="text-center py-10 text-[9px] font-black text-slate-400 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
+    </div>`;
+    
+    // Render hari-hari dalam bulan
+    const calDays = document.getElementById('calendar-days');
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    
+    for(let i=0; i<firstDay; i++) calDays.innerHTML += `<div></div>`;
+    for(let day=1; day<=daysInMonth; day++) {
+      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+      const hasEvent = allEvents.find(e => e.tanggal === dateStr);
+      const isToday = day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear() ? 'border-2 border-emerald-200' : '';
+      const dayEl = document.createElement('div');
+      dayEl.className = `calendar-day ${hasEvent ? 'day-has-event' : ''} ${isToday}`;
+      dayEl.innerHTML = `${day} ${hasEvent ? '<div class="event-dot"></div>' : ''}`;
+      dayEl.onclick = () => {
+        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
+        dayEl.classList.add('day-selected');
+        showEventDetail(hasEvent);
+      };
+      calDays.appendChild(dayEl);
+    }
+    
+    lucide.createIcons();
+  }
+  
+  // ✅ Fungsi ganti bulan
+  window.changeMonth = function(delta) {
+    currentMonth += delta;
+    if(currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    } else if(currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  };
+  
+  // Render pertama kali
+  renderCalendar();
+  
+  // Fungsi menampilkan detail event
+  function showEventDetail(event) {
+    const detailCont = document.getElementById('event-details');
+    if(!event) {
+      detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
+        <p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
       </div>`;
-      
-      const calDays = document.getElementById('calendar-days');
-      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      
-      for(let i=0; i<firstDay; i++) calDays.innerHTML += `<div></div>`;
-      for(let day=1; day<=daysInMonth; day++) {
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-        const hasEvent = allEvents.find(e => e.tanggal === dateStr);
-        const isToday = day === now.getDate() ? 'border-2 border-emerald-200' : '';
-        const dayEl = document.createElement('div');
-        dayEl.className = `calendar-day ${hasEvent ? 'day-has-event' : ''} ${isToday}`;
-        dayEl.innerHTML = `${day} ${hasEvent ? '<div class="event-dot"></div>' : ''}`;
-        dayEl.onclick = () => {
-          document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
-          dayEl.classList.add('day-selected');
-          showEventDetail(hasEvent);
-        };
-        calDays.appendChild(dayEl);
-      }
-      
-      function showEventDetail(event) {
-        const detailCont = document.getElementById('event-details');
-        if(!event) {
-          detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
-            <p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
-          </div>`;
-          return;
-        }
-        detailCont.innerHTML = `
-        <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
-          <div class="flex items-center gap-3 mb-3">
-            <div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
-            <div>
-              <p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
-              <h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-50">
-            <div class="flex items-center gap-2">
-              <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
-              <span class="text-[9px] font-bold text-slate-500 uppercase">${event.jam}</span>
-            </div>
-            <div class="flex items-center gap-2 text-right justify-end">
-              <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
-              <span class="text-[9px] font-bold text-slate-500 uppercase truncate">${event.lokasi}</span>
-            </div>
-          </div>
-        </div>`;
-        lucide.createIcons();
-      }
+      return;
+    }
+    detailCont.innerHTML = `
+    <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+        <div>
+          <p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
+          <h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-50">
+        <div class="flex items-center gap-2">
+          <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-[9px] font-bold text-slate-500 uppercase">${event.jam}</span>
+        </div>
+        <div class="flex items-center gap-2 text-right justify-end">
+          <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+          <span class="text-[9px] font-bold text-slate-500 uppercase truncate">${event.lokasi}</span>
+        </div>
+      </div>
+    </div>`;
+    lucide.createIcons();
+  }
       
     } else if(tab === 'surat') {
       list.innerHTML = `
