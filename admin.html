@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Admin Panel - Sinergi RW.01</title>
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -44,9 +44,35 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 .modal-backdrop { background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
 .footer-credit { opacity: 0.5; transition: 0.3s; }
 .footer-credit:hover { opacity: 1; }
+
+/* ✅ MOBILE MENU STYLES */
+.mobile-menu-btn { display: none; }
+@media (max-width: 768px) {
+  .mobile-menu-btn { display: flex; }
+  .sidebar { 
+    position: fixed; 
+    left: -288px; 
+    top: 0; 
+    height: 100vh; 
+    z-index: 1000;
+    transition: left 0.3s ease;
+  }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay { 
+    display: none; 
+    position: fixed; 
+    inset: 0; 
+    background: rgba(0,0,0,0.5); 
+    z-index: 999; 
+  }
+  .sidebar-overlay.active { display: block; }
+}
 </style>
 </head>
 <body class="min-h-screen flex">
+
+<!-- ✅ SIDEBAR OVERLAY (Mobile) -->
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <!-- Toast Notification -->
 <div id="toast" class="fixed top-4 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold text-sm hidden"></div>
@@ -78,13 +104,22 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
   </div>
 </div>
 
-<!-- Sidebar -->
-<aside class="w-72 bg-white border-r hidden md:flex flex-col sticky top-0 h-screen">
-  <div class="p-6 border-b text-center">
+<!-- ✅ SIDEBAR (With Mobile Support) -->
+<aside class="sidebar w-72 bg-white border-r flex flex-col sticky top-0 h-screen">
+  <!-- Mobile Header -->
+  <div class="md:hidden p-4 border-b flex justify-between items-center">
+    <h1 class="font-black text-emerald-800 text-sm">ADMIN RW.01</h1>
+    <button onclick="toggleSidebar()" class="text-slate-400 hover:text-slate-600">
+      <i data-lucide="x" class="w-6 h-6"></i>
+    </button>
+  </div>
+  
+  <div class="p-6 border-b text-center hidden md:block">
     <img class="w-20 h-20 mx-auto mb-2" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
     <h1 class="font-black text-emerald-800 text-sm">ADMIN RW.01</h1>
     <p class="text-slate-500 text-xs">Kel.Kebon Manggis Kec.Matraman</p>
   </div>
+  
   <nav class="flex-1 p-4 space-y-2">
     <button onclick="switchTab('pengumuman', this)" class="sidebar-item active-tab w-full flex items-center gap-3 p-3 rounded-xl font-bold text-xs uppercase">
       <i data-lucide="megaphone" class="w-4 h-4"></i> Pengumuman
@@ -108,6 +143,7 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
       <i data-lucide="settings" class="w-4 h-4"></i> Pengaturan
     </button>
   </nav>
+  
   <div class="p-4 border-t">
     <button onclick="logoutAdmin()" class="w-full bg-rose-50 text-rose-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-rose-100 transition">Keluar Admin</button>
   </div>
@@ -115,12 +151,20 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 
 <!-- Main Content -->
 <main class="flex-1 p-4 md:p-6 overflow-y-auto">
+  <!-- ✅ MOBILE MENU BUTTON -->
+  <div class="md:hidden mb-4 flex justify-between items-center">
+    <button onclick="toggleSidebar()" class="mobile-menu-btn p-3 bg-white rounded-xl shadow-sm">
+      <i data-lucide="menu" class="w-6 h-6 text-emerald-600"></i>
+    </button>
+    <h1 class="font-black text-emerald-800 text-sm">ADMIN PANEL</h1>
+    <div class="w-12"></div>
+  </div>
+
   <div id="content-header" class="mb-6 flex justify-between items-center">
     <div>
       <h2 id="tab-title" class="text-2xl font-black text-slate-800 uppercase">Kelola Pengumuman</h2>
       <p class="text-slate-500 text-xs">RW.01 Kebon Manggis Digital Information System</p>
     </div>
-    <!-- ✅ TOMBOL KEMBALI KE DASHBOARD WARGA -->
     <button onclick="window.location.href='index.html'" class="btn-back px-4 py-2 rounded-xl text-xs flex items-center gap-2">
       <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
     </button>
@@ -137,7 +181,6 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
           <option value="Kegiatan">Kegiatan (Aktifkan Absensi)</option>
         </select>
         <textarea id="p-detail" placeholder="Isi detail informasi..." class="input-admin w-full h-32 resize-none"></textarea>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="space-y-1">
             <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Foto Sampul (PNG/JPG)</label>
@@ -151,7 +194,6 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
         <button onclick="postPengumuman()" class="btn-admin w-full py-4 rounded-xl text-xs">Sampaikan Pengumuman</button>
       </div>
     </div>
-
     <div class="card-admin overflow-hidden">
       <table class="w-full text-left table-admin">
         <thead class="bg-slate-50 border-b">
@@ -250,10 +292,16 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
     <div id="list-agenda-admin" class="card-admin divide-y overflow-hidden"></div>
   </div>
 
-  <!-- TAB: PENGAJUAN SURAT -->
+  <!-- ✅ TAB: PENGAJUAN SURAT (UPDATED WITH HISTORY & CHECKMARK) -->
   <div id="sec-pengajuan" class="tab-content hidden space-y-4">
-    <div class="card-admin p-6">
-      <h4 class="font-black uppercase text-xs text-emerald-800 mb-4">Daftar Pengajuan Surat Warga</h4>
+    <div class="card-admin p-6 flex justify-between items-center">
+      <div>
+        <h4 class="font-black uppercase text-xs text-emerald-800">Daftar Pengajuan Surat Warga</h4>
+        <p class="text-[9px] text-slate-400 font-bold mt-1">Histori pengajuan surat untuk dokumentasi</p>
+      </div>
+      <button onclick="loadPengajuanSurat()" class="btn-back px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
+      </button>
     </div>
     <div class="card-admin overflow-x-auto">
       <table class="w-full text-left table-admin">
@@ -262,9 +310,10 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
             <th class="p-4">Nama</th>
             <th class="p-4">RT</th>
             <th class="p-4">Jenis Surat</th>
+            <th class="p-4">Keterangan</th>
             <th class="p-4">Status</th>
             <th class="p-4">Waktu</th>
-            <th class="p-4">Aksi</th>
+            <th class="p-4 text-center">Aksi</th>
           </tr>
         </thead>
         <tbody id="table-pengajuan-body"></tbody>
@@ -279,19 +328,17 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
       <textarea id="set-running-text" placeholder="Tulis pengumuman singkat yang akan berjalan di layar utama warga..." class="input-admin w-full h-24 resize-none"></textarea>
       <button onclick="updateRunningText()" class="btn-admin px-8 py-3 rounded-xl text-xs mt-4">Simpan Perubahan</button>
     </div>
-    
-    <!-- Footer Credit -->
     <div class="mt-12 pt-8 border-t flex flex-col items-center justify-center text-center footer-credit">
       <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
       <p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
-      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nachrulli</p>
+      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nacruli</p>
     </div>
   </div>
 </main>
 
 <script>
 // ============================================
-// CONFIG - SAMA DENGAN INDEX.HTML
+// CONFIG
 // ============================================
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
@@ -306,6 +353,14 @@ const TABLES = {
   PENGAJUAN: 'pengajuan_surat',
   SETTINGS: 'settings'
 };
+
+// ============================================
+// MOBILE MENU TOGGLE
+// ============================================
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.querySelector('.sidebar-overlay').classList.toggle('active');
+}
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -336,6 +391,11 @@ function switchTab(tab, btn) {
   if(btn) btn.classList.add('active-tab');
   document.getElementById('tab-title').innerText = `Kelola ${tab}`;
   
+  // Close sidebar on mobile after tab switch
+  if(window.innerWidth < 768) {
+    toggleSidebar();
+  }
+  
   if(tab === 'laporan') loadAbsensiData();
   if(tab === 'users') loadUsers();
   if(tab === 'pengumuman') loadPengumuman();
@@ -354,48 +414,19 @@ async function postPengumuman() {
   const vTipe = document.getElementById('p-tipe').value;
   const vDetail = document.getElementById('p-detail').value;
   const fileFoto = document.getElementById('p-file-foto').files[0];
-  const filePdf = document.getElementById('p-file-pdf').files[0];
 
   if(!vJudul || !vDetail || !fileFoto) return alert("Lengkapi Judul, Detail, dan Foto Sampul!");
 
   try {
-    let fotoUrl = "-";
-    let pdfUrl = "-";
-
     const fName = `announcement_${Date.now()}.jpg`;
-    const { error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`pengumuman/${fName}`, fileFoto);
-    
+    const { error: uploadError } = await _supabase.storage.from('media-sinergi').upload(`pengumuman/${fName}`, fileFoto);
     if(uploadError) throw uploadError;
     
-    const { data: dFoto } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`pengumuman/${fName}`);
-    fotoUrl = dFoto.publicUrl;
-
-    if (filePdf) {
-      const pName = `doc_${Date.now()}.pdf`;
-      await _supabase.storage
-        .from('media-sinergi')
-        .upload(`undangan/${pName}`, filePdf);
-      const { data: dPdf } = _supabase.storage
-        .from('media-sinergi')
-        .getPublicUrl(`undangan/${pName}`);
-      pdfUrl = dPdf.publicUrl;
-    }
-
-    const { error } = await _supabase
-      .from(TABLES.PENGUMUMAN)
-      .insert({
-        judul: vJudul,
-        tipe: vTipe,
-        detail: vDetail,
-        file_url: fotoUrl,
-        pdf_url: pdfUrl,
-        created_at: new Date().toISOString()
-      });
-
+    const {  dFoto } = _supabase.storage.from('media-sinergi').getPublicUrl(`pengumuman/${fName}`);
+    
+    const { error } = await _supabase.from(TABLES.PENGUMUMAN).insert({
+      judul: vJudul, tipe: vTipe, detail: vDetail, file_url: dFoto.publicUrl, created_at: new Date().toISOString()
+    });
     if(error) throw error;
 
     notify("Pengumuman Berhasil Diterbitkan!");
@@ -406,16 +437,11 @@ async function postPengumuman() {
 }
 
 async function loadPengumuman() {
-  const { data, error } = await _supabase
-    .from(TABLES.PENGUMUMAN)
-    .select('*')
-    .order('created_at', { ascending: false });
-  
+  const { data, error } = await _supabase.from(TABLES.PENGUMUMAN).select('*').order('created_at', { ascending: false });
   if(error || !data) {
     document.getElementById('log-pengumuman-body').innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
-
   document.getElementById('log-pengumuman-body').innerHTML = data.map(p => `
     <tr class="border-b hover:bg-slate-50 transition-colors">
       <td class="p-4 text-slate-400 font-medium">${new Date(p.created_at).toLocaleDateString('id-ID')}</td>
@@ -431,37 +457,23 @@ async function loadPengumuman() {
 
 async function hapusPengumuman(id) {
   if(!confirm("Hapus pengumuman ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.PENGUMUMAN)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Pengumuman dihapus!");
-    loadPengumuman();
-  }
+  const { error } = await _supabase.from(TABLES.PENGUMUMAN).delete().eq('id', id);
+  if(error) { alert("Gagal menghapus: " + error.message); } 
+  else { notify("Pengumuman dihapus!"); loadPengumuman(); }
 }
 
 // ============================================
 // LAPORAN ABSENSI
 // ============================================
 async function loadAbsensiData() {
-  const { data, error } = await _supabase
-    .from(TABLES.ABSENSI)
-    .select('*')
-    .order('waktu_absen', { ascending: false });
-  
+  const { data, error } = await _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
   if(error || !data) {
     document.getElementById('table-absen-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
-  
   const listKegiatan = [...new Set(data.map(d => d.kegiatan_id))];
   const select = document.getElementById('select-kegiatan-laporan');
-  select.innerHTML = '<option value="">-- Semua Riwayat Absensi --</option>' + 
-                     listKegiatan.map(k => `<option value="${k}">${k}</option>`).join('');
+  select.innerHTML = '<option value="">-- Semua Riwayat Absensi --</option>' + listKegiatan.map(k => `<option value="${k}">${k}</option>`).join('');
 
   document.getElementById('table-absen-body').innerHTML = data.map(d => `
     <tr class="border-t hover:bg-slate-50 transition-colors">
@@ -482,224 +494,54 @@ async function loadAbsensiData() {
 
 async function hapusAbsen(id) {
   if(!confirm("Hapus data absensi ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.ABSENSI)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Absensi dihapus!");
-    loadAbsensiData();
-  }
+  const { error } = await _supabase.from(TABLES.ABSENSI).delete().eq('id', id);
+  if(error) { alert("Gagal menghapus: " + error.message); } 
+  else { notify("Absensi dihapus!"); loadAbsensiData(); }
 }
 
-// ============================================
-// PDF GENERATOR - DENGAN GRID/BORDER CELL
-// ============================================
-// ============================================
-// PDF GENERATOR - DIPERBAIKI (KONSISTEN DENGAN INDEX.HTML)
-// ============================================
 async function downloadPDFMaster() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
   const filter = document.getElementById('select-kegiatan-laporan').value;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
   
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // === 1. LOAD LOGO ===
-    const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-    
-    const loadImage = (url) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = () => resolve(null); // Fallback jika logo gagal load
-        img.src = url;
-      });
-    };
-    
-    const logoBase64 = await loadImage(logoUrl);
-    
-    // === 2. HEADER (WARNA DASAR KERTAS - PUTIH) ===
-    // Tampilkan Logo jika berhasil load
-    if(logoBase64) {
-      doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
-    }
-    
-    // Teks Header (Hitam - bukan putih)
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(14).setFont("helvetica", "bold");
-    doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
-    
-    doc.setFontSize(9).setFont("helvetica", "normal");
-    doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
-    doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
-    
-    doc.setFontSize(8);
-    doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
-    
-    // Garis Ganda Pembatas Header (Hitam)
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(15, 38, 195, 38);
-    doc.setLineWidth(0.2);
-    doc.line(15, 40, 195, 40);
-    
-    // === 3. JUDUL LAPORAN ===
-    doc.setFontSize(12).setFont("helvetica", "bold");
-    doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
-    
-    // Tanggal Cetak
-    doc.setFontSize(8).setFont("helvetica", "normal");
-    const printDate = new Date().toLocaleString('id-ID', { 
-      day: 'numeric', 
-      month: 'numeric', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    doc.text(`Dicetak pada: ${printDate}`, 15, 56);
-    
-    // Filter Kegiatan (jika ada)
-    if(filter) {
-      doc.text(`Kegiatan: ${filter}`, 15, 61);
-    }
-    
-    // === 4. AMBIL DATA ===
-    let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
-    if(filter) query = query.eq('kegiatan_id', filter);
-    
-    const { data, error } = await query;
-    
-    if(error || !data) {
-      notify("Gagal memuat data absensi", "bg-rose-600");
-      return;
-    }
-    
-    // === 5. TABEL DENGAN GRID/BORDER ===
-    const tableBody = data.map((row, index) => [
-      index + 1, 
-      row.nama_warga, 
-      row.rt, 
-      row.jabatan, 
-      row.kegiatan_id, 
-      new Date(row.waktu_absen).toLocaleDateString('id-ID', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      })
-    ]);
-    
-    doc.autoTable({
-      startY: filter ? 65 : 60,
-      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
-      body: tableBody,
-      
-      // === GRID/BORDER SETTINGS ===
-      theme: 'grid',
-      tableLineColor: [200, 200, 200],
-      tableLineWidth: 0.2,
-      
-      headStyles: { 
-        fillColor: [5, 150, 105],  // Header tabel tetap hijau
-        textColor: 255,
-        fontStyle: 'bold',
-        halign: 'center',
-        fontSize: 9,
-        lineColor: [200, 200, 200],
-        lineWidth: 0.2
-      },
-      
-      alternateRowStyles: { 
-        fillColor: [250, 250, 250]
-      },
-      
-      styles: { 
-        fontSize: 8, 
-        cellPadding: 3,
-        valign: 'middle',
-        lineColor: [200, 200, 200],
-        lineWidth: 0.2,
-        overflow: 'linebreak'  // Fix text overflow
-      },
-      
-      // === FIX: KOLOM TANGGAL TIDAK TERBAGI ===
-      columnStyles: {
-        0: { halign: 'center', cellWidth: 12 },   // NO
-        1: { cellWidth: 45 },                      // NAMA WARGA
-        2: { halign: 'center', cellWidth: 18 },   // UNIT
-        3: { cellWidth: 35 },                      // JABATAN
-        4: { cellWidth: 45 },                      // NAMA KEGIATAN
-        5: { halign: 'left', cellWidth: 32 }      // TANGGAL (fixed width)
-      },
-      
-      margin: { left: 15, right: 15, top: filter ? 65 : 60 },
-      pageBreak: 'auto',
-      
-      // === FIX: CUSTOM DRAW CELL UNTUK BORDER KONSISTEN ===
-      didDrawCell: (data) => {
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.2);
-        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
-      }
-    });
-    
-    // === 6. TANDA TANGAN (FOOTER) ===
-    const finalY = doc.lastAutoTable.finalY + 20;
-    
-    doc.setFontSize(9).setFont("helvetica", "normal");
-    doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric' 
-    })}`, 150, finalY);
-    
-    doc.text("Ketua RW.01,", 150, finalY + 6);
-    
-    doc.setFontSize(9).setFont("helvetica", "italic");
-    doc.text("Ditandatangani secara Digital", 150, finalY + 15);
-    
-    doc.setFontSize(10).setFont("helvetica", "bold");
-    doc.text("Abdul Khadir Abu", 150, finalY + 25);
-    
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.line(150, finalY + 27, 195, finalY + 27);
-    
-    // === 7. SAVE PDF ===
-    doc.save(`Laporan_RW01_${Date.now()}.pdf`);
-    notify("PDF Berhasil Diunduh!", "bg-emerald-600");
-    
-  } catch (err) {
-    console.error(err);
-    notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
-  }
+  doc.setFillColor(5, 150, 105);
+  doc.rect(0, 0, 210, 35, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16).setFont("helvetica", "bold").text("LAPORAN ABSENSI WARGA RW.01", 105, 15, { align: "center" });
+  doc.setFontSize(10).setFont("helvetica", "normal").text(filter ? `Kegiatan: ${filter}` : "Rekapitulasi Keseluruhan", 105, 22, { align: "center" });
+  doc.setFontSize(8).text(`Dicetak: ${new Date().toLocaleString('id-ID')}`, 105, 28, { align: "center" });
+
+  let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
+  if(filter) query = query.eq('kegiatan_id', filter);
+  const { data, error } = await query;
+  
+  if(error || !data) { notify("Gagal memuat data", "bg-rose-600"); return; }
+
+  const tableRows = data.map((d, i) => [i+1, d.nama_warga, d.rt, d.jabatan, d.kegiatan_id, new Date(d.waktu_absen).toLocaleDateString('id-ID')]);
+
+  doc.autoTable({
+    startY: 40,
+    head: [['No', 'Nama Lengkap', 'RT', 'Jabatan', 'Nama Kegiatan', 'Waktu']],
+    body: tableRows,
+    headStyles: { fillStyle: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
+    alternateRowStyles: { fillStyle: [245, 245, 245] },
+    styles: { fontSize: 8, cellPadding: 3 }
+  });
+
+  doc.save(`Laporan_Absen_RW01_${Date.now()}.pdf`);
+  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
 }
+
 // ============================================
 // KELOLA USERS
 // ============================================
 async function loadUsers() {
-  const { data, error } = await _supabase
-    .from(TABLES.USERS)
-    .select('*')
-    .order('nama', { ascending: true });
-  
+  const { data, error } = await _supabase.from(TABLES.USERS).select('*').order('nama', { ascending: true });
   if(error || !data) {
     document.getElementById('table-user-body').innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
-
   document.getElementById('table-user-body').innerHTML = data.map(u => `
     <tr class="border-t hover:bg-emerald-50/50 transition-colors">
       <td class="p-4 font-bold text-slate-800">${u.nama}</td>
@@ -721,17 +563,9 @@ async function loadUsers() {
 
 async function deleteUser(id) {
   if(!confirm(`Hapus akun ini?`)) return;
-  const { error } = await _supabase
-    .from(TABLES.USERS)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("User dihapus!");
-    loadUsers();
-  }
+  const { error } = await _supabase.from(TABLES.USERS).delete().eq('id', id);
+  if(error) { alert("Gagal menghapus: " + error.message); } 
+  else { notify("User dihapus!"); loadUsers(); }
 }
 
 function openEditUser(id, username, nama, rt, jab, hp) {
@@ -755,26 +589,14 @@ async function updateUser() {
     jabatan: document.getElementById('edit-jabatan').value, 
     nomor_hp: document.getElementById('edit-hp').value 
   };
-  
-  const { error } = await _supabase
-    .from(TABLES.USERS)
-    .update(data)
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal update: " + error.message);
-  } else {
-    notify("Data Berhasil Diperbarui!");
-    closeEditUserModal();
-    loadUsers();
-  }
+  const { error } = await _supabase.from(TABLES.USERS).update(data).eq('id', id);
+  if(error) { alert("Gagal update: " + error.message); } 
+  else { notify("Data Berhasil Diperbarui!"); closeEditUserModal(); loadUsers(); }
 }
 
 function filterUser(val) {
   const rows = document.querySelectorAll('#table-user-body tr');
-  rows.forEach(r => { 
-    r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; 
-  });
+  rows.forEach(r => { r.style.display = r.cells[0].innerText.toLowerCase().includes(val.toLowerCase()) ? "" : "none"; });
 }
 
 // ============================================
@@ -787,25 +609,11 @@ async function postDokumentasi() {
   
   try {
     const fileName = `gallery_${Date.now()}.jpg`;
-    
-    const { error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`kegiatan/${fileName}`, file);
-    
+    const { error: uploadError } = await _supabase.storage.from('media-sinergi').upload(`kegiatan/${fileName}`, file);
     if(uploadError) throw uploadError;
     
-    const { data } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`kegiatan/${fileName}`);
-    
-    const { error } = await _supabase
-      .from(TABLES.DOKUMENTASI)
-      .insert({ 
-        judul: title, 
-        foto_url: data.publicUrl,
-        created_at: new Date().toISOString() 
-      });
-    
+    const { data } = _supabase.storage.from('media-sinergi').getPublicUrl(`kegiatan/${fileName}`);
+    const { error } = await _supabase.from(TABLES.DOKUMENTASI).insert({ judul: title, foto_url: data.publicUrl, created_at: new Date().toISOString() });
     if(error) throw error;
     
     notify("Dokumentasi Berhasil Disimpan!");
@@ -818,16 +626,11 @@ async function postDokumentasi() {
 }
 
 async function loadDokumentasi() {
-  const { data, error } = await _supabase
-    .from(TABLES.DOKUMENTASI)
-    .select('*')
-    .order('created_at', { ascending: false });
-  
+  const { data, error } = await _supabase.from(TABLES.DOKUMENTASI).select('*').order('created_at', { ascending: false });
   if(error || !data) {
     document.getElementById('list-dokumentasi').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada dokumentasi</p>';
     return;
   }
-
   document.getElementById('list-dokumentasi').innerHTML = data.map(d => `
     <div class="card-admin overflow-hidden animate-fade">
       <img src="${d.foto_url}" onclick="viewImage('${d.foto_url}', '${d.judul}')" class="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition">
@@ -843,17 +646,9 @@ async function loadDokumentasi() {
 
 async function hapusDokumentasi(id) {
   if(!confirm("Hapus dokumentasi ini?")) return;
-  const { error } = await _supabase
-    .from(TABLES.DOKUMENTASI)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Dokumentasi dihapus!");
-    loadDokumentasi();
-  }
+  const { error } = await _supabase.from(TABLES.DOKUMENTASI).delete().eq('id', id);
+  if(error) { alert("Gagal menghapus: " + error.message); } 
+  else { notify("Dokumentasi dihapus!"); loadDokumentasi(); }
 }
 
 // ============================================
@@ -867,30 +662,17 @@ async function postAgenda() {
     lokasi: document.getElementById('ag-lokasi').value,
     created_at: new Date().toISOString()
   };
-  
-  const { error } = await _supabase
-    .from(TABLES.AGENDA)
-    .insert(data);
-  
-  if(error) {
-    alert("Gagal menyimpan: " + error.message);
-  } else {
-    notify("Agenda Berhasil Disimpan!"); 
-    loadAgendaAdmin();
-  }
+  const { error } = await _supabase.from(TABLES.AGENDA).insert(data);
+  if(error) { alert("Gagal menyimpan: " + error.message); } 
+  else { notify("Agenda Berhasil Disimpan!"); loadAgendaAdmin(); }
 }
 
 async function loadAgendaAdmin() {
-  const { data, error } = await _supabase
-    .from(TABLES.AGENDA)
-    .select('*')
-    .order('tanggal', { ascending: false });
-  
+  const { data, error } = await _supabase.from(TABLES.AGENDA).select('*').order('tanggal', { ascending: false });
   if(error || !data) {
     document.getElementById('list-agenda-admin').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada agenda</p>';
     return;
   }
-
   document.getElementById('list-agenda-admin').innerHTML = data.map(a => `
     <div class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
       <div>
@@ -904,30 +686,19 @@ async function loadAgendaAdmin() {
 }
 
 async function hapusAgenda(id) {
-  const { error } = await _supabase
-    .from(TABLES.AGENDA)
-    .delete()
-    .eq('id', id);
-  
-  if(error) {
-    alert("Gagal menghapus: " + error.message);
-  } else {
-    notify("Agenda dihapus!");
-    loadAgendaAdmin();
-  }
+  const { error } = await _supabase.from(TABLES.AGENDA).delete().eq('id', id);
+  if(error) { alert("Gagal menghapus: " + error.message); } 
+  else { notify("Agenda dihapus!"); loadAgendaAdmin(); }
 }
 
 // ============================================
-// PENGAJUAN SURAT
+// ✅ PENGAJUAN SURAT (UPDATED - HISTORY & CHECKMARK)
 // ============================================
 async function loadPengajuanSurat() {
-  const { data, error } = await _supabase
-    .from(TABLES.PENGAJUAN)
-    .select('*')
-    .order('waktu_pengajuan', { ascending: false });
+  const { data, error } = await _supabase.from(TABLES.PENGAJUAN).select('*').order('waktu_pengajuan', { ascending: false });
   
   if(error || !data) {
-    document.getElementById('table-pengajuan-body').innerHTML = '<tr><td colspan="6" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
+    document.getElementById('table-pengajuan-body').innerHTML = '<tr><td colspan="7" class="p-4 text-center text-rose-500">Gagal memuat data</td></tr>';
     return;
   }
 
@@ -938,18 +709,38 @@ async function loadPengajuanSurat() {
     'Ditolak': 'bg-rose-50 text-rose-600'
   };
 
+  const statusIcons = {
+    'Menunggu': 'clock',
+    'Diproses': 'loader',
+    'Selesai': 'check-circle',
+    'Ditolak': 'x-circle'
+  };
+
   document.getElementById('table-pengajuan-body').innerHTML = data.map(p => `
     <tr class="border-t hover:bg-slate-50 transition-colors">
       <td class="p-4 font-bold text-slate-700">${p.nama}</td>
       <td class="p-4 text-slate-500">${p.rt}</td>
       <td class="p-4 font-medium">${p.jenis_surat}</td>
-      <td class="p-4"><span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${statusColors[p.status] || 'bg-slate-50 text-slate-600'}">${p.status}</span></td>
+      <td class="p-4 text-[10px] text-slate-400 max-w-[150px] truncate">${p.keterangan || '-'}</td>
+      <td class="p-4">
+        <span class="px-2 py-1 rounded text-[9px] font-bold uppercase ${statusColors[p.status] || 'bg-slate-50 text-slate-600'}">
+          ${p.status}
+        </span>
+      </td>
       <td class="p-4 text-[10px] text-slate-400">${new Date(p.waktu_pengajuan).toLocaleString('id-ID')}</td>
-      <td class="p-4 flex gap-2">
-        <button onclick="updateStatusSurat('${p.id}', 'Diproses')" class="text-blue-500 bg-blue-50 p-2 rounded-lg hover:bg-blue-100 transition" title="Proses"><i data-lucide="clock" class="w-4 h-4"></i></button>
-        <button onclick="updateStatusSurat('${p.id}', 'Selesai')" class="text-emerald-500 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="Selesai"><i data-lucide="check" class="w-4 h-4"></i></button>
-        <button onclick="updateStatusSurat('${p.id}', 'Ditolak')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition" title="Tolak"><i data-lucide="x" class="w-4 h-4"></i></button>
-        <a href="https://wa.me/${p.hp}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+      <td class="p-4 flex gap-2 justify-center">
+        ${p.status !== 'Selesai' ? `
+        <button onclick="updateStatusSurat('${p.id}', 'Selesai')" class="text-emerald-500 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="Tandai Selesai">
+          <i data-lucide="check" class="w-4 h-4"></i>
+        </button>
+        ` : `
+        <button class="text-emerald-600 bg-emerald-100 p-2 rounded-lg" title="Sudah Selesai" disabled>
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+        </button>
+        `}
+        <a href="https://wa.me/${p.hp || '628812558415'}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+        </a>
       </td>
     </tr>
   `).join('');
@@ -957,10 +748,9 @@ async function loadPengajuanSurat() {
 }
 
 async function updateStatusSurat(id, status) {
-  const { error } = await _supabase
-    .from(TABLES.PENGAJUAN)
-    .update({ status: status })
-    .eq('id', id);
+  if(!confirm(`Tandai pengajuan ini sebagai "${status}"?`)) return;
+  
+  const { error } = await _supabase.from(TABLES.PENGAJUAN).update({ status: status }).eq('id', id);
   
   if(error) {
     alert("Gagal update status: " + error.message);
@@ -974,12 +764,7 @@ async function updateStatusSurat(id, status) {
 // SETTINGS (RUNNING TEXT)
 // ============================================
 async function loadSettings() {
-  const { data, error } = await _supabase
-    .from(TABLES.SETTINGS)
-    .select('*')
-    .eq('key', 'running_text')
-    .single();
-  
+  const { data, error } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
   if(data && !error) {
     document.getElementById('set-running-text').value = data.value;
   }
@@ -988,32 +773,19 @@ async function loadSettings() {
 
 async function updateRunningText() {
   const text = document.getElementById('set-running-text').value;
-  
-  const { data: existing } = await _supabase
-    .from(TABLES.SETTINGS)
-    .select('*')
-    .eq('key', 'running_text')
-    .single();
+  const {  existing } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
   
   let error;
   if(existing) {
-    const { error: updateError } = await _supabase
-      .from(TABLES.SETTINGS)
-      .update({ value: text, updated_at: new Date().toISOString() })
-      .eq('key', 'running_text');
+    const { error: updateError } = await _supabase.from(TABLES.SETTINGS).update({ value: text, updated_at: new Date().toISOString() }).eq('key', 'running_text');
     error = updateError;
   } else {
-    const { error: insertError } = await _supabase
-      .from(TABLES.SETTINGS)
-      .insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
+    const { error: insertError } = await _supabase.from(TABLES.SETTINGS).insert({ key: 'running_text', value: text, updated_at: new Date().toISOString() });
     error = insertError;
   }
   
-  if(error) {
-    alert("Gagal update: " + error.message);
-  } else {
-    notify("Teks Berjalan Berhasil Diperbarui!");
-  }
+  if(error) { alert("Gagal update: " + error.message); } 
+  else { notify("Teks Berjalan Berhasil Diperbarui!"); }
 }
 
 // ============================================
