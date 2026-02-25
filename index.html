@@ -502,7 +502,7 @@ async function switchTabWarga(tab) {
       
       <!-- Grid Kalender -->
       <div class="calendar-grid text-center mb-2">
-        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[10px] font-black text-slate-500 uppercase">${d}</div>`).join('')}
+        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[8px] font-black text-slate-300 uppercase">${d}</div>`).join('')}
       </div>
       <div id="calendar-days" class="calendar-grid"></div>
     </div>
@@ -742,10 +742,7 @@ function showEventDetail(event) {
 }
 
 // ============================================
-// PDF GENERATOR - DENGAN GRID/BORDER
-// ============================================
-// ============================================
-// PDF GENERATOR - DIPERBAIKI (NO GREEN HEADER)
+// PDF GENERATOR - DENGAN KOLOM PARAF
 // ============================================
 async function generateLaporanPDF() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
@@ -755,10 +752,7 @@ async function generateLaporanPDF() {
     const doc = new jsPDF();
     
     // === 1. HEADER (WARNA DASAR KERTAS - PUTIH) ===
-    // ❌ HAPUS background hijau
-    // ✅ Biarkan putih polos
-    
-    // Logo (Kiri Atas) - Optional
+    // Logo (Kiri Atas)
     const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
     
     const loadImage = (url) => {
@@ -773,19 +767,18 @@ async function generateLaporanPDF() {
           ctx.drawImage(img, 0, 0);
           resolve(canvas.toDataURL('image/png'));
         };
-        img.onerror = () => resolve(null); // Fallback jika logo gagal load
+        img.onerror = () => resolve(null);
         img.src = url;
       });
     };
     
     const logoBase64 = await loadImage(logoUrl);
     
-    // Tampilkan Logo jika berhasil load
     if(logoBase64) {
       doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
     }
     
-    // Teks Header (Hitam - bukan putih)
+    // Teks Header (Hitam)
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(14).setFont("helvetica", "bold");
     doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
@@ -830,7 +823,23 @@ async function generateLaporanPDF() {
       return;
     }
     
-    // === 4. TABEL DENGAN GRID/BORDER ===
+    // === 4. PRE-LOAD SEMUA TANDA TANGAN ===
+    const signatureCache = {};
+    
+    await Promise.all(data.map(async (row, index) => {
+      if(row.tanda_tangan_url && row.tanda_tangan_url !== '-') {
+        try {
+          const signatureBase64 = await loadImage(row.tanda_tangan_url);
+          signatureCache[index] = signatureBase64;
+        } catch(e) {
+          signatureCache[index] = null;
+        }
+      } else {
+        signatureCache[index] = null;
+      }
+    }));
+    
+    // === 5. TABEL DENGAN GRID/BORDER + KOLOM PARAF ===
     const tableBody = data.map((row, index) => [
       index + 1, 
       row.nama_warga, 
@@ -841,12 +850,13 @@ async function generateLaporanPDF() {
         day: 'numeric', 
         month: 'long', 
         year: 'numeric' 
-      })
+      }),
+      '' // Kolom Paraf (kosong, akan diisi gambar)
     ]);
     
     doc.autoTable({
       startY: 60,
-      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL']],
+      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL', 'PARAF']],
       body: tableBody,
       
       // === GRID/BORDER SETTINGS ===
@@ -855,11 +865,11 @@ async function generateLaporanPDF() {
       tableLineWidth: 0.2,
       
       headStyles: { 
-        fillColor: [5, 150, 105],  // ✅ Header tabel tetap hijau (opsional)
+        fillColor: [5, 150, 105],
         textColor: 255,
         fontStyle: 'bold',
         halign: 'center',
-        fontSize: 9,
+        fontSize: 8,
         lineColor: [200, 200, 200],
         lineWidth: 0.2
       },
@@ -869,36 +879,54 @@ async function generateLaporanPDF() {
       },
       
       styles: { 
-        fontSize: 8, 
-        cellPadding: 3,
+        fontSize: 7, 
+        cellPadding: 2,
         valign: 'middle',
         lineColor: [200, 200, 200],
         lineWidth: 0.2,
-        overflow: 'linebreak'  // ✅ Fix text overflow
+        overflow: 'linebreak'
       },
       
-      // === FIX: KOLOM TANGGAL TIDAK TERBAGI ===
+      // === KOLOM PARAF DISESUAIKAN ===
       columnStyles: {
-        0: { halign: 'center', cellWidth: 12 },   // NO
-        1: { cellWidth: 45 },                      // NAMA WARGA
-        2: { halign: 'center', cellWidth: 18 },   // UNIT
-        3: { cellWidth: 35 },                      // JABATAN
-        4: { cellWidth: 45 },                      // NAMA KEGIATAN
-        5: { halign: 'left', cellWidth: 32 }      // ✅ TANGGAL (fixed width)
+        0: { halign: 'center', cellWidth: 10 },   // NO
+        1: { cellWidth: 35 },                      // NAMA WARGA
+        2: { halign: 'center', cellWidth: 12 },   // RT
+        3: { cellWidth: 25 },                      // JABATAN
+        4: { cellWidth: 35 },                      // NAMA KEGIATAN
+        5: { halign: 'left', cellWidth: 25 },     // TANGGAL
+        6: { halign: 'center', cellWidth: 20 }    // ✅ PARAF (untuk tanda tangan)
       },
       
       margin: { left: 15, right: 15, top: 60 },
       pageBreak: 'auto',
       
-      // ✅ FIX: Custom draw cell untuk border yang konsisten
-      didDrawCell: (data) => {
+      // === GAMBAR TANDA TANGAN DI SETIAP CELL PARAF ===
+      didDrawCell: (cellData) => {
+        // Gambar border cell
         doc.setDrawColor(200, 200, 200);
         doc.setLineWidth(0.2);
-        doc.rect(data.cell.x, data.cell.y, data.cell.width, data.cell.height);
+        doc.rect(cellData.cell.x, cellData.cell.y, cellData.cell.width, cellData.cell.height);
+        
+        // Jika kolom Paraf (index 6) dan ada tanda tangan
+        if(cellData.column.index === 6 && signatureCache[cellData.row.index] !== undefined) {
+          const signatureBase64 = signatureCache[cellData.row.index];
+          
+          if(signatureBase64) {
+            // Hitung posisi tengah cell
+            const imgWidth = 15;  // Lebar gambar tanda tangan
+            const imgHeight = 10; // Tinggi gambar tanda tangan
+            const x = cellData.cell.x + (cellData.cell.width - imgWidth) / 2;
+            const y = cellData.cell.y + (cellData.cell.height - imgHeight) / 2;
+            
+            // Gambar tanda tangan
+            doc.addImage(signatureBase64, 'PNG', x, y, imgWidth, imgHeight);
+          }
+        }
       }
     });
     
-    // === 5. TANDA TANGAN (FOOTER) ===
+    // === 6. TANDA TANGAN (FOOTER) ===
     const finalY = doc.lastAutoTable.finalY + 20;
     
     doc.setFontSize(9).setFont("helvetica", "normal");
@@ -920,7 +948,7 @@ async function generateLaporanPDF() {
     doc.setLineWidth(0.3);
     doc.line(150, finalY + 27, 195, finalY + 27);
     
-    // === 6. SAVE PDF ===
+    // === 7. SAVE PDF ===
     doc.save(`Laporan_RW01_${Date.now()}.pdf`);
     notify("PDF Berhasil Diunduh!", "bg-emerald-600");
     
@@ -929,7 +957,6 @@ async function generateLaporanPDF() {
     notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
   }
 }
-
 // ============================================
 // KIRIM SURAT (WHATSAPP DIRECT)
 // ============================================
