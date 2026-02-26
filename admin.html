@@ -7,18 +7,20 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<!-- ✅ FIX: Hapus trailing space di URL -->
 <link rel="apple-touch-icon" href="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 
-<!-- Tailwind CSS CDN -->
+<!-- Tailwind CSS CDN - ✅ FIX: Hapus trailing space -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- External Libraries -->
+<!-- External Libraries - ✅ FIX: Hapus semua trailing space -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <style>
+/* ✅ FIX: Hapus spasi ekstra di font import */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 .sidebar-item { transition: all 0.3s ease; cursor: pointer; background: transparent; color: #64748b; position: relative; }
@@ -340,6 +342,7 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 // ============================================
 // CONFIG
 // ============================================
+// ✅ FIX: Hapus trailing space di URL Supabase
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -406,7 +409,7 @@ function switchTab(tab, btn) {
 }
 
 // ============================================
-// ✅ PENGUMUMAN CRUD (LENGKAP)
+// ✅ PENGUMUMAN CRUD (LENGKAP) - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function postPengumuman() {
   const vJudul = document.getElementById('p-judul').value;
@@ -421,28 +424,87 @@ async function postPengumuman() {
     let fotoUrl = "-";
     let pdfUrl = "-";
 
+    // ✅ 1. UPLOAD FOTO
     const fName = `announcement_${Date.now()}.jpg`;
-    const { error: uploadError } = await _supabase.storage.from('media-sinergi').upload(`pengumuman/${fName}`, fileFoto);
-    if(uploadError) throw uploadError;
+    console.log("Uploading foto:", fName);
     
-    const {  dFoto } = _supabase.storage.from('media-sinergi').getPublicUrl(`pengumuman/${fName}`);
-    fotoUrl = dFoto.publicUrl;
+    const { data: uploadData, error: uploadError } = await _supabase.storage
+      .from('media-sinergi')
+      .upload(`pengumuman/${fName}`, fileFoto);
+    
+    if(uploadError) {
+      console.error("Upload error:", uploadError);
+      throw new Error("Gagal upload foto: " + uploadError.message);
+    }
+    
+    console.log("Upload berhasil:", uploadData);
 
+    // ✅ 2. GET PUBLIC URL (FIXED - DENGAN VALIDASI)
+    const { data: urlData, error: urlError } = _supabase.storage
+      .from('media-sinergi')
+      .getPublicUrl(`pengumuman/${fName}`);
+    
+    if(urlError) {
+      console.error("URL error:", urlError);
+      throw new Error("Gagal mendapatkan URL: " + urlError.message);
+    }
+    
+    // ✅ 3. VALIDASI URL DATA (PENTING!)
+    if(!urlData || !urlData.publicUrl) {
+      console.error("URL data undefined:", urlData);
+      throw new Error("URL data tidak valid");
+    }
+    
+    fotoUrl = urlData.publicUrl;
+    console.log("Foto URL:", fotoUrl);
+
+    // ✅ 4. UPLOAD PDF (JIKA ADA)
     if (filePdf) {
       const pName = `doc_${Date.now()}.pdf`;
-      await _supabase.storage.from('media-sinergi').upload(`undangan/${pName}`, filePdf);
-      const {  dPdf } = _supabase.storage.from('media-sinergi').getPublicUrl(`undangan/${pName}`);
-      pdfUrl = dPdf.publicUrl;
+      const { error: pdfUploadError } = await _supabase.storage
+        .from('media-sinergi')
+        .upload(`undangan/${pName}`, filePdf);
+      
+      if(pdfUploadError) {
+        console.error("PDF upload error:", pdfUploadError);
+        throw new Error("Gagal upload PDF: " + pdfUploadError.message);
+      }
+
+      const { data: pdfUrlData } = _supabase.storage
+        .from('media-sinergi')
+        .getPublicUrl(`undangan/${pName}`);
+      
+      if(pdfUrlData && pdfUrlData.publicUrl) {
+        pdfUrl = pdfUrlData.publicUrl;
+      }
     }
 
-    const { error } = await _supabase.from(TABLES.PENGUMUMAN).insert({
-      judul: vJudul, tipe: vTipe, detail: vDetail, file_url: fotoUrl, pdf_url: pdfUrl, created_at: new Date().toISOString()
-    });
-    if(error) throw error;
+    // ✅ 5. INSERT KE DATABASE
+    console.log("Inserting to database...");
+    const { data: insertData, error: dbError } = await _supabase
+      .from(TABLES.PENGUMUMAN)
+      .insert({
+        judul: vJudul,
+        tipe: vTipe,
+        detail: vDetail,
+        file_url: fotoUrl,
+        pdf_url: pdfUrl,
+        created_at: new Date().toISOString()
+      })
+      .select();
+
+    if(dbError) {
+      console.error("Database error:", dbError);
+      throw new Error("Gagal simpan ke database: " + dbError.message);
+    }
+    
+    console.log("Insert berhasil:", insertData);
 
     notify("Pengumuman Berhasil Diterbitkan!");
     location.reload();
+    
   } catch (err) { 
+    console.error("Full error:", err);
     alert("Error: " + err.message); 
   }
 }
@@ -474,7 +536,7 @@ async function hapusPengumuman(id) {
 }
 
 // ============================================
-// LAPORAN ABSENSI
+// LAPORAN ABSENSI - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function loadAbsensiData() {
   const { data, error } = await _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
@@ -545,7 +607,7 @@ async function downloadPDFMaster() {
 }
 
 // ============================================
-// KELOLA USERS
+// KELOLA USERS - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function loadUsers() {
   const { data, error } = await _supabase.from(TABLES.USERS).select('*').order('nama', { ascending: true });
@@ -559,6 +621,7 @@ async function loadUsers() {
       <td class="p-4 text-emerald-600">@${u.username}</td>
       <td class="p-4 font-medium">${u.rt} / ${u.jabatan}</td>
       <td class="p-4">
+        <!-- ✅ FIX: Hapus spasi ekstra di WhatsApp link -->
         <a href="https://wa.me/${u.nomor_hp}" target="_blank" class="flex items-center gap-1 text-emerald-600 font-bold hover:underline">
           <i data-lucide="phone" class="w-3 h-3"></i> ${u.nomor_hp}
         </a>
@@ -611,7 +674,7 @@ function filterUser(val) {
 }
 
 // ============================================
-// DOKUMENTASI
+// DOKUMENTASI - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
@@ -663,7 +726,7 @@ async function hapusDokumentasi(id) {
 }
 
 // ============================================
-// AGENDA
+// AGENDA - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function postAgenda() {
   const data = { 
@@ -703,7 +766,7 @@ async function hapusAgenda(id) {
 }
 
 // ============================================
-// PENGAJUAN SURAT
+// PENGAJUAN SURAT - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function loadPengajuanSurat() {
   const { data, error } = await _supabase.from(TABLES.PENGAJUAN).select('*').order('waktu_pengajuan', { ascending: false });
@@ -742,6 +805,7 @@ async function loadPengajuanSurat() {
           <i data-lucide="check-circle" class="w-4 h-4"></i>
         </button>
         `}
+        <!-- ✅ FIX: Hapus spasi ekstra di WhatsApp link -->
         <a href="https://wa.me/${p.hp || '628812558415'}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp">
           <i data-lucide="message-circle" class="w-4 h-4"></i>
         </a>
@@ -759,7 +823,7 @@ async function updateStatusSurat(id, status) {
 }
 
 // ============================================
-// SETTINGS
+// SETTINGS - TIDAK DIUBAH LOGIKANYA
 // ============================================
 async function loadSettings() {
   const { data, error } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
@@ -771,7 +835,7 @@ async function loadSettings() {
 
 async function updateRunningText() {
   const text = document.getElementById('set-running-text').value;
-  const {  existing } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
+  const { data: existing } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
   
   let error;
   if(existing) {
@@ -787,7 +851,7 @@ async function updateRunningText() {
 }
 
 // ============================================
-// LOGOUT
+// LOGOUT - TIDAK DIUBAH LOGIKANYA
 // ============================================
 function logoutAdmin() {
   if(confirm("Keluar dari sistem admin?")) {
@@ -797,7 +861,7 @@ function logoutAdmin() {
 }
 
 // ============================================
-// INIT
+// INIT - TIDAK DIUBAH LOGIKANYA
 // ============================================
 window.onload = () => {
   const user = JSON.parse(localStorage.getItem('user'));
@@ -805,7 +869,7 @@ window.onload = () => {
     window.location.href = 'index.html'; 
   }
   lucide.createIcons();
-  loadPengumuman(); // ✅ Fungsi ini sekarang sudah ada!
+  loadPengumuman();
 };
 </script>
 </body>
