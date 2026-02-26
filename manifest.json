@@ -2,7 +2,7 @@
   "name": "Sinergi RW.01 Kebon Manggis",
   "short_name": "Sinergi 01",
   "description": "Aplikasi Digital Warga RW.01 Kelurahan Kebon Manggis",
-  "start_url": "/index.html",
+  "start_url": ".".
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#059669",
