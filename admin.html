@@ -7,20 +7,18 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<!-- ✅ FIX: Hapus trailing space di URL -->
 <link rel="apple-touch-icon" href="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
 
-<!-- Tailwind CSS CDN - ✅ FIX: Hapus trailing space -->
+<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- External Libraries - ✅ FIX: Hapus semua trailing space -->
+<!-- External Libraries -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 
 <style>
-/* ✅ FIX: Hapus spasi ekstra di font import */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 .sidebar-item { transition: all 0.3s ease; cursor: pointer; background: transparent; color: #64748b; position: relative; }
@@ -279,12 +277,32 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
     <div id="list-dokumentasi" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
   </div>
 
-  <!-- TAB: AGENDA -->
+  <!-- ✅ TAB: AGENDA (UPDATED - MULTI-DAY SUPPORT) -->
   <div id="sec-agenda" class="tab-content hidden space-y-6">
     <div class="card-admin p-6">
       <h3 class="font-black text-sm uppercase mb-4 text-emerald-700">Jadwal Agenda Mendatang</h3>
+      
+      <!-- ✅ TOGGLE MULTI-DAY -->
+      <div class="mb-4">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="ag-multi-day" onchange="toggleEndDate()" class="w-4 h-4 accent-emerald-600">
+          <span class="text-[10px] font-bold text-slate-600 uppercase">Kegiatan Lintas Hari/Bulan</span>
+        </label>
+      </div>
+      
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="date" id="ag-tanggal" class="input-admin w-full">
+        <!-- Tanggal Mulai -->
+        <div class="space-y-1">
+          <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Tanggal Mulai</label>
+          <input type="date" id="ag-tanggal" class="input-admin w-full">
+        </div>
+        
+        <!-- Tanggal Selesai (Hidden jika single day) -->
+        <div class="space-y-1" id="end-date-container" style="display: none;">
+          <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Tanggal Selesai</label>
+          <input type="date" id="ag-tanggal-selesai" class="input-admin w-full">
+        </div>
+        
         <input type="text" id="ag-kegiatan" placeholder="Nama Acara" class="input-admin w-full">
         <input type="text" id="ag-jam" placeholder="Jam (08:00 - Selesai)" class="input-admin w-full">
         <input type="text" id="ag-lokasi" placeholder="Lokasi Pelaksanaan" class="input-admin w-full">
@@ -330,6 +348,33 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
       <textarea id="set-running-text" placeholder="Tulis pengumuman singkat yang akan berjalan di layar utama warga..." class="input-admin w-full h-24 resize-none"></textarea>
       <button onclick="updateRunningText()" class="btn-admin px-8 py-3 rounded-xl text-xs mt-4">Simpan Perubahan</button>
     </div>
+    
+    <!-- ✅ WHATSAPP ADMIN -->
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-emerald-600">Nomor WhatsApp Admin</h3>
+      <p class="text-[9px] text-slate-400 font-bold mb-3">Nomor ini akan digunakan untuk direct WA pengajuan surat warga</p>
+      <div class="flex gap-3">
+        <input type="tel" id="set-wa-admin" placeholder="628xxxxxxxxxx" class="input-admin flex-1">
+        <button onclick="updateWhatsAppAdmin()" class="btn-admin px-6 py-3 rounded-xl text-xs">Simpan</button>
+      </div>
+    </div>
+    
+    <!-- ✅ TANDA TANGAN KETUA RW -->
+    <div class="card-admin p-6">
+      <h3 class="font-black text-sm uppercase mb-4 text-emerald-600">Tanda Tangan Digital Ketua RW</h3>
+      <p class="text-[9px] text-slate-400 font-bold mb-3">Upload tanda tangan Ketua RW untuk laporan PDF (PNG transparan, max 500KB)</p>
+      <!-- Preview TTD -->
+      <div id="ttd-preview" class="mb-4 hidden">
+        <p class="text-[9px] font-bold text-slate-400 uppercase mb-2">Preview:</p>
+        <img id="ttd-preview-img" src="" class="w-48 h-24 object-contain border-2 border-emerald-100 rounded-xl bg-white">
+      </div>
+      <div class="flex gap-3">
+        <input type="file" id="set-ttd-file" accept="image/*" class="input-admin flex-1 text-[10px]">
+        <button onclick="uploadTTDKetua()" class="btn-admin px-6 py-3 rounded-xl text-xs">Upload</button>
+      </div>
+    </div>
+    
+    <!-- Footer Credit -->
     <div class="mt-12 pt-8 border-t flex flex-col items-center justify-center text-center footer-credit">
       <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
       <p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
@@ -342,7 +387,6 @@ body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
 // ============================================
 // CONFIG
 // ============================================
-// ✅ FIX: Hapus trailing space di URL Supabase
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -409,7 +453,7 @@ function switchTab(tab, btn) {
 }
 
 // ============================================
-// ✅ PENGUMUMAN CRUD (LENGKAP) - TIDAK DIUBAH LOGIKANYA
+// PENGUMUMAN CRUD
 // ============================================
 async function postPengumuman() {
   const vJudul = document.getElementById('p-judul').value;
@@ -424,87 +468,28 @@ async function postPengumuman() {
     let fotoUrl = "-";
     let pdfUrl = "-";
 
-    // ✅ 1. UPLOAD FOTO
     const fName = `announcement_${Date.now()}.jpg`;
-    console.log("Uploading foto:", fName);
+    const { error: uploadError } = await _supabase.storage.from('media-sinergi').upload(`pengumuman/${fName}`, fileFoto);
+    if(uploadError) throw uploadError;
     
-    const { data: uploadData, error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`pengumuman/${fName}`, fileFoto);
-    
-    if(uploadError) {
-      console.error("Upload error:", uploadError);
-      throw new Error("Gagal upload foto: " + uploadError.message);
-    }
-    
-    console.log("Upload berhasil:", uploadData);
+    const { data: dFoto } = _supabase.storage.from('media-sinergi').getPublicUrl(`pengumuman/${fName}`);
+    fotoUrl = dFoto.publicUrl;
 
-    // ✅ 2. GET PUBLIC URL (FIXED - DENGAN VALIDASI)
-    const { data: urlData, error: urlError } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`pengumuman/${fName}`);
-    
-    if(urlError) {
-      console.error("URL error:", urlError);
-      throw new Error("Gagal mendapatkan URL: " + urlError.message);
-    }
-    
-    // ✅ 3. VALIDASI URL DATA (PENTING!)
-    if(!urlData || !urlData.publicUrl) {
-      console.error("URL data undefined:", urlData);
-      throw new Error("URL data tidak valid");
-    }
-    
-    fotoUrl = urlData.publicUrl;
-    console.log("Foto URL:", fotoUrl);
-
-    // ✅ 4. UPLOAD PDF (JIKA ADA)
     if (filePdf) {
       const pName = `doc_${Date.now()}.pdf`;
-      const { error: pdfUploadError } = await _supabase.storage
-        .from('media-sinergi')
-        .upload(`undangan/${pName}`, filePdf);
-      
-      if(pdfUploadError) {
-        console.error("PDF upload error:", pdfUploadError);
-        throw new Error("Gagal upload PDF: " + pdfUploadError.message);
-      }
-
-      const { data: pdfUrlData } = _supabase.storage
-        .from('media-sinergi')
-        .getPublicUrl(`undangan/${pName}`);
-      
-      if(pdfUrlData && pdfUrlData.publicUrl) {
-        pdfUrl = pdfUrlData.publicUrl;
-      }
+      await _supabase.storage.from('media-sinergi').upload(`undangan/${pName}`, filePdf);
+      const { data: dPdf } = _supabase.storage.from('media-sinergi').getPublicUrl(`undangan/${pName}`);
+      pdfUrl = dPdf.publicUrl;
     }
 
-    // ✅ 5. INSERT KE DATABASE
-    console.log("Inserting to database...");
-    const { data: insertData, error: dbError } = await _supabase
-      .from(TABLES.PENGUMUMAN)
-      .insert({
-        judul: vJudul,
-        tipe: vTipe,
-        detail: vDetail,
-        file_url: fotoUrl,
-        pdf_url: pdfUrl,
-        created_at: new Date().toISOString()
-      })
-      .select();
-
-    if(dbError) {
-      console.error("Database error:", dbError);
-      throw new Error("Gagal simpan ke database: " + dbError.message);
-    }
-    
-    console.log("Insert berhasil:", insertData);
+    const { error } = await _supabase.from(TABLES.PENGUMUMAN).insert({
+      judul: vJudul, tipe: vTipe, detail: vDetail, file_url: fotoUrl, pdf_url: pdfUrl, created_at: new Date().toISOString()
+    });
+    if(error) throw error;
 
     notify("Pengumuman Berhasil Diterbitkan!");
     location.reload();
-    
   } catch (err) { 
-    console.error("Full error:", err);
     alert("Error: " + err.message); 
   }
 }
@@ -536,7 +521,7 @@ async function hapusPengumuman(id) {
 }
 
 // ============================================
-// LAPORAN ABSENSI - TIDAK DIUBAH LOGIKANYA
+// LAPORAN ABSENSI
 // ============================================
 async function loadAbsensiData() {
   const { data, error } = await _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
@@ -572,42 +557,221 @@ async function hapusAbsen(id) {
   else { notify("Absensi dihapus!"); loadAbsensiData(); }
 }
 
+// ============================================
+// ✅ PDF GENERATOR - FORMAT SAMA DENGAN INDEX.HTML
+// ============================================
 async function downloadPDFMaster() {
   notify("Menyiapkan Dokumen...", "bg-blue-600");
-  const filter = document.getElementById('select-kegiatan-laporan').value;
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
   
-  doc.setFillColor(5, 150, 105);
-  doc.rect(0, 0, 210, 35, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(16).setFont("helvetica", "bold").text("LAPORAN ABSENSI WARGA RW.01", 105, 15, { align: "center" });
-  doc.setFontSize(10).setFont("helvetica", "normal").text(filter ? `Kegiatan: ${filter}` : "Rekapitulasi Keseluruhan", 105, 22, { align: "center" });
-  doc.setFontSize(8).text(`Dicetak: ${new Date().toLocaleString('id-ID')}`, 105, 28, { align: "center" });
-
-  let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
-  if(filter) query = query.eq('kegiatan_id', filter);
-  const { data, error } = await query;
-  
-  if(error || !data) { notify("Gagal memuat data", "bg-rose-600"); return; }
-
-  const tableRows = data.map((d, i) => [i+1, d.nama_warga, d.rt, d.jabatan, d.kegiatan_id, new Date(d.waktu_absen).toLocaleDateString('id-ID')]);
-
-  doc.autoTable({
-    startY: 40,
-    head: [['No', 'Nama Lengkap', 'RT', 'Jabatan', 'Nama Kegiatan', 'Waktu']],
-    body: tableRows,
-    headStyles: { fillStyle: [5, 150, 105], textColor: 255, fontStyle: 'bold' },
-    alternateRowStyles: { fillStyle: [245, 245, 245] },
-    styles: { fontSize: 8, cellPadding: 3 }
-  });
-
-  doc.save(`Laporan_Absen_RW01_${Date.now()}.pdf`);
-  notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    // === 1. LOAD LOGO ===
+    const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+    
+    const loadImage = (url) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
+    };
+    
+    const logoBase64 = await loadImage(logoUrl);
+    
+    // === 2. AMBIL DATA ABSENSI ===
+    const filter = document.getElementById('select-kegiatan-laporan').value;
+    
+    let query = _supabase.from(TABLES.ABSENSI).select('*').order('waktu_absen', { ascending: false });
+    if(filter) query = query.eq('kegiatan_id', filter);
+    
+    const { data, error } = await query;
+    
+    if(error || !data) {
+      notify("Gagal memuat data absensi", "bg-rose-600");
+      return;
+    }
+    
+    // === 3. PRE-LOAD SEMUA TTD ===
+    const signatureCache = {};
+    
+    await Promise.all(data.map(async (row, index) => {
+      if(row.tanda_tangan_url && row.tanda_tangan_url !== '-' && row.tanda_tangan_url !== null) {
+        try {
+          const signatureBase64 = await loadImage(row.tanda_tangan_url);
+          signatureCache[index] = signatureBase64;
+        } catch(e) {
+          signatureCache[index] = null;
+        }
+      } else {
+        signatureCache[index] = null;
+      }
+    }));
+    
+    // === 4. HEADER ===
+    const addHeader = (pageNumber) => {
+      if(logoBase64 && pageNumber === 1) {
+        doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+      }
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(14).setFont("helvetica", "bold");
+      doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
+      
+      doc.setFontSize(9).setFont("helvetica", "normal");
+      doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
+      doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
+      
+      doc.setFontSize(8);
+      doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
+      
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(15, 38, 195, 38);
+      doc.setLineWidth(0.2);
+      doc.line(15, 40, 195, 40);
+      
+      if(pageNumber === 1) {
+        doc.setFontSize(12).setFont("helvetica", "bold");
+        doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
+        
+        const printDate = new Date().toLocaleString('id-ID', {
+          day: 'numeric', month: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        doc.setFontSize(8).setFont("helvetica", "normal");
+        doc.text(`Dicetak pada: ${printDate}`, 15, 56);
+      }
+    };
+    
+    // === 5. TABEL - 7 KOLOM (DENGAN PARAF) ===
+    const tableBody = data.map((row, index) => [
+      index + 1,
+      row.nama_warga,
+      row.rt,
+      row.jabatan,
+      row.kegiatan_id,
+      new Date(row.waktu_absen).toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      }),
+      '' // Kolom PARAF (kosong, akan diisi gambar TTD)
+    ]);
+    
+    doc.autoTable({
+      startY: 60,
+      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL', 'PARAF']],
+      body: tableBody,
+      
+      // === AUTO PAGINATION ===
+      pageBreak: 'auto',
+      margin: { top: 60, bottom: 30 },
+      
+      // === GRID SETTINGS ===
+      theme: 'grid',
+      tableLineColor: [200, 200, 200],
+      tableLineWidth: 0.2,
+      
+      headStyles: {
+        fillColor: [5, 150, 105],
+        textColor: 255,
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 8,
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2
+      },
+      
+      alternateRowStyles: {
+        fillColor: [250, 250, 250]
+      },
+      
+      styles: {
+        fontSize: 7,
+        cellPadding: 2,
+        valign: 'middle',
+        lineColor: [200, 200, 200],
+        lineWidth: 0.2,
+        overflow: 'linebreak'
+      },
+      
+      // === 7 KOLOM - WIDTH DISUAIKAN ===
+      columnStyles: {
+        0: { halign: 'center', cellWidth: 13 },
+        1: { cellWidth: 35 },
+        2: { halign: 'center', cellWidth: 12 },
+        3: { cellWidth: 30 },
+        4: { cellWidth: 50 },
+        5: { halign: 'left', cellWidth: 25 },
+        6: { halign: 'center', cellWidth: 20 }
+      },
+      
+      // === HEADER SETIAP HALAMAN ===
+      didDrawPage: (data) => {
+        addHeader(data.pageNumber);
+      },
+      
+      // === GAMBAR TTD DI KOLOM PARAF ===
+      didDrawCell: (cellData) => {
+        doc.setDrawColor(200, 200, 200);
+        doc.setLineWidth(0.2);
+        doc.rect(cellData.cell.x, cellData.cell.y, cellData.cell.width, cellData.cell.height);
+        
+        if(cellData.column.index === 6 && cellData.section === 'body') {
+          const signatureBase64 = signatureCache[cellData.row.index];
+          if(signatureBase64) {
+            const imgWidth = 14;
+            const imgHeight = 8;
+            const x = cellData.cell.x + (cellData.cell.width - imgWidth) / 2;
+            const y = cellData.cell.y + (cellData.cell.height - imgHeight) / 2;
+            doc.addImage(signatureBase64, 'PNG', x, y, imgWidth, imgHeight);
+          }
+        }
+      }
+    });
+    
+    // === 6. TANDA TANGAN (FOOTER) ===
+    const totalPages = doc.internal.getNumberOfPages();
+    doc.setPage(totalPages);
+    
+    const finalY = doc.lastAutoTable.finalY + 20;
+    
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    })}`, 150, finalY);
+    
+    doc.text("Ketua RW.01,", 150, finalY + 6);
+    doc.setFontSize(9).setFont("helvetica", "italic");
+    doc.text("Ditandatangani secara Digital", 150, finalY + 15);
+    doc.setFontSize(10).setFont("helvetica", "bold");
+    doc.text("Abdul Khadir Abu", 150, finalY + 25);
+    
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.3);
+    doc.line(150, finalY + 27, 195, finalY + 27);
+    
+    // === 7. SAVE PDF ===
+    doc.save(`Laporan_RW01_${Date.now()}.pdf`);
+    notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+    
+  } catch (err) {
+    console.error(err);
+    notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
+  }
 }
 
 // ============================================
-// KELOLA USERS - TIDAK DIUBAH LOGIKANYA
+// KELOLA USERS
 // ============================================
 async function loadUsers() {
   const { data, error } = await _supabase.from(TABLES.USERS).select('*').order('nama', { ascending: true });
@@ -621,7 +785,6 @@ async function loadUsers() {
       <td class="p-4 text-emerald-600">@${u.username}</td>
       <td class="p-4 font-medium">${u.rt} / ${u.jabatan}</td>
       <td class="p-4">
-        <!-- ✅ FIX: Hapus spasi ekstra di WhatsApp link -->
         <a href="https://wa.me/${u.nomor_hp}" target="_blank" class="flex items-center gap-1 text-emerald-600 font-bold hover:underline">
           <i data-lucide="phone" class="w-3 h-3"></i> ${u.nomor_hp}
         </a>
@@ -674,7 +837,7 @@ function filterUser(val) {
 }
 
 // ============================================
-// DOKUMENTASI - TIDAK DIUBAH LOGIKANYA
+// DOKUMENTASI
 // ============================================
 async function postDokumentasi() {
   const title = document.getElementById('d-judul').value;
@@ -726,47 +889,132 @@ async function hapusDokumentasi(id) {
 }
 
 // ============================================
-// AGENDA - TIDAK DIUBAH LOGIKANYA
+// ✅ AGENDA - MULTI-DAY SUPPORT
 // ============================================
+
+// Toggle tampilan tanggal selesai
+function toggleEndDate() {
+  const isMultiDay = document.getElementById('ag-multi-day').checked;
+  const endDateContainer = document.getElementById('end-date-container');
+  const endDateInput = document.getElementById('ag-tanggal-selesai');
+  
+  if(isMultiDay) {
+    endDateContainer.style.display = 'block';
+    endDateInput.required = true;
+    
+    const startDate = document.getElementById('ag-tanggal').value;
+    if(startDate) {
+      endDateInput.value = startDate;
+      endDateInput.min = startDate;
+    }
+  } else {
+    endDateContainer.style.display = 'none';
+    endDateInput.required = false;
+    endDateInput.value = '';
+  }
+}
+
+// Sync min date for end date
+document.getElementById('ag-tanggal').addEventListener('change', function() {
+  const endDateInput = document.getElementById('ag-tanggal-selesai');
+  const isMultiDay = document.getElementById('ag-multi-day').checked;
+  
+  if(isMultiDay && this.value) {
+    endDateInput.min = this.value;
+    if(!endDateInput.value || endDateInput.value < this.value) {
+      endDateInput.value = this.value;
+    }
+  }
+});
+
 async function postAgenda() {
-  const data = { 
-    tanggal: document.getElementById('ag-tanggal').value, 
-    kegiatan: document.getElementById('ag-kegiatan').value, 
-    jam: document.getElementById('ag-jam').value, 
-    lokasi: document.getElementById('ag-lokasi').value,
+  const isMultiDay = document.getElementById('ag-multi-day').checked;
+  const tanggal = document.getElementById('ag-tanggal').value;
+  const tanggalSelesai = document.getElementById('ag-tanggal-selesai').value;
+  const kegiatan = document.getElementById('ag-kegiatan').value;
+  const jam = document.getElementById('ag-jam').value;
+  const lokasi = document.getElementById('ag-lokasi').value;
+  
+  if(!tanggal || !kegiatan || !jam || !lokasi) {
+    return alert("Lengkapi semua field wajib!");
+  }
+  
+  if(isMultiDay && !tanggalSelesai) {
+    return alert("Pilih tanggal selesai untuk kegiatan lintas hari!");
+  }
+  
+  if(isMultiDay && tanggalSelesai < tanggal) {
+    return alert("Tanggal selesai tidak boleh lebih awal dari tanggal mulai!");
+  }
+  
+  const data = {
+    tanggal: tanggal,
+    tanggal_selesai: isMultiDay ? tanggalSelesai : tanggal,
+    is_multi_day: isMultiDay,
+    kegiatan: kegiatan,
+    jam: jam,
+    lokasi: lokasi,
     created_at: new Date().toISOString()
   };
+  
   const { error } = await _supabase.from(TABLES.AGENDA).insert(data);
-  if(error) { alert("Gagal menyimpan: " + error.message); } 
-  else { notify("Agenda Berhasil Disimpan!"); loadAgendaAdmin(); }
+  
+  if(error) {
+    alert("Gagal menyimpan: " + error.message);
+  } else {
+    notify("Agenda Berhasil Disimpan!");
+    loadAgendaAdmin();
+    
+    // Reset form
+    document.getElementById('ag-tanggal').value = '';
+    document.getElementById('ag-tanggal-selesai').value = '';
+    document.getElementById('ag-kegiatan').value = '';
+    document.getElementById('ag-jam').value = '';
+    document.getElementById('ag-lokasi').value = '';
+    document.getElementById('ag-multi-day').checked = false;
+    toggleEndDate();
+  }
 }
 
 async function loadAgendaAdmin() {
   const { data, error } = await _supabase.from(TABLES.AGENDA).select('*').order('tanggal', { ascending: false });
+  
   if(error || !data) {
     document.getElementById('list-agenda-admin').innerHTML = '<p class="text-center py-10 text-slate-400">Tidak ada agenda</p>';
     return;
   }
-  document.getElementById('list-agenda-admin').innerHTML = data.map(a => `
+
+  document.getElementById('list-agenda-admin').innerHTML = data.map(a => {
+    const isMultiDay = a.is_multi_day || (a.tanggal_selesai && a.tanggal_selesai !== a.tanggal);
+    const dateDisplay = isMultiDay 
+      ? `${new Date(a.tanggal).toLocaleDateString('id-ID')} - ${new Date(a.tanggal_selesai).toLocaleDateString('id-ID')}`
+      : new Date(a.tanggal).toLocaleDateString('id-ID');
+    
+    return `
     <div class="p-4 flex justify-between items-center bg-white hover:bg-slate-50 transition-colors">
       <div>
         <p class="text-[10px] font-black uppercase text-emerald-700">${a.kegiatan}</p>
-        <p class="text-[9px] text-slate-400 font-bold">${a.tanggal} | ${a.jam} | ${a.lokasi}</p>
+        <p class="text-[9px] text-slate-400 font-bold">
+          📅 ${dateDisplay} ${isMultiDay ? '🔄' : ''} | ⏰ ${a.jam} | 📍 ${a.lokasi}
+        </p>
       </div>
-      <button onclick="hapusAgenda('${a.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+      <button onclick="hapusAgenda('${a.id}')" class="text-rose-500 bg-rose-50 p-2 rounded-lg hover:bg-rose-100 transition">
+        <i data-lucide="trash-2" class="w-4 h-4"></i>
+      </button>
     </div>
-  `).join('');
+  `}).join('');
   lucide.createIcons();
 }
 
 async function hapusAgenda(id) {
+  if(!confirm("Hapus agenda ini?")) return;
   const { error } = await _supabase.from(TABLES.AGENDA).delete().eq('id', id);
   if(error) { alert("Gagal menghapus: " + error.message); } 
   else { notify("Agenda dihapus!"); loadAgendaAdmin(); }
 }
 
 // ============================================
-// PENGAJUAN SURAT - TIDAK DIUBAH LOGIKANYA
+// PENGAJUAN SURAT
 // ============================================
 async function loadPengajuanSurat() {
   const { data, error } = await _supabase.from(TABLES.PENGAJUAN).select('*').order('waktu_pengajuan', { ascending: false });
@@ -805,7 +1053,6 @@ async function loadPengajuanSurat() {
           <i data-lucide="check-circle" class="w-4 h-4"></i>
         </button>
         `}
-        <!-- ✅ FIX: Hapus spasi ekstra di WhatsApp link -->
         <a href="https://wa.me/${p.hp || '628812558415'}" target="_blank" class="text-emerald-600 bg-emerald-50 p-2 rounded-lg hover:bg-emerald-100 transition" title="WhatsApp">
           <i data-lucide="message-circle" class="w-4 h-4"></i>
         </a>
@@ -823,13 +1070,25 @@ async function updateStatusSurat(id, status) {
 }
 
 // ============================================
-// SETTINGS - TIDAK DIUBAH LOGIKANYA
+// SETTINGS
 // ============================================
 async function loadSettings() {
-  const { data, error } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'running_text').single();
-  if(data && !error) {
-    document.getElementById('set-running-text').value = data.value;
+  const { data: runningText } = await _supabase.from(TABLES.SETTINGS).select('value').eq('key', 'running_text').single();
+  if(runningText && runningText.value) {
+    document.getElementById('set-running-text').value = runningText.value;
   }
+  
+  const { data: waAdmin } = await _supabase.from(TABLES.SETTINGS).select('value').eq('key', 'whatsapp_admin').single();
+  if(waAdmin && waAdmin.value) {
+    document.getElementById('set-wa-admin').value = waAdmin.value;
+  }
+  
+  const { data: ttdKetua } = await _supabase.from(TABLES.SETTINGS).select('value').eq('key', 'ttd_ketua_rw').single();
+  if(ttdKetua && ttdKetua.value && ttdKetua.value !== '-') {
+    document.getElementById('ttd-preview').classList.remove('hidden');
+    document.getElementById('ttd-preview-img').src = ttdKetua.value;
+  }
+  
   lucide.createIcons();
 }
 
@@ -850,8 +1109,70 @@ async function updateRunningText() {
   else { notify("Teks Berjalan Berhasil Diperbarui!"); }
 }
 
+async function updateWhatsAppAdmin() {
+  const waNumber = document.getElementById('set-wa-admin').value;
+  if(!waNumber || !waNumber.startsWith('62')) {
+    return alert("Nomor WhatsApp harus dimulai dengan 62 (contoh: 628812558415)");
+  }
+  
+  const { data: existing } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'whatsapp_admin').single();
+  
+  let error;
+  if(existing) {
+    const { error: updateError } = await _supabase.from(TABLES.SETTINGS).update({ value: waNumber, updated_at: new Date().toISOString() }).eq('key', 'whatsapp_admin');
+    error = updateError;
+  } else {
+    const { error: insertError } = await _supabase.from(TABLES.SETTINGS).insert({ key: 'whatsapp_admin', value: waNumber, updated_at: new Date().toISOString() });
+    error = insertError;
+  }
+  
+  if(error) { alert("Gagal update: " + error.message); } 
+  else { notify("Nomor WhatsApp Admin Berhasil Diperbarui!"); }
+}
+
+async function uploadTTDKetua() {
+  const file = document.getElementById('set-ttd-file').files[0];
+  if(!file) return alert("Pilih file tanda tangan terlebih dahulu!");
+  if(file.size > 500000) return alert("Ukuran file maksimal 500KB!");
+  
+  try {
+    const fileName = `ttd_ketua_${Date.now()}.png`;
+    const { error: uploadError } = await _supabase.storage.from('media-sinergi').upload(`ttd/${fileName}`, file);
+    if(uploadError) throw uploadError;
+    
+    const { data: urlData } = _supabase.storage.from('media-sinergi').getPublicUrl(`ttd/${fileName}`);
+    if(!urlData || !urlData.publicUrl) {
+      throw new Error("Gagal mendapatkan URL tanda tangan");
+    }
+    
+    const ttdUrl = urlData.publicUrl;
+    
+    const { data: existing } = await _supabase.from(TABLES.SETTINGS).select('*').eq('key', 'ttd_ketua_rw').single();
+    
+    let error;
+    if(existing) {
+      const { error: updateError } = await _supabase.from(TABLES.SETTINGS).update({ value: ttdUrl, updated_at: new Date().toISOString() }).eq('key', 'ttd_ketua_rw');
+      error = updateError;
+    } else {
+      const { error: insertError } = await _supabase.from(TABLES.SETTINGS).insert({ key: 'ttd_ketua_rw', value: ttdUrl, updated_at: new Date().toISOString() });
+      error = insertError;
+    }
+    
+    if(error) throw error;
+    
+    document.getElementById('ttd-preview').classList.remove('hidden');
+    document.getElementById('ttd-preview-img').src = ttdUrl;
+    
+    notify("Tanda Tangan Ketua RW Berhasil Diupload!");
+    document.getElementById('set-ttd-file').value = "";
+  } catch (err) {
+    console.error(err);
+    alert("Gagal upload: " + err.message);
+  }
+}
+
 // ============================================
-// LOGOUT - TIDAK DIUBAH LOGIKANYA
+// LOGOUT
 // ============================================
 function logoutAdmin() {
   if(confirm("Keluar dari sistem admin?")) {
@@ -861,7 +1182,7 @@ function logoutAdmin() {
 }
 
 // ============================================
-// INIT - TIDAK DIUBAH LOGIKANYA
+// INIT
 // ============================================
 window.onload = () => {
   const user = JSON.parse(localStorage.getItem('user'));
