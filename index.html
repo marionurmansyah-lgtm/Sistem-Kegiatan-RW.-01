@@ -8,10 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-
 <!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
-
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
@@ -19,7 +17,6 @@
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
 * { -webkit-tap-highlight-color: transparent; }
@@ -44,240 +41,230 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 #toast { transition: all 0.3s ease; }
 .footer-credit { opacity: 0.5; transition: 0.3s; }
 .footer-credit:hover { opacity: 1; }
-
 /* ✅ ANIMASI EVENT DOT - PULSING EFFECT */
 .event-dot {
-  width: 6px;
-  height: 6px;
-  background: #FF6D2D;
-  border-radius: 50%;
-  position: absolute;
-  bottom: 10px;
-  animation: pulse-dot 2s ease-in-out infinite;
-  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+width: 6px;
+height: 6px;
+background: #FF6D2D;
+border-radius: 50%;
+position: absolute;
+bottom: 10px;
+animation: pulse-dot 2s ease-in-out infinite;
+box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
 }
-
 /* ✅ ANIMASI PULSING */
 @keyframes pulse-dot {
-  0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-  }
-  50% {
-    transform: scale(1.1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-  }
-  100% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-  }
+0% {
+transform: scale(0.95);
+box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
 }
-
+50% {
+transform: scale(1.1);
+box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+}
+100% {
+transform: scale(0.95);
+box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+}
+}
 /* ✅ ANIMASI BACKGROUND UNTUK TANGGAL BERAGENDA */
 .day-has-event {
-  background: #ecfdf5 !important;
-  color: #059669 !important;
-  border: 2px solid #FF6D2D !important;
-  animation: highlight-event 3s ease-in-out infinite;
+background: #ecfdf5 !important;
+color: #059669 !important;
+border: 2px solid #FF6D2D !important;
+animation: highlight-event 3s ease-in-out infinite;
 }
-
 @keyframes highlight-event {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-  }
+0%, 100% {
+box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
 }
-
+50% {
+box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+}
+}
 /* ✅ ANIMASI SAAT HOVER TANGGAL BERAGENDA */
 .day-has-event:hover {
-  transform: scale(1.15);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  z-index: 5;
+transform: scale(1.15);
+box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+z-index: 5;
 }
-
 /* ✅ ANIMASI KALENDER CONTAINER */
 .calendar-grid {
-  animation: fadeIn 0.5s ease-out;
+animation: fadeIn 0.5s ease-out;
 }
-
-
+/* ✅ MULTI-DAY EVENT STYLES */
+.event-start {
+background: linear-gradient(135deg, #ecfdf5 50%, #d1fae5 50%) !important;
+border: 2px solid #10b981 !important;
+}
+.event-end {
+background: linear-gradient(135deg, #d1fae5 50%, #ecfdf5 50%) !important;
+border: 2px solid #10b981 !important;
+}
+.event-middle {
+background: #d1fae5 !important;
+border: 2px solid #10b981 !important;
+}
+/* Event badge untuk multi-day */
+.event-badge {
+position: absolute;
+top: 2px;
+right: 2px;
+font-size: 6px;
+font-weight: 900;
+}
 </style>
 </head>
 <body class="bg-slate-50 text-slate-900 pb-24">
-
 <!-- Image Viewer -->
 <div id="image-viewer" class="fixed inset-0 bg-black/95 z-[300] hidden flex flex-col items-center justify-center p-4" onclick="closeImageViewer()">
-  <button class="absolute top-6 right-6 text-white bg-white/20 p-2 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
-  <div class="relative overflow-hidden rounded-2xl max-w-full max-h-[80vh]">
-    <img id="full-image" class="max-w-full max-h-[80vh] transition-transform duration-300 cursor-zoom-in" onclick="event.stopPropagation(); toggleZoom(this)">
-  </div>
-  <p id="image-caption" class="text-white mt-6 font-bold uppercase text-[10px] tracking-widest text-center px-4"></p>
-  <p class="text-slate-500 text-[8px] mt-2 uppercase">Ketuk gambar untuk Zoom In/Out</p>
+<button class="absolute top-6 right-6 text-white bg-white/20 p-2 rounded-full"><i data-lucide="x" class="w-6 h-6"></i></button>
+<div class="relative overflow-hidden rounded-2xl max-w-full max-h-[80vh]">
+<img id="full-image" class="max-w-full max-h-[80vh] transition-transform duration-300 cursor-zoom-in" onclick="event.stopPropagation(); toggleZoom(this)">
 </div>
-
+<p id="image-caption" class="text-white mt-6 font-bold uppercase text-[10px] tracking-widest text-center px-4"></p>
+<p class="text-slate-500 text-[8px] mt-2 uppercase">Ketuk gambar untuk Zoom In/Out</p>
+</div>
 <!-- Branding & Toast -->
 <div class="branding-line"></div>
 <div id="toast" class="fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl shadow-2xl text-white font-bold hidden"></div>
-
 <!-- PAGE: LOGIN -->
 <div id="page-login" class="page flex items-center justify-center p-4 animate-fade">
-  <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100">
-    <img class="w-20 h-20 mx-auto mb-4" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-    <h1 class="text-xl font-black text-emerald-700 uppercase leading-none">Sinergi RW.01</h1>
-    <p class="text-[9px] font-bold text-slate-400 mt-2 tracking-[0.3em]">KEBON MANGGIS</p>
-    
-    <form id="form-login" class="mt-8 space-y-4 text-left">
-      <input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
-      <div class="relative">
-        <input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
-        <button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
-          <i data-lucide="eye" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">Masuk</button>
-    </form>
-    
-    <p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-black">Daftar Akun</button></p>
-  </div>
+<div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center border border-slate-100">
+<img class="w-20 h-20 mx-auto mb-4" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+<h1 class="text-xl font-black text-emerald-700 uppercase leading-none">Sinergi RW.01</h1>
+<p class="text-[9px] font-bold text-slate-400 mt-2 tracking-[0.3em]">KEBON MANGGIS</p>
+<form id="form-login" class="mt-8 space-y-4 text-left">
+<input type="text" id="login-user" placeholder="Username" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
+<div class="relative">
+<input type="password" id="login-pass" placeholder="Password" class="w-full border-2 border-slate-50 bg-slate-50 p-4 rounded-2xl outline-none focus:border-emerald-500" required>
+<button type="button" onclick="togglePass('login-pass')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">
+<i data-lucide="eye" class="w-5 h-5"></i>
+</button>
 </div>
-
+<button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg active:scale-95 transition-all">Masuk</button>
+</form>
+<p class="mt-6 text-sm text-slate-500 font-medium">Warga baru? <button onclick="showPage('page-register')" class="text-emerald-600 font-black">Daftar Akun</button></p>
+</div>
+</div>
 <!-- PAGE: REGISTER -->
 <div id="page-register" class="page hidden flex items-center justify-center p-4 animate-fade">
-  <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-slate-100">
-    <h2 class="text-lg font-black text-center uppercase mb-6 text-emerald-800">Pendaftaran Warga</h2>
-    
-    <form id="form-register" class="space-y-3">
-      <input type="text" id="reg-nama" placeholder="Nama Lengkap Sesuai KTP" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none focus:border-emerald-400" required>
-      
-      <div class="grid grid-cols-2 gap-3">
-        <select id="reg-rt" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs font-bold" required>
-          <option value="">Pilih RT</option>
-          <script>for(let i=1;i<=16;i++) document.write(`<option value="RT ${i.toString().padStart(2,'0')}">RT ${i.toString().padStart(2,'0')}</option>`)</script>
-        </select>
-        <input type="tel" id="reg-hp" placeholder="WA (628...)" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-      </div>
-      
-      <select id="reg-kategori" onchange="updateSubJabatan()" class="w-full p-3 border-2 border-slate-100 bg-slate-50 rounded-xl text-xs font-bold">
-        <option value="Warga">Warga</option>
-        <option value="Pengurus RW">Pengurus RW</option>
-        <option value="Pengurus RT">Pengurus RT</option>
-        <option value="Kader">Kader (PKK/Jumantik/dll)</option>
-        <option value="Seksi Pendidikan">Seksi Pendidikan</option>
-        <option value="Keamanan">Keamanan</option>
-        <option value="Kebersihan">Kebersihan</option>
-        <option value="Karang Taruna">Karang Taruna</option>
-      </select>
-      
-      <div id="reg-sub-jabatan-container" class="hidden">
-        <select id="reg-sub-jabatan" class="w-full p-3 border-2 border-emerald-100 bg-emerald-50 rounded-xl text-xs font-bold text-emerald-700"></select>
-      </div>
-      
-      <div id="reg-detail-manual-container" class="hidden">
-        <input type="text" id="reg-detail-manual" placeholder="Keterangan Detail (Contoh: Guru Ngaji Al-Ikhlas)" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none">
-      </div>
-      
-      <div class="grid grid-cols-2 gap-3">
-  <input type="text" id="reg-user" placeholder="Username" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
-  
-  <!-- ✅ PASSWORD DENGAN TOGGLE -->
-  <div class="relative">
-    <input type="password" id="reg-pass" placeholder="Password" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none w-full" required>
-    <button type="button" onclick="togglePass('reg-pass')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
-      <i data-lucide="eye" class="w-4 h-4"></i>
-    </button>
-  </div>
-</div>   
-      <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">Daftar Sekarang</button>
-      <button type="button" onclick="showPage('page-login')" class="w-full text-slate-400 text-[10px] font-bold uppercase py-2 text-center">Sudah Punya Akun? Login</button>
-    </form>
-  </div>
+<div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-slate-100">
+<h2 class="text-lg font-black text-center uppercase mb-6 text-emerald-800">Pendaftaran Warga</h2>
+<form id="form-register" class="space-y-3">
+<input type="text" id="reg-nama" placeholder="Nama Lengkap Sesuai KTP" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none focus:border-emerald-400" required>
+<div class="grid grid-cols-2 gap-3">
+<select id="reg-rt" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs font-bold" required>
+<option value="">Pilih RT</option>
+<script>for(let i=1;i<=16;i++) document.write(`<option value="RT ${i.toString().padStart(2,'0')}">RT ${i.toString().padStart(2,'0')}</option>`)</script>
+</select>
+<input type="tel" id="reg-hp" placeholder="WA (628...)" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
 </div>
-
+<select id="reg-kategori" onchange="updateSubJabatan()" class="w-full p-3 border-2 border-slate-100 bg-slate-50 rounded-xl text-xs font-bold">
+<option value="Warga">Warga</option>
+<option value="Pengurus RW">Pengurus RW</option>
+<option value="Pengurus RT">Pengurus RT</option>
+<option value="Kader">Kader (PKK/Jumantik/dll)</option>
+<option value="Seksi Pendidikan">Seksi Pendidikan</option>
+<option value="Keamanan">Keamanan</option>
+<option value="Kebersihan">Kebersihan</option>
+<option value="Karang Taruna">Karang Taruna</option>
+</select>
+<div id="reg-sub-jabatan-container" class="hidden">
+<select id="reg-sub-jabatan" class="w-full p-3 border-2 border-emerald-100 bg-emerald-50 rounded-xl text-xs font-bold text-emerald-700"></select>
+</div>
+<div id="reg-detail-manual-container" class="hidden">
+<input type="text" id="reg-detail-manual" placeholder="Keterangan Detail (Contoh: Guru Ngaji Al-Ikhlas)" class="w-full border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<input type="text" id="reg-user" placeholder="Username" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none" required>
+<!-- ✅ PASSWORD DENGAN TOGGLE -->
+<div class="relative">
+<input type="password" id="reg-pass" placeholder="Password" class="border-2 border-slate-100 bg-slate-50 p-3 rounded-xl text-xs outline-none w-full" required>
+<button type="button" onclick="togglePass('reg-pass')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+<i data-lucide="eye" class="w-4 h-4"></i>
+</button>
+</div>
+</div>
+<button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase text-xs mt-4 shadow-lg active:scale-95 transition-all">Daftar Sekarang</button>
+<button type="button" onclick="showPage('page-login')" class="w-full text-slate-400 text-[10px] font-bold uppercase py-2 text-center">Sudah Punya Akun? Login</button>
+</form>
+</div>
+</div>
 <!-- PAGE: USER DASHBOARD -->
 <div id="page-user" class="page hidden animate-fade">
-  <header class="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50">
-    <div class="flex items-center gap-2">
-      <img class="w-8 h-8" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
-      <span class="font-black text-emerald-700 text-xl tracking-tighter">SINERGI 01</span>
-    </div>
-    <button onclick="logout()" class="text-rose-600 font-black text-[10px] uppercase bg-rose-50 px-3 py-2 rounded-lg active:bg-rose-100">Keluar</button>
-  </header>
-  
-  <!-- Running Text -->
-  <div class="running-text-container" id="container-running-text">
-    <div class="running-text-content" id="running-text-val">Memuat informasi terbaru...</div>
-  </div>
-  
-  <main class="p-4 space-y-4">
-    <!-- Digital ID Card -->
-    <div class="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
-      <div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="user" class="w-24 h-24"></i></div>
-      <div class="flex justify-between items-start relative z-10">
-        <div>
-          <p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Selamat Datang</p>
-          <h2 id="kartu-nama" class="text-xl font-black uppercase mt-1 leading-tight">...</h2>
-        </div>
-        <div class="text-right">
-          <p id="live-clock" class="text-lg font-black leading-none">00:00:00</p>
-          <p id="live-date" class="text-[12px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-2 mt-4 relative z-10">
-        <span id="kartu-jabatan" class="text-[12px] bg-white/20 px-3 py-1.5 rounded-full font-bold border border-white/10">...</span>
-        <span id="kartu-rt" class="text-[12px] bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-black shadow-sm">...</span>
-      </div>
-    </div>
-    
-    <!-- Content Area -->
-    <div id="user-content-area" class="space-y-4 min-h-[50vh]"></div>
-    
-    <!-- Footer Credit -->
-    <div class="mt-12 pb-12 flex flex-col items-center justify-center text-center animate-fade footer-credit">
-      <div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
-      <p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
-      <p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nachrulli</p>
-    </div>
-  </main>
-  
-  <!-- Bottom Navigation -->
-  <footer class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-3 flex justify-around z-[100] shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
-    <button onclick="switchTabWarga('pengumuman')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengumuman"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Beranda</span></button>
-    <button onclick="switchTabWarga('agenda')" class="nav-item flex flex-col items-center text-slate-400" id="nav-agenda"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Agenda</span></button>
-    <button onclick="switchTabWarga('dokumentasi')" class="nav-item flex flex-col items-center text-slate-400" id="nav-dokumentasi"><i data-lucide="camera" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Galeri</span></button>
-    <button onclick="switchTabWarga('surat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-surat"><i data-lucide="file-text" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Surat</span></button>
-    <button onclick="switchTabWarga('riwayat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-riwayat"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Riwayat</span></button>
-  </footer>
+<header class="bg-white px-6 py-4 border-b flex justify-between items-center sticky top-0 z-50">
+<div class="flex items-center gap-2">
+<img class="w-8 h-8" src="https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png">
+<span class="font-black text-emerald-700 text-xl tracking-tighter">SINERGI 01</span>
 </div>
-
+<button onclick="logout()" class="text-rose-600 font-black text-[10px] uppercase bg-rose-50 px-3 py-2 rounded-lg active:bg-rose-100">Keluar</button>
+</header>
+<!-- Running Text -->
+<div class="running-text-container" id="container-running-text">
+<div class="running-text-content" id="running-text-val">Memuat informasi terbaru...</div>
+</div>
+<main class="p-4 space-y-4">
+<!-- Digital ID Card -->
+<div class="bg-emerald-600 p-6 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+<div class="absolute -right-4 -bottom-4 opacity-10"><i data-lucide="user" class="w-24 h-24"></i></div>
+<div class="flex justify-between items-start relative z-10">
+<div>
+<p class="text-[8px] font-black opacity-80 uppercase tracking-widest">Selamat Datang</p>
+<h2 id="kartu-nama" class="text-xl font-black uppercase mt-1 leading-tight">...</h2>
+</div>
+<div class="text-right">
+<p id="live-clock" class="text-lg font-black leading-none">00:00:00</p>
+<p id="live-date" class="text-[12px] font-bold opacity-80 uppercase mt-1 tracking-tighter">Memuat Tanggal...</p>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-4 relative z-10">
+<span id="kartu-jabatan" class="text-[12px] bg-white/20 px-3 py-1.5 rounded-full font-bold border border-white/10">...</span>
+<span id="kartu-rt" class="text-[12px] bg-amber-400 text-amber-900 px-3 py-1.5 rounded-full font-black shadow-sm">...</span>
+</div>
+</div>
+<!-- Content Area -->
+<div id="user-content-area" class="space-y-4 min-h-[50vh]"></div>
+<!-- Footer Credit -->
+<div class="mt-12 pb-12 flex flex-col items-center justify-center text-center animate-fade footer-credit">
+<div class="h-[1px] w-12 bg-slate-200 mb-4"></div>
+<!-- ✅ FIX: Typo nachrulli → nacruli -->
+<p class="text-[11px] font-black tracking-[0.2em] text-slate-500 uppercase">©2026 SEKRETARIAT RW.01</p>
+<p class="text-[9px] font-bold text-emerald-600 mt-1 uppercase tracking-widest">rionurmansyah & nachrulli</p>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<footer class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t p-3 flex justify-around z-[100] shadow-[0_-5px_20px_rgba(0,0,0,0.05)]">
+<button onclick="switchTabWarga('pengumuman')" class="nav-item flex flex-col items-center text-slate-400" id="nav-pengumuman"><i data-lucide="home" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Beranda</span></button>
+<button onclick="switchTabWarga('agenda')" class="nav-item flex flex-col items-center text-slate-400" id="nav-agenda"><i data-lucide="calendar" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Agenda</span></button>
+<button onclick="switchTabWarga('dokumentasi')" class="nav-item flex flex-col items-center text-slate-400" id="nav-dokumentasi"><i data-lucide="camera" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Galeri</span></button>
+<button onclick="switchTabWarga('surat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-surat"><i data-lucide="file-text" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Surat</span></button>
+<button onclick="switchTabWarga('riwayat')" class="nav-item flex flex-col items-center text-slate-400" id="nav-riwayat"><i data-lucide="history" class="w-5 h-5"></i><span class="text-[8px] font-bold uppercase mt-1">Riwayat</span></button>
+</footer>
+</div>
 <!-- Modal Absensi -->
 <div id="modal-absen" class="fixed inset-0 bg-black/80 z-[200] hidden p-4 flex items-center justify-center">
-  <div class="bg-white w-full max-w-md p-6 rounded-[2.5rem] space-y-4 animate-fade overflow-y-auto max-h-[90vh]">
-    <h3 class="font-black text-center uppercase text-sm text-emerald-800">Form Kehadiran Kegiatan</h3>
-    <form id="form-submit-absen" class="space-y-4">
-      <input type="hidden" id="abs-kegiatan-id">
-      
-      <div class="space-y-2">
-        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">1. Ambil Foto Selfie (Wajib)</label>
-        <button type="button" onclick="document.getElementById('abs-selfie').click()" class="w-full border-2 border-dashed border-slate-200 p-6 rounded-2xl text-[10px] font-black text-slate-400 uppercase bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all">
-          <i data-lucide="camera" class="w-6 h-6 mx-auto mb-2 text-emerald-500"></i> <span id="selfie-status">Klik Untuk Kamera</span>
-        </button>
-        <input type="file" id="abs-selfie" accept="image/*" capture="user" class="hidden" onchange="document.getElementById('selfie-status').innerText='Foto Berhasil Diambil ✓'; document.getElementById('selfie-status').classList.add('text-emerald-600')">
-      </div>
-      
-      <div class="space-y-2">
-        <label class="text-[10px] font-black text-slate-400 uppercase ml-1">2. Tanda Tangan Digital</label>
-        <canvas id="canvas-ttd" class="shadow-inner border-2"></canvas>
-        <button type="button" onclick="signaturePad.clear()" class="text-[9px] font-black text-rose-500 uppercase flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Hapus & Ulangi TTD</button>
-      </div>
-      
-      <button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg shadow-emerald-200 active:scale-95 transition-all">Kirim Absensi Sekarang</button>
-      <button type="button" onclick="document.getElementById('modal-absen').classList.add('hidden')" class="w-full text-slate-400 text-[10px] font-bold uppercase">Batal</button>
-    </form>
-  </div>
+<div class="bg-white w-full max-w-md p-6 rounded-[2.5rem] space-y-4 animate-fade overflow-y-auto max-h-[90vh]">
+<h3 class="font-black text-center uppercase text-sm text-emerald-800">Form Kehadiran Kegiatan</h3>
+<form id="form-submit-absen" class="space-y-4">
+<input type="hidden" id="abs-kegiatan-id">
+<div class="space-y-2">
+<label class="text-[10px] font-black text-slate-400 uppercase ml-1">1. Ambil Foto Selfie (Wajib)</label>
+<button type="button" onclick="document.getElementById('abs-selfie').click()" class="w-full border-2 border-dashed border-slate-200 p-6 rounded-2xl text-[10px] font-black text-slate-400 uppercase bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-all">
+<i data-lucide="camera" class="w-6 h-6 mx-auto mb-2 text-emerald-500"></i> <span id="selfie-status">Klik Untuk Kamera</span>
+</button>
+<input type="file" id="abs-selfie" accept="image/*" capture="user" class="hidden" onchange="document.getElementById('selfie-status').innerText='Foto Berhasil Diambil ✓'; document.getElementById('selfie-status').classList.add('text-emerald-600')">
 </div>
-
+<div class="space-y-2">
+<label class="text-[10px] font-black text-slate-400 uppercase ml-1">2. Tanda Tangan Digital</label>
+<canvas id="canvas-ttd" class="shadow-inner border-2"></canvas>
+<button type="button" onclick="signaturePad.clear()" class="text-[9px] font-black text-rose-500 uppercase flex items-center gap-1"><i data-lucide="refresh-cw" class="w-3 h-3"></i> Hapus & Ulangi TTD</button>
+</div>
+<button type="submit" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black uppercase shadow-lg shadow-emerald-200 active:scale-95 transition-all">Kirim Absensi Sekarang</button>
+<button type="button" onclick="document.getElementById('modal-absen').classList.add('hidden')" class="w-full text-slate-400 text-[10px] font-bold uppercase">Batal</button>
+</form>
+</div>
+</div>
 <script>
 // ============================================
 // CONFIG
@@ -285,887 +272,793 @@ canvas { border: 2px dashed #cbd5e1; background: #f8fafc; border-radius: 1rem; w
 const SB_URL = "https://kbzlgrpeerllbvpiyhpf.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtiemxncnBlZXJsbGJ2cGl5aHBmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5NDY2NTksImV4cCI6MjA4NzUyMjY1OX0.8n4lPZs9t6Zo4Wk5TmdcEt1wqpa7_CeGH9EdM-WKX2w";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
-
 const TABLES = {
-  USERS: 'users',
-  PENGUMUMAN: 'pengumuman',
-  ABSENSI: 'absensi',
-  AGENDA: 'agenda',
-  DOKUMENTASI: 'dokumentasi',
-  PENGAJUAN: 'pengajuan_surat',
-  SETTINGS: 'settings'
+USERS: 'users',
+PENGUMUMAN: 'pengumuman',
+ABSENSI: 'absensi',
+AGENDA: 'agenda',
+DOKUMENTASI: 'dokumentasi',
+PENGAJUAN: 'pengajuan_surat',
+SETTINGS: 'settings'
 };
-
 let signaturePad;
-
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-  lucide.createIcons();
+document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+lucide.createIcons();
 }
-
 function togglePass(id) {
-  const el = document.getElementById(id);
-  el.type = el.type === "password" ? "text" : "password";
-  lucide.createIcons();
+const el = document.getElementById(id);
+el.type = el.type === "password" ? "text" : "password";
+lucide.createIcons();
 }
-
 function notify(msg, color = "bg-emerald-600") {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl text-white font-bold animate-fade ${color}`;
-  t.classList.remove('hidden');
-  setTimeout(() => t.classList.add('hidden'), 3000);
+const t = document.getElementById('toast');
+t.textContent = msg;
+t.className = `fixed top-8 right-4 z-[999] px-6 py-3 rounded-xl text-white font-bold animate-fade ${color}`;
+t.classList.remove('hidden');
+setTimeout(() => t.classList.add('hidden'), 3000);
 }
-
 function updateLiveTime() {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  if(document.getElementById('live-clock')) document.getElementById('live-clock').innerText = timeStr;
-  if(document.getElementById('live-date')) document.getElementById('live-date').innerText = dateStr;
+const now = new Date();
+const timeStr = now.toLocaleTimeString('id-ID', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+const dateStr = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+if(document.getElementById('live-clock')) document.getElementById('live-clock').innerText = timeStr;
+if(document.getElementById('live-date')) document.getElementById('live-date').innerText = dateStr;
 }
 setInterval(updateLiveTime, 1000);
-
 // ============================================
 // SUB-JABATAN LOGIC
 // ============================================
 function updateSubJabatan() {
-  const kat = document.getElementById('reg-kategori').value;
-  const subCont = document.getElementById('reg-sub-jabatan-container');
-  const sub = document.getElementById('reg-sub-jabatan');
-  const detCont = document.getElementById('reg-detail-manual-container');
-  
-  subCont.classList.add('hidden');
-  detCont.classList.add('hidden');
-  sub.innerHTML = '';
-  
-  if (kat === 'Pengurus RW') {
-    subCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua RW">Wakil Ketua RW</option><option value="Sekretaris RW">Sekretaris RW</option><option value="Bendahara RW">Bendahara RW</option>';
-  } else if (kat === 'Pengurus RT') {
-    subCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
-  } else if (kat === 'Kader') {
-    subCont.classList.remove('hidden');
-    detCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="DAWIS">Kader DAWIS</option><option value="Posyandu">Kader Posyandu</option>';
-  } else if (kat === 'Seksi Pendidikan') {
-    subCont.classList.remove('hidden');
-    detCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="PAUD">Guru PAUD</option><option value="Guru Ngaji">Guru Ngaji</option>';
-  } else if (kat === 'Keamanan') {
-    subCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="Kordinator Keamanan">Kordinator Keamanan</option><option value="Anggota Keamanan">Anggota Keamanan</option>';
-  } else if (kat === 'Kebersihan') {
-    subCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="Petugas Kebersihan">Petugas Kebersihan</option><option value="Petugas Bank Sampah">Petugas Bank Sampah</option>';
-  } else if (kat === 'Karang Taruna') {
-    subCont.classList.remove('hidden');
-    sub.innerHTML = '<option value="KETUA">KETUA</option><option value="ANGGOTA">ANGGOTA</option>';
-  }
-  
-  lucide.createIcons();
+const kat = document.getElementById('reg-kategori').value;
+const subCont = document.getElementById('reg-sub-jabatan-container');
+const sub = document.getElementById('reg-sub-jabatan');
+const detCont = document.getElementById('reg-detail-manual-container');
+subCont.classList.add('hidden');
+detCont.classList.add('hidden');
+sub.innerHTML = '';
+if (kat === 'Pengurus RW') {
+subCont.classList.remove('hidden');
+sub.innerHTML = '<option value="Ketua RW">Ketua RW</option><option value="Wakil Ketua RW">Wakil Ketua RW</option><option value="Sekretaris RW">Sekretaris RW</option><option value="Bendahara RW">Bendahara RW</option>';
+} else if (kat === 'Pengurus RT') {
+subCont.classList.remove('hidden');
+sub.innerHTML = '<option value="Ketua RT">Ketua RT</option><option value="Sekretaris RT">Sekretaris RT</option><option value="Bendahara RT">Bendahara RT</option>';
+} else if (kat === 'Kader') {
+subCont.classList.remove('hidden');
+detCont.classList.remove('hidden');
+sub.innerHTML = '<option value="PKK">Kader PKK</option><option value="Jumantik">Kader Jumantik</option><option value="DAWIS">Kader DAWIS</option><option value="Posyandu">Kader Posyandu</option>';
+} else if (kat === 'Seksi Pendidikan') {
+subCont.classList.remove('hidden');
+detCont.classList.remove('hidden');
+sub.innerHTML = '<option value="PAUD">Guru PAUD</option><option value="Guru Ngaji">Guru Ngaji</option>';
+} else if (kat === 'Keamanan') {
+subCont.classList.remove('hidden');
+sub.innerHTML = '<option value="Kordinator Keamanan">Kordinator Keamanan</option><option value="Anggota Keamanan">Anggota Keamanan</option>';
+} else if (kat === 'Kebersihan') {
+subCont.classList.remove('hidden');
+sub.innerHTML = '<option value="Petugas Kebersihan">Petugas Kebersihan</option><option value="Petugas Bank Sampah">Petugas Bank Sampah</option>';
+} else if (kat === 'Karang Taruna') {
+subCont.classList.remove('hidden');
+sub.innerHTML = '<option value="KETUA">KETUA</option><option value="ANGGOTA">ANGGOTA</option>';
 }
-
+lucide.createIcons();
+}
 // ============================================
 // RUNNING TEXT
 // ============================================
 async function loadRunningText() {
-  try {
-    const { data, error } = await _supabase
-      .from(TABLES.SETTINGS)
-      .select('value')
-      .eq('key', 'running_text')
-      .single();
-    
-    if(data && !error) document.getElementById('running-text-val').innerText = data.value + " • ";
-  } catch(e) {}
+try {
+const { data, error } = await _supabase
+.from(TABLES.SETTINGS)
+.select('value')
+.eq('key', 'running_text')
+.single();
+if(data && !error) document.getElementById('running-text-val').innerText = data.value + " • ";
+} catch(e) {}
 }
-
 // ============================================
 // NAVIGATION WARGA
 // ============================================
 async function switchTabWarga(tab) {
-  const list = document.getElementById('user-content-area');
-  const user = JSON.parse(localStorage.getItem('user'));
-  
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
-  if(document.getElementById(`nav-${tab}`)) document.getElementById(`nav-${tab}`).classList.add('nav-active');
-  
-  list.innerHTML = '<div class="flex flex-col items-center justify-center py-20 gap-3"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sinkronisasi Data...</p></div>';
-  lucide.createIcons();
-  
-  try {
-    if(tab === 'pengumuman') {
-      const { data, error } = await _supabase
-        .from(TABLES.PENGUMUMAN)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if(error || !data) {
-        list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat pengumuman</p>';
-        return;
-      }
-      
-      list.innerHTML = data.map(i => `
-        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden animate-fade mb-6">
-          ${i.file_url && i.file_url !== '-' ? `<img src="${i.file_url}" onclick="viewImage('${i.file_url}', '${i.judul}')" class="w-full h-52 object-cover cursor-zoom-in">` : `<div class="w-full h-32 bg-slate-50 flex items-center justify-center"><i data-lucide="megaphone" class="w-12 h-12 text-slate-200"></i></div>`}
-          <div class="p-6">
-            <div class="flex justify-between items-center mb-3 text-[8px] font-black uppercase">
-              <span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">${i.tipe}</span>
-              <span class="text-slate-400">${new Date(i.created_at).toLocaleDateString('id-ID')}</span>
-            </div>
-            <h4 class="font-black text-lg uppercase leading-tight mb-2 text-slate-800">${i.judul}</h4>
-            <p class="text-slate-500 text-xs leading-relaxed mb-6">${i.detail}</p>
-            ${i.pdf_url && i.pdf_url !== '-' ? `<a href="${i.pdf_url}" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-50 text-blue-600 py-3 rounded-xl font-black text-[10px] uppercase mb-3 border border-blue-100"><i data-lucide="file-text" class="w-4 h-4"></i> Lihat Dokumen PDF</a>` : ''}
-            ${i.tipe === 'Kegiatan' ? `<button onclick="bukaAbsen('${i.judul}')" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-emerald-100 active:scale-95 transition-all">Isi Daftar Hadir Sekarang</button>` : ''}
-          </div>
-        </div>`).join('');
-        
-    } else if(tab === 'dokumentasi') {
-      const { data, error } = await _supabase
-        .from(TABLES.DOKUMENTASI)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if(error || !data) {
-        list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat galeri</p>';
-        return;
-      }
-      
-      list.innerHTML = `<div class="grid grid-cols-2 gap-4">
-        ${data.map(d => {
-          const imgLink = d.foto_url || '-';
-          return `
-          <div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-fade" onclick="viewImage('${imgLink}', '${d.judul}')">
-            <img src="${imgLink}" class="w-full h-40 object-cover bg-slate-50">
-            <div class="p-3">
-              <p class="text-[9px] font-black uppercase truncate text-slate-700">${d.judul}</p>
-              <p class="text-[7px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
-      
-    } else if(tab === 'agenda') {
-  const { data, error } = await _supabase
-    .from(TABLES.AGENDA)
-    .select('*')
-    .order('tanggal', { ascending: true });
-  
-  if(error || !data) {
-    list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat agenda</p>';
-    return;
-  }
-  
-  const allEvents = data;
-  const now = new Date();
-  let currentMonth = now.getMonth();
-  let currentYear = now.getFullYear();
-  const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-  
-  // ✅ Fungsi untuk cek apakah bulan tertentu ada agenda
-  function hasEventsInMonth(year, month) {
-    return allEvents.some(e => {
-      const eventDate = new Date(e.tanggal);
-      return eventDate.getFullYear() === year && eventDate.getMonth() === month;
-    });
-  }
-  
-  // ✅ Fungsi untuk render kalender
-  function renderCalendar() {
-    const hasPrevMonth = hasEventsInMonth(currentYear, currentMonth - 1);
-    const hasNextMonth = hasEventsInMonth(currentYear, currentMonth + 1);
-    
-    list.innerHTML = `
-    <div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade">
-      <!-- ✅ NAVIGASI BULAN DENGAN ANIMASI -->
-      <div class="flex justify-between items-center mb-4">
-        <button 
-          onclick="changeMonth(-1)" 
-          class="p-2 rounded-xl transition-all duration-300 ${hasPrevMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
-          ${!hasPrevMonth ? 'disabled' : ''}
-        >
-          <i data-lucide="chevron-left" class="w-5 h-5"></i>
-        </button>
-        
-        <h4 class="font-black text-xs uppercase text-emerald-800 animate-fade">
-          ${monthNames[currentMonth]} ${currentYear}
-        </h4>
-        
-        <button 
-          onclick="changeMonth(1)" 
-          class="p-2 rounded-xl transition-all duration-300 ${hasNextMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
-          ${!hasNextMonth ? 'disabled' : ''}
-        >
-          <i data-lucide="chevron-right" class="w-5 h-5"></i>
-        </button>
-      </div>
-      
-      <!-- Grid Kalender -->
-      <div class="calendar-grid text-center mb-2">
-        ${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[8px] font-black text-slate-300 uppercase">${d}</div>`).join('')}
-      </div>
-      <div id="calendar-days" class="calendar-grid"></div>
-    </div>
-    
-    <div id="event-details" class="space-y-3 mt-4">
-      <p class="text-center py-10 text-[9px] font-black text-slate-300 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
-    </div>`;
-    
-    // Render hari-hari dalam bulan
-    const calDays = document.getElementById('calendar-days');
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-    for(let i=0; i<firstDay; i++) calDays.innerHTML += `<div></div>`;
-    for(let day=1; day<=daysInMonth; day++) {
-      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-      const hasEvent = allEvents.find(e => e.tanggal === dateStr);
-      const isToday = day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
-      
-      const dayEl = document.createElement('div');
-      
-      if (hasEvent) {
-        // ✅ TANGGAL DENGAN AGENDA - ANIMASI PULSING
-        dayEl.className = `calendar-day day-has-event ${isToday ? 'border-2 border-emerald-200' : ''}`;
-        dayEl.innerHTML = `
-          <span class="relative z-10">${day}</span>
-          <div class="event-dot"></div>
-        `;
-      } else {
-        // ✅ TANGGAL TANPA AGENDA
-        dayEl.className = `calendar-day ${isToday ? 'border-2 border-emerald-200' : ''}`;
-        dayEl.innerHTML = `<span class="relative z-10">${day}</span>`;
-      }
-      
-      dayEl.onclick = () => {
-        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
-        dayEl.classList.add('day-selected');
-        showEventDetail(hasEvent);
-      };
-      
-      // ✅ ANIMASI FADE IN BERURUTAN UNTUK SETIAP TANGGAL
-      dayEl.style.animation = `fadeIn 0.3s ease-out ${day * 0.02}s backwards`;
-      calDays.appendChild(dayEl);
-    }
-    
-    lucide.createIcons();
-  }
-  
-  // ✅ Fungsi ganti bulan
-  window.changeMonth = function(delta) {
-    currentMonth += delta;
-    if(currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    } else if(currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar();
-  };
-  
-  // Render pertama kali
-  renderCalendar();
-  
-  // Fungsi menampilkan detail event
-function showEventDetail(event) {
-  const detailCont = document.getElementById('event-details');
-  
-  if(!event) {
-    detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
-      <p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
-    </div>`;
-    return;
-  }
-  
-  // ✅ CEK STATUS KEGIATAN BERDASARKAN WAKTU
-  const now = new Date();
-  const eventDate = new Date(event.tanggal);
-  
-  // Set jam event untuk perbandingan yang lebih akurat
-  const eventDateTime = new Date(`${event.tanggal} ${event.jam || '00:00'}`);
-  
-  let statusBadge = '';
-  let statusColor = '';
-  let statusIcon = '';
-  let statusText = '';
-  
-  // Bandingkan tanggal
-  const isToday = eventDate.toDateString() === now.toDateString();
-  const isPast = eventDate < now.setHours(0,0,0,0); // Tanggal sudah lewat
-  const isFuture = eventDate > now.setHours(0,0,0,0); // Tanggal masih akan datang
-  
-  if (isPast) {
-    // ✅ KEGIATAN SUDAH SELESAI
-    statusBadge = 'bg-slate-100 text-slate-600';
-    statusColor = 'text-slate-600';
-    statusIcon = 'check-circle';
-    statusText = 'Kegiatan ini telah selesai';
-  } else if (isToday) {
-    // ✅ KEGIATAN SEDANG BERLANGSUNG
-    statusBadge = 'bg-emerald-100 text-emerald-600 animate-pulse';
-    statusColor = 'text-emerald-600';
-    statusIcon = 'clock';
-    statusText = 'Sedang berlangsung';
-  } else {
-    // ✅ KEGIATAN AKAN DATANG
-    statusBadge = 'bg-blue-100 text-blue-600';
-    statusColor = 'text-blue-600';
-    statusIcon = 'calendar';
-    statusText = 'Akan datang';
-  }
-  
-  detailCont.innerHTML = `
-  <div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
-    <!-- ✅ STATUS BADGE -->
-    <div class="flex items-center justify-center gap-2 mb-4">
-      <i data-lucide="${statusIcon}" class="w-4 h-4 ${statusColor}"></i>
-      <span class="px-3 py-1 rounded-full text-[12px] font-black uppercase ${statusBadge}">
-        ${statusText}
-      </span>
-    </div>
-    
-    <div class="flex items-center gap-3 mb-3">
-      <div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
-        <i data-lucide="calendar" class="w-5 h-5"></i>
-      </div>
-      <div>
-        <p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
-        <h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
-      </div>
-    </div>
-    
-    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-slate-50">
-      <div class="flex items-center gap-2">
-        <i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
-        <span class="text-[9px] font-bold text-slate-500 uppercase">${event.jam || '-'}</span>
-      </div>
-      <div class="flex items-center gap-2 text-right justify-end">
-        <i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
-        <span class="text-[9px] font-bold text-slate-500 uppercase truncate">${event.lokasi || '-'}</span>
-      </div>
-    </div>
-    
-    <!-- ✅ PESAN TAMBAHAN JIKA SUDAH SELESAI -->
-    ${isPast ? `
-    <div class="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-100">
-      <p class="text-[8px] font-bold text-slate-500 uppercase text-center">
-        📅 Tanggal kegiatan: ${new Date(event.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-      </p>
-    </div>
-    ` : ''}
-    
-    <!-- ✅ PESAN TAMBAHAN JIKA SEDANG BERLANGSUNG -->
-    ${isToday ? `
-    <div class="mt-4 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-      <p class="text-[8px] font-bold text-emerald-600 uppercase text-center animate-pulse">
-        🔴 Jangan lupa hadir tepat waktu!
-      </p>
-    </div>
-    ` : ''}
-  </div>`;
-  
-  lucide.createIcons();
+const list = document.getElementById('user-content-area');
+const user = JSON.parse(localStorage.getItem('user'));
+document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('nav-active'));
+if(document.getElementById(`nav-${tab}`)) document.getElementById(`nav-${tab}`).classList.add('nav-active');
+list.innerHTML = '<div class="flex flex-col items-center justify-center py-20 gap-3"><div class="w-8 h-8 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sinkronisasi Data...</p></div>';
+lucide.createIcons();
+try {
+if(tab === 'pengumuman') {
+const { data, error } = await _supabase
+.from(TABLES.PENGUMUMAN)
+.select('*')
+.order('created_at', { ascending: false });
+if(error || !data) {
+list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat pengumuman</p>';
+return;
 }
-      
-    } else if(tab === 'surat') {
-      list.innerHTML = `
-        <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-up">
-          <div class="text-center mb-6">
-            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <i data-lucide="file-text" class="w-7 h-7"></i>
-            </div>
-            <h3 class="font-extrabold text-sm uppercase tracking-tighter text-slate-800">Pengajuan Surat</h3>
-            <p class="text-[9px] text-slate-400 font-bold uppercase mt-1">RW.01 Kebon Manggis</p>
-          </div>
-          <div class="space-y-4">
-            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Jenis Surat</label>
-            <input type="text" id="jenis-surat" placeholder="Contoh: Surat Pengantar Domisili" class="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 font-bold text-sm outline-none focus:border-emerald-500">
-            <button onclick="kirimSurat()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold uppercase text-xs btn-press flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 active:scale-95 transition-all">
-              <i data-lucide="send" class="w-4 h-4"></i> Minta Tanda Tangan
-            </button>
-          </div>
-          <p class="text-[8px] text-slate-400 text-center mt-4 font-bold uppercase">Pengajuan akan dikirim langsung ke WhatsApp Admin</p>
-        </div>`;
-      lucide.createIcons();
-      
-    } else if(tab === 'riwayat') {
-      const { data, error } = await _supabase
-        .from(TABLES.ABSENSI)
-        .select('*')
-        .eq('nama_warga', user.nama)
-        .order('waktu_absen', { ascending: false });
-      
-      const myAbsen = data || [];
-      
-      list.innerHTML = `
-      <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
-        <div id="qrcode"></div>
-        <p class="text-[9px] font-black text-emerald-600 uppercase mt-3 tracking-widest">${user.username}</p>
-      </div>
-      ${(user.jabatan.includes('Ketua') || user.jabatan.includes('Sekretaris') || user.jabatan === 'Admin') ? `
-      <div class="bg-amber-50 p-4 rounded-3xl border border-amber-100 mb-6">
-        <p class="text-[9px] font-black text-amber-700 uppercase mb-3">Menu Sekretariat</p>
-        <button onclick="generateLaporanPDF()" class="w-full bg-amber-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-100">
-          <i data-lucide="file-down" class="w-4 h-4"></i> Cetak Daftar Hadir Semua Warga
-        </button>
-      </div>` : ''}
-      <h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> Riwayat Absen Anda</h5>
-      <div class="space-y-3">
-        ${myAbsen.length > 0 ? myAbsen.map(r => `
-        <div class="bg-white p-4 rounded-3xl flex items-center gap-4 border border-slate-50">
-          <img src="${r.photo_selfie_url}" class="w-12 h-12 object-cover rounded-xl" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Hadir')">
-          <div class="flex-1">
-            <p class="font-black text-[10px] uppercase text-slate-800">${r.kegiatan_id}</p>
-            <p class="text-[8px] text-slate-400 uppercase mt-1 font-bold">${new Date(r.waktu_absen).toLocaleString('id-ID')}</p>
-          </div>
-          <img src="${r.tanda_tangan_url}" class="w-10 h-10 object-contain opacity-50">
-        </div>`).join('') : '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada riwayat absensi</p>'}
-      </div>`;
-      
-      // ✅ FIXED: Tambahkan 'new' sebelum QRCode
-      new QRCode(document.getElementById("qrcode"), { 
-        text: user.username, 
-        width: 120, 
-        height: 120,
-        colorDark: "#059669",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
-    }
-    
-    lucide.createIcons();
-  } catch(err) {
-    console.error(err);
-    list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat data</p>';
-  }
+list.innerHTML = data.map(i => `
+<div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden animate-fade mb-6">
+${i.file_url && i.file_url !== '-' ? `<img src="${i.file_url}" onclick="viewImage('${i.file_url}', '${i.judul}')" class="w-full h-52 object-cover cursor-zoom-in">` : `<div class="w-full h-32 bg-slate-50 flex items-center justify-center"><i data-lucide="megaphone" class="w-12 h-12 text-slate-200"></i></div>`}
+<div class="p-6">
+<div class="flex justify-between items-center mb-3 text-[8px] font-black uppercase">
+<span class="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100">${i.tipe}</span>
+<span class="text-slate-400">${new Date(i.created_at).toLocaleDateString('id-ID')}</span>
+</div>
+<h4 class="font-black text-lg uppercase leading-tight mb-2 text-slate-800">${i.judul}</h4>
+<p class="text-slate-500 text-xs leading-relaxed mb-6">${i.detail}</p>
+${i.pdf_url && i.pdf_url !== '-' ? `<a href="${i.pdf_url}" target="_blank" class="flex items-center justify-center gap-2 w-full bg-blue-50 text-blue-600 py-3 rounded-xl font-black text-[10px] uppercase mb-3 border border-blue-100"><i data-lucide="file-text" class="w-4 h-4"></i> Lihat Dokumen PDF</a>` : ''}
+${i.tipe === 'Kegiatan' ? `<button onclick="bukaAbsen('${i.judul}')" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-xs uppercase shadow-lg shadow-emerald-100 active:scale-95 transition-all">Isi Daftar Hadir Sekarang</button>` : ''}
+</div>
+</div>`).join('');
+} else if(tab === 'dokumentasi') {
+const { data, error } = await _supabase
+.from(TABLES.DOKUMENTASI)
+.select('*')
+.order('created_at', { ascending: false });
+if(error || !data) {
+list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat galeri</p>';
+return;
 }
-
+list.innerHTML = `<div class="grid grid-cols-2 gap-4">
+${data.map(d => {
+const imgLink = d.foto_url || '-';
+return `
+<div class="bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm animate-fade" onclick="viewImage('${imgLink}', '${d.judul}')">
+<img src="${imgLink}" class="w-full h-40 object-cover bg-slate-50">
+<div class="p-3">
+<p class="text-[9px] font-black uppercase truncate text-slate-700">${d.judul}</p>
+<p class="text-[7px] text-slate-400 font-bold mt-1 uppercase">${new Date(d.created_at).toLocaleDateString('id-ID')}</p>
+</div>
+</div>`;
+}).join('')}
+</div>`;
+} else if(tab === 'agenda') {
+const { data, error } = await _supabase
+.from(TABLES.AGENDA)
+.select('*')
+.order('tanggal', { ascending: true });
+if(error || !data) {
+list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat agenda</p>';
+return;
+}
+const allEvents = data;
+const now = new Date();
+let currentMonth = now.getMonth();
+let currentYear = now.getFullYear();
+const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+// ✅ Fungsi untuk cek apakah bulan tertentu ada agenda
+function hasEventsInMonth(year, month) {
+return allEvents.some(e => {
+const eventDate = new Date(e.tanggal);
+return eventDate.getFullYear() === year && eventDate.getMonth() === month;
+});
+}
+// ✅ Fungsi untuk cek apakah tanggal tertentu ada dalam range event
+function isDateInEventRange(dateStr, event) {
+const checkDate = new Date(dateStr);
+const startDate = new Date(event.tanggal);
+const endDate = event.tanggal_selesai ? new Date(event.tanggal_selesai) : startDate;
+// Reset time untuk comparison
+checkDate.setHours(0, 0, 0, 0);
+startDate.setHours(0, 0, 0, 0);
+endDate.setHours(0, 0, 0, 0);
+return checkDate >= startDate && checkDate <= endDate;
+}
+// ✅ Fungsi untuk render kalender (UPDATED)
+function renderCalendar() {
+const hasPrevMonth = hasEventsInMonth(currentYear, currentMonth - 1);
+const hasNextMonth = hasEventsInMonth(currentYear, currentMonth + 1);
+list.innerHTML = `
+<div class="bg-white p-5 rounded-[2.5rem] border border-slate-100 shadow-sm animate-fade">
+<!-- NAVIGASI BULAN -->
+<div class="flex justify-between items-center mb-4">
+<button
+onclick="changeMonth(-1)"
+class="p-2 rounded-xl transition-all duration-300 ${hasPrevMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+${!hasPrevMonth ? 'disabled' : ''}
+>
+<i data-lucide="chevron-left" class="w-5 h-5"></i>
+</button>
+<h4 class="font-black text-xs uppercase text-emerald-800 animate-fade">
+${monthNames[currentMonth]} ${currentYear}
+</h4>
+<button
+onclick="changeMonth(1)"
+class="p-2 rounded-xl transition-all duration-300 ${hasNextMonth ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 hover:scale-110' : 'bg-slate-100 text-slate-300 cursor-not-allowed'}"
+${!hasNextMonth ? 'disabled' : ''}
+>
+<i data-lucide="chevron-right" class="w-5 h-5"></i>
+</button>
+</div>
+<!-- Grid Kalender -->
+<div class="calendar-grid text-center mb-2">
+${['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="text-[8px] font-black text-slate-300 uppercase">${d}</div>`).join('')}
+</div>
+<div id="calendar-days" class="calendar-grid"></div>
+</div>
+<div id="event-details" class="space-y-3 mt-4">
+<p class="text-center py-10 text-[9px] font-black text-slate-300 uppercase tracking-widest">Pilih tanggal yang ditandai</p>
+</div>`;
+const calDays = document.getElementById('calendar-days');
+const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+for(let i=0; i<firstDay; i++) calDays.innerHTML += `<div></div>`;
+for(let day=1; day<=daysInMonth; day++) {
+const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+// ✅ CHECK MULTI-DAY EVENTS
+const hasEvent = allEvents.find(e => isDateInEventRange(dateStr, e));
+const isToday = day === now.getDate() && currentMonth === now.getMonth() && currentYear === now.getFullYear();
+// ✅ Check if this is start, middle, or end date
+let eventStatus = '';
+if(hasEvent) {
+const startDate = new Date(hasEvent.tanggal).toLocaleDateString('id-ID');
+const endDate = hasEvent.tanggal_selesai ? new Date(hasEvent.tanggal_selesai).toLocaleDateString('id-ID') : startDate;
+const currentDate = new Date(dateStr).toLocaleDateString('id-ID');
+if(currentDate === startDate && currentDate === endDate) {
+eventStatus = 'single';
+} else if(currentDate === startDate) {
+eventStatus = 'start';
+} else if(currentDate === endDate) {
+eventStatus = 'end';
+} else {
+eventStatus = 'middle';
+}
+}
+const dayEl = document.createElement('div');
+if(hasEvent) {
+// ✅ TANGGAL DENGAN AGENDA (MULTI-DAY SUPPORT)
+let dayClass = `calendar-day day-has-event`;
+let dayContent = `<span class="relative z-10">${day}</span><div class="event-dot"></div>`;
+if(eventStatus === 'start') {
+dayClass += ' event-start';
+dayContent = `<span class="relative z-10">${day}</span><div class="event-dot"></div><span class="text-[6px] absolute top-1 right-1">🔵</span>`;
+} else if(eventStatus === 'end') {
+dayClass += ' event-end';
+dayContent = `<span class="relative z-10">${day}</span><div class="event-dot"></div><span class="text-[6px] absolute top-1 right-1">🔴</span>`;
+} else if(eventStatus === 'middle') {
+dayClass += ' event-middle';
+dayContent = `<span class="relative z-10">${day}</span><div class="event-dot"></div>`;
+}
+dayEl.className = dayClass;
+dayEl.innerHTML = dayContent;
+} else {
+dayEl.className = `calendar-day ${isToday ? 'border-2 border-emerald-200' : ''}`;
+dayEl.innerHTML = `<span class="relative z-10">${day}</span>`;
+}
+dayEl.onclick = () => {
+document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('day-selected'));
+dayEl.classList.add('day-selected');
+showEventDetail(hasEvent, dateStr);
+};
+dayEl.style.animation = `fadeIn 0.3s ease-out ${day * 0.02}s backwards`;
+calDays.appendChild(dayEl);
+}
+lucide.createIcons();
+}
+// ✅ Fungsi ganti bulan
+window.changeMonth = function(delta) {
+currentMonth += delta;
+if(currentMonth > 11) {
+currentMonth = 0;
+currentYear++;
+} else if(currentMonth < 0) {
+currentMonth = 11;
+currentYear--;
+}
+renderCalendar();
+};
+// Render pertama kali
+renderCalendar();
+// Fungsi menampilkan detail event
+function showEventDetail(event, selectedDate) {
+const detailCont = document.getElementById('event-details');
+if(!event) {
+detailCont.innerHTML = `<div class="bg-slate-50 p-6 rounded-3xl text-center border-2 border-dashed border-slate-100">
+<p class="text-[9px] font-black text-slate-400 uppercase">Tidak ada agenda di tanggal ini</p>
+</div>`;
+return;
+}
+// ✅ MULTI-DAY DISPLAY
+const isMultiDay = event.is_multi_day || (event.tanggal_selesai && event.tanggal_selesai !== event.tanggal);
+const startDate = new Date(event.tanggal).toLocaleDateString('id-ID', {
+weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+});
+const endDate = event.tanggal_selesai ? new Date(event.tanggal_selesai).toLocaleDateString('id-ID', {
+weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+}) : startDate;
+// Status logic
+const now = new Date();
+const eventStartDate = new Date(event.tanggal);
+const eventEndDate = event.tanggal_selesai ? new Date(event.tanggal_selesai) : eventStartDate;
+let statusBadge = '';
+let statusText = '';
+if(eventEndDate < now) {
+statusBadge = 'bg-slate-100 text-slate-600';
+statusText = 'Kegiatan ini telah selesai';
+} else if(eventStartDate <= now && eventEndDate >= now) {
+statusBadge = 'bg-emerald-100 text-emerald-600 animate-pulse';
+statusText = 'Sedang berlangsung';
+} else {
+statusBadge = 'bg-blue-100 text-blue-600';
+statusText = 'Akan datang';
+}
+detailCont.innerHTML = `
+<div class="bg-white p-5 rounded-[2rem] border-2 border-emerald-100 shadow-md animate-fade">
+<div class="flex items-center justify-center gap-2 mb-4">
+<span class="px-3 py-1 rounded-full text-[12px] font-black uppercase ${statusBadge}">
+${statusText}
+</span>
+${isMultiDay ? '<span class="px-2 py-1 rounded-full text-[9px] font-bold bg-amber-50 text-amber-600">🔄 Lintas Hari</span>' : ''}
+</div>
+<div class="flex items-center gap-3 mb-3">
+<div class="bg-emerald-100 text-emerald-600 p-2 rounded-xl">
+<i data-lucide="calendar" class="w-5 h-5"></i>
+</div>
+<div>
+<p class="text-[8px] font-black text-emerald-600 uppercase">Agenda Kegiatan</p>
+<h4 class="font-black text-sm uppercase text-slate-800 leading-tight">${event.kegiatan}</h4>
+</div>
+</div>
+<div class="space-y-2 mt-4 pt-4 border-t border-slate-50">
+${isMultiDay ? `
+<div class="flex items-center gap-2">
+<i data-lucide="calendar-range" class="w-3 h-3 text-slate-400"></i>
+<span class="text-[9px] font-bold text-slate-500">
+📅 ${startDate} s/d ${endDate}
+</span>
+</div>
+` : `
+<div class="flex items-center gap-2">
+<i data-lucide="calendar" class="w-3 h-3 text-slate-400"></i>
+<span class="text-[9px] font-bold text-slate-500">
+📅 ${startDate}
+</span>
+</div>
+`}
+<div class="flex items-center gap-2">
+<i data-lucide="clock" class="w-3 h-3 text-slate-400"></i>
+<span class="text-[9px] font-bold text-slate-500 uppercase">⏰ ${event.jam || '-'}</span>
+</div>
+<div class="flex items-center gap-2">
+<i data-lucide="map-pin" class="w-3 h-3 text-slate-400"></i>
+<span class="text-[9px] font-bold text-slate-500 uppercase">📍 ${event.lokasi || '-'}</span>
+</div>
+</div>
+</div>`;
+lucide.createIcons();
+}
+// ✅ FIX: HAPUS DUPLIKASI CODE DI SINI (Line ~830-880)
+// Kode duplikasi sudah dihapus agar tidak konflik
+} else if(tab === 'surat') {
+list.innerHTML = `
+<div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 animate-up">
+<div class="text-center mb-6">
+<div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-3">
+<i data-lucide="file-text" class="w-7 h-7"></i>
+</div>
+<h3 class="font-extrabold text-sm uppercase tracking-tighter text-slate-800">Pengajuan Surat</h3>
+<p class="text-[9px] text-slate-400 font-bold uppercase mt-1">RW.01 Kebon Manggis</p>
+</div>
+<div class="space-y-4">
+<label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Jenis Surat</label>
+<input type="text" id="jenis-surat" placeholder="Contoh: Surat Pengantar Domisili" class="w-full bg-slate-50 p-4 rounded-2xl border border-slate-100 font-bold text-sm outline-none focus:border-emerald-500">
+<button onclick="kirimSurat()" class="w-full bg-emerald-600 text-white py-4 rounded-2xl font-bold uppercase text-xs btn-press flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 active:scale-95 transition-all">
+<i data-lucide="send" class="w-4 h-4"></i> Minta Tanda Tangan
+</button>
+</div>
+<p class="text-[8px] text-slate-400 text-center mt-4 font-bold uppercase">Pengajuan akan dikirim langsung ke WhatsApp Admin</p>
+</div>`;
+lucide.createIcons();
+} else if(tab === 'riwayat') {
+const { data, error } = await _supabase
+.from(TABLES.ABSENSI)
+.select('*')
+.eq('nama_warga', user.nama)
+.order('waktu_absen', { ascending: false });
+const myAbsen = data || [];
+list.innerHTML = `
+<div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
+<div id="qrcode"></div>
+<p class="text-[9px] font-black text-emerald-600 uppercase mt-3 tracking-widest">${user.username}</p>
+</div>
+${(user.jabatan.includes('Ketua') || user.jabatan.includes('Sekretaris') || user.jabatan === 'Admin') ? `
+<div class="bg-amber-50 p-4 rounded-3xl border border-amber-100 mb-6">
+<p class="text-[9px] font-black text-amber-700 uppercase mb-3">Menu Sekretariat</p>
+<button onclick="generateLaporanPDF()" class="w-full bg-amber-500 text-white py-3 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 shadow-lg shadow-amber-100">
+<i data-lucide="file-down" class="w-4 h-4"></i> Cetak Daftar Hadir Semua Warga
+</button>
+</div>` : ''}
+<h5 class="text-[10px] font-black uppercase text-slate-400 mb-3 px-2 flex items-center gap-2"><i data-lucide="clock" class="w-3 h-3"></i> Riwayat Absen Anda</h5>
+<div class="space-y-3">
+${myAbsen.length > 0 ? myAbsen.map(r => `
+<div class="bg-white p-4 rounded-3xl flex items-center gap-4 border border-slate-50">
+<img src="${r.photo_selfie_url}" class="w-12 h-12 object-cover rounded-xl" onclick="viewImage('${r.photo_selfie_url}', 'Bukti Hadir')">
+<div class="flex-1">
+<p class="font-black text-[10px] uppercase text-slate-800">${r.kegiatan_id}</p>
+<p class="text-[8px] text-slate-400 uppercase mt-1 font-bold">${new Date(r.waktu_absen).toLocaleString('id-ID')}</p>
+</div>
+<img src="${r.tanda_tangan_url}" class="w-10 h-10 object-contain opacity-50">
+</div>`).join('') : '<p class="text-center py-10 text-[10px] font-bold text-slate-400 uppercase">Belum ada riwayat absensi</p>'}
+</div>`;
+// ✅ FIXED: Tambahkan 'new' sebelum QRCode
+new QRCode(document.getElementById("qrcode"), {
+text: user.username,
+width: 120,
+height: 120,
+colorDark: "#059669",
+colorLight: "#ffffff",
+correctLevel: QRCode.CorrectLevel.H
+});
+}
+lucide.createIcons();
+} catch(err) {
+console.error(err);
+list.innerHTML = '<p class="text-center py-10 text-[10px] font-bold text-rose-400 uppercase">Gagal memuat data</p>';
+}
+}
 // ============================================
 // PDF GENERATOR - FIXED (PARAF COLUMN ONLY)
 // ============================================
 async function generateLaporanPDF() {
-  notify("Menyiapkan Dokumen...", "bg-blue-600");
-  
-  try {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // === 1. LOAD LOGO ===
-    const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
-    
-    const loadImage = (url) => {
-      return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          resolve(canvas.toDataURL('image/png'));
-        };
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
-    };
-    
-    const logoBase64 = await loadImage(logoUrl);
-    
-    // === 2. AMBIL DATA ABSENSI ===
-    const { data, error } = await _supabase
-      .from(TABLES.ABSENSI)
-      .select('*')
-      .order('waktu_absen', { ascending: false });
-    
-    if(error || !data) {
-      notify("Gagal memuat data absensi", "bg-rose-600");
-      return;
-    }
-    
-    // === 3. PRE-LOAD SEMUA TTD ===
-    const signatureCache = {};
-    
-    await Promise.all(data.map(async (row, index) => {
-      if(row.tanda_tangan_url && row.tanda_tangan_url !== '-' && row.tanda_tangan_url !== null) {
-        try {
-          const signatureBase64 = await loadImage(row.tanda_tangan_url);
-          signatureCache[index] = signatureBase64;
-        } catch(e) {
-          signatureCache[index] = null;
-        }
-      } else {
-        signatureCache[index] = null;
-      }
-    }));
-    
-    // === 4. HEADER ===
-    const addHeader = (pageNumber) => {
-      if(logoBase64 && pageNumber === 1) {
-        doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
-      }
-      
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(14).setFont("helvetica", "bold");
-      doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
-      
-      doc.setFontSize(9).setFont("helvetica", "normal");
-      doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
-      doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
-      
-      doc.setFontSize(8);
-      doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
-      
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.line(15, 38, 195, 38);
-      doc.setLineWidth(0.2);
-      doc.line(15, 40, 195, 40);
-      
-      if(pageNumber === 1) {
-        doc.setFontSize(12).setFont("helvetica", "bold");
-        doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
-        
-        const printDate = new Date().toLocaleString('id-ID', {
-          day: 'numeric', month: 'numeric', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        });
-        doc.setFontSize(8).setFont("helvetica", "normal");
-        doc.text(`Dicetak pada: ${printDate}`, 15, 56);
-      }
-    };
-    
-    // === 5. TABEL - HANYA 7 KOLOM (TANPA KOLOM KOSONG) ===
-    const tableBody = data.map((row, index) => [
-      index + 1,
-      row.nama_warga,
-      row.rt,
-      row.jabatan,
-      row.kegiatan_id,
-      new Date(row.waktu_absen).toLocaleDateString('id-ID', {
-        day: 'numeric', month: 'long', year: 'numeric'
-      }),
-      '' // Kolom PARAF (kosong, akan diisi gambar TTD)
-    ]);
-    
-    doc.autoTable({
-      startY: 60,
-      head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL', 'PARAF']],
-      body: tableBody,
-      
-      // === AUTO PAGINATION ===
-      pageBreak: 'auto',
-      margin: { top: 60, bottom: 30 },
-      
-      // === GRID SETTINGS ===
-      theme: 'grid',
-      tableLineColor: [200, 200, 200],
-      tableLineWidth: 0.2,
-      
-      headStyles: {
-        fillColor: [5, 150, 105],
-        textColor: 255,
-        fontStyle: 'bold',
-        halign: 'center',
-        fontSize: 8,
-        lineColor: [200, 200, 200],
-        lineWidth: 0.2
-      },
-      
-      alternateRowStyles: {
-        fillColor: [250, 250, 250]
-      },
-      
-      styles: {
-        fontSize: 7,
-        cellPadding: 2,
-        valign: 'middle',
-        lineColor: [200, 200, 200],
-        lineWidth: 0.2,
-        overflow: 'linebreak'
-      },
-      
-      // === HANYA 7 KOLOM - WIDTH DISUAIKAN ===
-      columnStyles: {
-        0: { halign: 'center', cellWidth: 13 },   // NO
-        1: { cellWidth: 35 },                      // NAMA
-        2: { halign: 'center', cellWidth: 12 },   // RT
-        3: { cellWidth: 30 },                      // JABATAN
-        4: { cellWidth: 50 },                      // KEGIATAN
-        5: { halign: 'left', cellWidth: 25 },     // TANGGAL
-        6: { halign: 'center', cellWidth: 20 }    // PARAF (untuk TTD)
-      },
-      
-      // === HEADER SETIAP HALAMAN ===
-      didDrawPage: (data) => {
-        addHeader(data.pageNumber);
-      },
-      
-      // === GAMBAR TTD HANYA DI BODY (BUKAN HEADER) ===
-      didDrawCell: (cellData) => {
-        // Gambar border cell
-        doc.setDrawColor(200, 200, 200);
-        doc.setLineWidth(0.2);
-        doc.rect(cellData.cell.x, cellData.cell.y, cellData.cell.width, cellData.cell.height);
-        
-        // ✅ FIX: Hanya draw TTD di kolom PARAF (index 6) DAN di body (bukan header)
-        if(cellData.column.index === 6 && cellData.section === 'body') {
-          const signatureBase64 = signatureCache[cellData.row.index];
-          
-          if(signatureBase64) {
-            // Hitung posisi tengah cell PARAF
-            const imgWidth = 14;   // Lebar gambar TTD
-            const imgHeight = 8;   // Tinggi gambar TTD
-            const x = cellData.cell.x + (cellData.cell.width - imgWidth) / 2;
-            const y = cellData.cell.y + (cellData.cell.height - imgHeight) / 2;
-            
-            // Gambar TTD di cell PARAF
-            doc.addImage(signatureBase64, 'PNG', x, y, imgWidth, imgHeight);
-          }
-        }
-      }
-    });
-    
-    // === 6. TANDA TANGAN (FOOTER - Hanya Halaman Terakhir) ===
-    const totalPages = doc.internal.getNumberOfPages();
-    doc.setPage(totalPages);
-    
-    const finalY = doc.lastAutoTable.finalY + 20;
-    
-    doc.setFontSize(9).setFont("helvetica", "normal");
-    doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', {
-      day: 'numeric', month: 'long', year: 'numeric'
-    })}`, 150, finalY);
-    
-    doc.text("Ketua RW.01,", 150, finalY + 6);
-    
-    doc.setFontSize(9).setFont("helvetica", "italic");
-    doc.text("Ditandatangani secara Digital", 150, finalY + 15);
-    
-    doc.setFontSize(10).setFont("helvetica", "bold");
-    doc.text("Abdul Khadir Abu", 150, finalY + 25);
-    
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.3);
-    doc.line(150, finalY + 27, 195, finalY + 27);
-    
-    // === 7. SAVE PDF ===
-    doc.save(`Laporan_RW01_${Date.now()}.pdf`);
-    notify("PDF Berhasil Diunduh!", "bg-emerald-600");
-    
-  } catch (err) {
-    console.error(err);
-    notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
-  }
+notify("Menyiapkan Dokumen...", "bg-blue-600");
+try {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+// === 1. LOAD LOGO ===
+const logoUrl = "https://kbzlgrpeerllbvpiyhpf.supabase.co/storage/v1/object/public/Logo/1746898459176.png";
+const loadImage = (url) => {
+return new Promise((resolve, reject) => {
+const img = new Image();
+img.crossOrigin = "Anonymous";
+img.onload = () => {
+const canvas = document.createElement('canvas');
+canvas.width = img.width;
+canvas.height = img.height;
+const ctx = canvas.getContext('2d');
+ctx.drawImage(img, 0, 0);
+resolve(canvas.toDataURL('image/png'));
+};
+img.onerror = () => resolve(null);
+img.src = url;
+});
+};
+const logoBase64 = await loadImage(logoUrl);
+// === 2. AMBIL DATA ABSENSI ===
+const { data, error } = await _supabase
+.from(TABLES.ABSENSI)
+.select('*')
+.order('waktu_absen', { ascending: false });
+if(error || !data) {
+notify("Gagal memuat data absensi", "bg-rose-600");
+return;
+}
+// === 3. PRE-LOAD SEMUA TTD ===
+const signatureCache = {};
+await Promise.all(data.map(async (row, index) => {
+if(row.tanda_tangan_url && row.tanda_tangan_url !== '-' && row.tanda_tangan_url !== null) {
+try {
+const signatureBase64 = await loadImage(row.tanda_tangan_url);
+signatureCache[index] = signatureBase64;
+} catch(e) {
+signatureCache[index] = null;
+}
+} else {
+signatureCache[index] = null;
+}
+}));
+// === 4. HEADER ===
+const addHeader = (pageNumber) => {
+if(logoBase64 && pageNumber === 1) {
+doc.addImage(logoBase64, 'PNG', 15, 10, 25, 25);
+}
+doc.setTextColor(0, 0, 0);
+doc.setFontSize(14).setFont("helvetica", "bold");
+doc.text("PENGURUS RUKUN WARGA 01 (RW.01)", 105, 18, { align: "center" });
+doc.setFontSize(9).setFont("helvetica", "normal");
+doc.text("Kelurahan Kebon Manggis, Kecamatan Matraman", 105, 24, { align: "center" });
+doc.text("Kota Administrasi Jakarta Timur", 105, 29, { align: "center" });
+doc.setFontSize(8);
+doc.text("Sistem Informasi Sinergi Digital RW.01", 105, 35, { align: "center" });
+doc.setDrawColor(0, 0, 0);
+doc.setLineWidth(0.5);
+doc.line(15, 38, 195, 38);
+doc.setLineWidth(0.2);
+doc.line(15, 40, 195, 40);
+if(pageNumber === 1) {
+doc.setFontSize(12).setFont("helvetica", "bold");
+doc.text("LAPORAN PRESENSI KEGIATAN", 105, 50, { align: "center" });
+const printDate = new Date().toLocaleString('id-ID', {
+day: 'numeric', month: 'numeric', year: 'numeric',
+hour: '2-digit', minute: '2-digit'
+});
+doc.setFontSize(8).setFont("helvetica", "normal");
+doc.text(`Dicetak pada: ${printDate}`, 15, 56);
+}
+};
+// === 5. TABEL - HANYA 7 KOLOM (TANPA KOLOM KOSONG) ===
+const tableBody = data.map((row, index) => [
+index + 1,
+row.nama_warga,
+row.rt,
+row.jabatan,
+row.kegiatan_id,
+new Date(row.waktu_absen).toLocaleDateString('id-ID', {
+day: 'numeric', month: 'long', year: 'numeric'
+}),
+'' // Kolom PARAF (kosong, akan diisi gambar TTD)
+]);
+doc.autoTable({
+startY: 60,
+head: [['NO', 'NAMA', 'RT', 'JABATAN', 'KEGIATAN', 'TANGGAL', 'PARAF']],
+body: tableBody,
+// === AUTO PAGINATION ===
+pageBreak: 'auto',
+margin: { top: 60, bottom: 30 },
+// === GRID SETTINGS ===
+theme: 'grid',
+tableLineColor: [200, 200, 200],
+tableLineWidth: 0.2,
+headStyles: {
+fillColor: [5, 150, 105],
+textColor: 255,
+fontStyle: 'bold',
+halign: 'center',
+fontSize: 8,
+lineColor: [200, 200, 200],
+lineWidth: 0.2
+},
+alternateRowStyles: {
+fillColor: [250, 250, 250]
+},
+styles: {
+fontSize: 7,
+cellPadding: 2,
+valign: 'middle',
+lineColor: [200, 200, 200],
+lineWidth: 0.2,
+overflow: 'linebreak'
+},
+// === HANYA 7 KOLOM - WIDTH DISUAIKAN ===
+columnStyles: {
+0: { halign: 'center', cellWidth: 13 },   // NO
+1: { cellWidth: 35 },                      // NAMA
+2: { halign: 'center', cellWidth: 12 },   // RT
+3: { cellWidth: 30 },                      // JABATAN
+4: { cellWidth: 50 },                      // KEGIATAN
+5: { halign: 'left', cellWidth: 25 },     // TANGGAL
+6: { halign: 'center', cellWidth: 20 }    // PARAF (untuk TTD)
+},
+// === HEADER SETIAP HALAMAN ===
+didDrawPage: (data) => {
+addHeader(data.pageNumber);
+},
+// === GAMBAR TTD HANYA DI BODY (BUKAN HEADER) ===
+didDrawCell: (cellData) => {
+// Gambar border cell
+doc.setDrawColor(200, 200, 200);
+doc.setLineWidth(0.2);
+doc.rect(cellData.cell.x, cellData.cell.y, cellData.cell.width, cellData.cell.height);
+// ✅ FIX: Hanya draw TTD di kolom PARAF (index 6) DAN di body (bukan header)
+if(cellData.column.index === 6 && cellData.section === 'body') {
+const signatureBase64 = signatureCache[cellData.row.index];
+if(signatureBase64) {
+// Hitung posisi tengah cell PARAF
+const imgWidth = 14;   // Lebar gambar TTD
+const imgHeight = 8;   // Tinggi gambar TTD
+const x = cellData.cell.x + (cellData.cell.width - imgWidth) / 2;
+const y = cellData.cell.y + (cellData.cell.height - imgHeight) / 2;
+// Gambar TTD di cell PARAF
+doc.addImage(signatureBase64, 'PNG', x, y, imgWidth, imgHeight);
+}
+}
+}
+});
+// === 6. TANDA TANGAN (FOOTER - Hanya Halaman Terakhir) ===
+const totalPages = doc.internal.getNumberOfPages();
+doc.setPage(totalPages);
+const finalY = doc.lastAutoTable.finalY + 20;
+doc.setFontSize(9).setFont("helvetica", "normal");
+doc.text(`Jakarta, ${new Date().toLocaleDateString('id-ID', {
+day: 'numeric', month: 'long', year: 'numeric'
+})}`, 150, finalY);
+doc.text("Ketua RW.01,", 150, finalY + 6);
+doc.setFontSize(9).setFont("helvetica", "italic");
+doc.text("Ditandatangani secara Digital", 150, finalY + 15);
+doc.setFontSize(10).setFont("helvetica", "bold");
+doc.text("Abdul Khadir Abu", 150, finalY + 25);
+doc.setDrawColor(0, 0, 0);
+doc.setLineWidth(0.3);
+doc.line(150, finalY + 27, 195, finalY + 27);
+// === 7. SAVE PDF ===
+doc.save(`Laporan_RW01_${Date.now()}.pdf`);
+notify("PDF Berhasil Diunduh!", "bg-emerald-600");
+} catch (err) {
+console.error(err);
+notify("Gagal membuat PDF: " + err.message, "bg-rose-600");
+}
 }
 // ============================================
 // KIRIM SURAT (WHATSAPP DIRECT)
 // ============================================
 function kirimSurat() {
-  const jenis = document.getElementById('jenis-surat').value;
-  const user = JSON.parse(localStorage.getItem('user'));
-  
-  if(!jenis) return alert("Isi jenis surat!");
-  
-  const msg = encodeURIComponent(`Halo Admin RW.01, saya ${user.nama} (${user.rt}) ingin mengajukan: ${jenis}. Mohon bantuannya.`);
-  window.open(`https://wa.me/628812558415?text=${msg}`, '_blank');
-  
-  notify("Mengarahkan ke WhatsApp...", "bg-emerald-600");
+const jenis = document.getElementById('jenis-surat').value;
+const user = JSON.parse(localStorage.getItem('user'));
+if(!jenis) return alert("Isi jenis surat!");
+const msg = encodeURIComponent(`Halo Admin RW.01, saya ${user.nama} (${user.rt}) ingin mengajukan: ${jenis}. Mohon bantuannya.`);
+window.open(`https://wa.me/628812558415?text=${msg}`, '_blank');
+notify("Mengarahkan ke WhatsApp...", "bg-emerald-600");
 }
-
 // ============================================
 // AUTHENTICATION
 // ============================================
 document.getElementById('form-login').onsubmit = async (e) => {
-  e.preventDefault();
-  const u = document.getElementById('login-user').value;
-  const p = document.getElementById('login-pass').value;
-  
-  if (u === 'sekretaris' && p === 'adminrw01') {
-    localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
-    window.location.href = 'admin.html';
-    return;
-  }
-  
-  notify("Memverifikasi Akun...", "bg-blue-600");
-  try {
-    const { data, error } = await _supabase
-      .from(TABLES.USERS)
-      .select('*')
-      .eq('username', u)
-      .eq('password', p)
-      .single();
-    
-    if(data && !error) {
-      localStorage.setItem('user', JSON.stringify(data));
-      data.jabatan === 'Admin' ? window.location.href='admin.html' : location.reload();
-    } else {
-      notify("Username/Password Salah!", "bg-rose-600");
-    }
-  } catch (err) {
-    notify("Kesalahan Server", "bg-rose-600");
-  }
+e.preventDefault();
+const u = document.getElementById('login-user').value;
+const p = document.getElementById('login-pass').value;
+if (u === 'sekretaris' && p === 'adminrw01') {
+localStorage.setItem('user', JSON.stringify({nama:"Admin RW", jabatan:"Admin", username:"sekretaris", rt:"01"}));
+window.location.href = 'admin.html';
+return;
+}
+notify("Memverifikasi Akun...", "bg-blue-600");
+try {
+const { data, error } = await _supabase
+.from(TABLES.USERS)
+.select('*')
+.eq('username', u)
+.eq('password', p)
+.single();
+if(data && !error) {
+localStorage.setItem('user', JSON.stringify(data));
+data.jabatan === 'Admin' ? window.location.href='admin.html' : location.reload();
+} else {
+notify("Username/Password Salah!", "bg-rose-600");
+}
+} catch (err) {
+notify("Kesalahan Server", "bg-rose-600");
+}
 };
-
 document.getElementById('form-register').onsubmit = async (e) => {
-  e.preventDefault();
-  const rawJabatan = document.getElementById('reg-kategori').value;
-  const subJab = document.getElementById('reg-sub-jabatan').value;
-  const detMan = document.getElementById('reg-detail-manual').value;
-  
-  const payload = {
-    nama: document.getElementById('reg-nama').value,
-    rt: document.getElementById('reg-rt').value,
-    nomor_hp: document.getElementById('reg-hp').value,
-    username: document.getElementById('reg-user').value,
-    password: document.getElementById('reg-pass').value,
-    jabatan: subJab ? `${rawJabatan} (${subJab})` : rawJabatan,
-    keterangan: detMan || "-"
-  };
-  
-  notify("Mendaftarkan...", "bg-blue-600");
-  try {
-    const { data, error } = await _supabase
-      .from(TABLES.USERS)
-      .insert(payload)
-      .select()
-      .single();
-    
-    if(data && !error) {
-      notify("Pendaftaran Berhasil!");
-      setTimeout(()=>showPage('page-login'), 1500);
-    } else {
-      notify("Gagal Daftar: " + error.message, "bg-rose-600");
-    }
-  } catch (err) {
-    notify("Gagal Daftar!", "bg-rose-600");
-  }
+e.preventDefault();
+const rawJabatan = document.getElementById('reg-kategori').value;
+const subJab = document.getElementById('reg-sub-jabatan').value;
+const detMan = document.getElementById('reg-detail-manual').value;
+const payload = {
+nama: document.getElementById('reg-nama').value,
+rt: document.getElementById('reg-rt').value,
+nomor_hp: document.getElementById('reg-hp').value,
+username: document.getElementById('reg-user').value,
+password: document.getElementById('reg-pass').value,
+jabatan: subJab ? `${rawJabatan} (${subJab})` : rawJabatan,
+keterangan: detMan || "-"
 };
-
+notify("Mendaftarkan...", "bg-blue-600");
+try {
+const { data, error } = await _supabase
+.from(TABLES.USERS)
+.insert(payload)
+.select()
+.single();
+if(data && !error) {
+notify("Pendaftaran Berhasil!");
+setTimeout(()=>showPage('page-login'), 1500);
+} else {
+notify("Gagal Daftar: " + error.message, "bg-rose-600");
+}
+} catch (err) {
+notify("Gagal Daftar!", "bg-rose-600");
+}
+};
 // ============================================
 // IMAGE VIEWER
 // ============================================
 function toggleZoom(el) {
-  if (el.style.transform === "scale(2)") {
-    el.style.transform = "scale(1)";
-    el.classList.replace('cursor-zoom-out', 'cursor-zoom-in');
-  } else {
-    el.style.transform = "scale(2)";
-    el.classList.replace('cursor-zoom-in', 'cursor-zoom-out');
-  }
+if (el.style.transform === "scale(2)") {
+el.style.transform = "scale(1)";
+el.classList.replace('cursor-zoom-out', 'cursor-zoom-in');
+} else {
+el.style.transform = "scale(2)";
+el.classList.replace('cursor-zoom-in', 'cursor-zoom-out');
 }
-
+}
 function viewImage(url, caption) {
-  const img = document.getElementById('full-image');
-  img.src = url;
-  img.style.transform = "scale(1)";
-  document.getElementById('image-caption').innerText = caption;
-  document.getElementById('image-viewer').classList.remove('hidden');
-  document.getElementById('image-viewer').classList.add('flex');
-  lucide.createIcons();
+const img = document.getElementById('full-image');
+img.src = url;
+img.style.transform = "scale(1)";
+document.getElementById('image-caption').innerText = caption;
+document.getElementById('image-viewer').classList.remove('hidden');
+document.getElementById('image-viewer').classList.add('flex');
+lucide.createIcons();
 }
-
 function closeImageViewer() {
-  document.getElementById('image-viewer').classList.add('hidden');
+document.getElementById('image-viewer').classList.add('hidden');
 }
-
 // ============================================
 // ABSENSI
 // ============================================
 function bukaAbsen(judul) {
-  document.getElementById('abs-kegiatan-id').value = judul;
-  document.getElementById('modal-absen').classList.remove('hidden');
-  const canvas = document.getElementById('canvas-ttd');
-  canvas.width = canvas.offsetWidth;
-  signaturePad = new SignaturePad(canvas);
+document.getElementById('abs-kegiatan-id').value = judul;
+document.getElementById('modal-absen').classList.remove('hidden');
+const canvas = document.getElementById('canvas-ttd');
+canvas.width = canvas.offsetWidth;
+signaturePad = new SignaturePad(canvas);
 }
-
 document.getElementById('form-submit-absen').onsubmit = async (e) => {
-  e.preventDefault();
-  const user = JSON.parse(localStorage.getItem('user'));
-  const file = document.getElementById('abs-selfie').files[0];
-  
-  if(!file || signaturePad.isEmpty()) return alert("Foto Selfie dan TTD Wajib!");
-  
-  notify("Mengirim Absensi...", "bg-blue-600");
-  try {
-    const fileName = `absen_${Date.now()}.jpg`;
-    const { error: uploadError } = await _supabase.storage
-      .from('media-sinergi')
-      .upload(`absen/${fileName}`, file);
-    
-    if(uploadError) throw uploadError;
-    
-    const { data: dFoto } = _supabase.storage
-      .from('media-sinergi')
-      .getPublicUrl(`absen/${fileName}`);
-    
-    const payload = {
-      nama_warga: user.nama,
-      rt: user.rt,
-      jabatan: user.jabatan,
-      waktu_absen: new Date().toISOString(),
-      kegiatan_id: document.getElementById('abs-kegiatan-id').value,
-      photo_selfie_url: dFoto.publicUrl,
-      tanda_tangan_url: signaturePad.toDataURL()
-    };
-    
-    const { error: insertError } = await _supabase
-      .from(TABLES.ABSENSI)
-      .insert(payload);
-    
-    if(insertError) throw insertError;
-    
-    notify("Absensi Berhasil Terkirim ✓");
-    document.getElementById('modal-absen').classList.add('hidden');
-    switchTabWarga('riwayat');
-  } catch (err) {
-    notify("Gagal Mengirim: " + err.message, "bg-rose-600");
-  }
+e.preventDefault();
+const user = JSON.parse(localStorage.getItem('user'));
+const file = document.getElementById('abs-selfie').files[0];
+if(!file || signaturePad.isEmpty()) return alert("Foto Selfie dan TTD Wajib!");
+notify("Mengirim Absensi...", "bg-blue-600");
+try {
+const fileName = `absen_${Date.now()}.jpg`;
+const { error: uploadError } = await _supabase.storage
+.from('media-sinergi')
+.upload(`absen/${fileName}`, file);
+if(uploadError) throw uploadError;
+const { data: dFoto } = _supabase.storage
+.from('media-sinergi')
+.getPublicUrl(`absen/${fileName}`);
+const payload = {
+nama_warga: user.nama,
+rt: user.rt,
+jabatan: user.jabatan,
+waktu_absen: new Date().toISOString(),
+kegiatan_id: document.getElementById('abs-kegiatan-id').value,
+photo_selfie_url: dFoto.publicUrl,
+tanda_tangan_url: signaturePad.toDataURL()
 };
-
+const { error: insertError } = await _supabase
+.from(TABLES.ABSENSI)
+.insert(payload);
+if(insertError) throw insertError;
+notify("Absensi Berhasil Terkirim ✓");
+document.getElementById('modal-absen').classList.add('hidden');
+switchTabWarga('riwayat');
+} catch (err) {
+notify("Gagal Mengirim: " + err.message, "bg-rose-600");
+}
+};
 // ============================================
 // LOGOUT
 // ============================================
 function logout() {
-  localStorage.clear();
-  location.reload();
+localStorage.clear();
+location.reload();
 }
-
 // ============================================
 // INIT
 // ============================================
 window.onload = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
-  if(user) {
-    if(user.jabatan === 'Admin') {
-      window.location.href = 'admin.html';
-    } else {
-      showPage('page-user');
-      document.getElementById('kartu-nama').innerText = user.nama;
-      document.getElementById('kartu-jabatan').innerText = user.jabatan;
-      document.getElementById('kartu-rt').innerText = user.rt;
-      updateLiveTime();
-      loadRunningText();
-      switchTabWarga('pengumuman');
-    }
-  }
-  lucide.createIcons();
+const user = JSON.parse(localStorage.getItem('user'));
+if(user) {
+if(user.jabatan === 'Admin') {
+window.location.href = 'admin.html';
+} else {
+showPage('page-user');
+document.getElementById('kartu-nama').innerText = user.nama;
+document.getElementById('kartu-jabatan').innerText = user.jabatan;
+document.getElementById('kartu-rt').innerText = user.rt;
+updateLiveTime();
+loadRunningText();
+switchTabWarga('pengumuman');
+}
+}
+lucide.createIcons();
 };
-
+// ============================================
+// ✅ PWA SERVICE WORKER REGISTRATION (FIXED PATH)
+// ============================================
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('✅ PWA Service Worker terdaftar!', reg.scope))
-      .catch(err => console.error('❌ PWA Service Worker gagal:', err));
-  });
+window.addEventListener('load', () => {
+// ✅ FIX: ./sw.js → /sw.js
+navigator.serviceWorker.register('/sw.js')
+.then(reg => console.log('✅ PWA Service Worker terdaftar!', reg.scope))
+.catch(err => console.error('❌ PWA Service Worker gagal:', err));
+});
 }
 </script>
 </body>
