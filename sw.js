@@ -1,50 +1,48 @@
-const CACHE_NAME = 'sinergi-rw01-v1';
-const urlsToCache = [
-  '/',
-  '/index.html',
-  '/admin.html',
-  '/manifest.json',
+const CACHE_NAME = 'sinergi01-cache-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
-  'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-  'https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js'
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
-// Install Service Worker
-self.addEventListener('install', event => {
+// Tahap Install: Menyimpan aset dasar ke dalam cache
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
+  self.skipWaiting();
 });
 
-// Activate Service Worker
-self.addEventListener('activate', event => {
+// Tahap Aktivasi: Menghapus cache lama jika ada update
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
           }
         })
       );
     })
   );
+  return self.clients.claim();
 });
 
-// Fetch from cache or network
-self.addEventListener('fetch', event => {
+// Strategi Fetch: Mencoba ambil dari internet, jika gagal (offline) ambil dari cache
+self.addEventListener('fetch', (event) => {
+  // Hanya handle request GET (tidak mengganggu upload data ke Supabase)
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+    fetch(event.request)
+      .catch(() => {
+        return caches.match(event.request);
       })
   );
 });
