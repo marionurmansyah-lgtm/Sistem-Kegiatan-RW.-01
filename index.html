@@ -659,7 +659,7 @@ const { data, error } = await _supabase
 .from(TABLES.ABSENSI)
 .select('*')
 .eq('nama_warga', user.nama)
-.order('waktu_absen', { ascending: false });
+.order('waktu_absen', { descending: false });
 const myAbsen = data || [];
 list.innerHTML = `
 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm mb-4 flex flex-col items-center">
@@ -732,7 +732,7 @@ const logoBase64 = await loadImage(logoUrl);
 const { data, error } = await _supabase
 .from(TABLES.ABSENSI)
 .select('*')
-.order('waktu_absen', { ascending: false });
+.order('waktu_absen', { descending: false });
 if(error || !data) {
 notify("Gagal memuat data absensi", "bg-rose-600");
 return;
